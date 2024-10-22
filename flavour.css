@@ -23,7 +23,7 @@ body{
   position: absolute;  /* Position on top of the image */
   top: 50%;  /* Center vertically (adjust as needed) */
   left: 50%;  /* Center horizontally (adjust as needed) */
-  transform: translate(-50%, -50%);  /* Center based on element size */
+  /*transform: translate(-50%, -50%);  /* Center based on element size */
   color: white;  /* Adjust text color for visibility */
   text-align: center;  /* Center text horizontally */
   font-family: Libre Baskerville;
