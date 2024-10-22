@@ -1,0 +1,269 @@
+img{ /*Selects all images that will be present in the connected HTML document and add a double border with the presented color*/
+	border-style: double;
+	border-color: #610000;
+}
+
+body{ /*Changes the background of the enitre website in this case being the one presented while also disabling the x scrollbar*/
+	background-color: #191818;
+	overflow-x: hidden;
+	/*overflow-y: hidden;*/
+
+}
+
+.ZEDF:link{ /*Talking about the link also identifieed as ZEDF is making the color change to the one presented*/
+	color: #191818;
+}
+.ZEDF:visited{ /*also about the ZEDF link which changes the color if the site is visited*/
+	color: #191818;
+}
+.ZEDF:hover{ /*if the ZEDF website is hovered over with the mouse then the color will change*/
+	color: #610000;
+}
+.ZEDF:active{ /*if the webite is activated also known as clicked on then the color will change to the one presented*/
+	color: #FFE3CF;
+}
+
+.containerImage{ 
+	width: 100%;
+}
+
+.centered{
+	font-size: 100px;
+	text-shadow: 2px 4px 4px #475925;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.middle{
+	position: absolute;
+	top: 75%;
+	left: 50%;
+}
+
+.navLinks{
+	color: white;
+	text-align: center;
+	background: #610000;
+}
+
+.aboutMeTitle{
+	color: white;
+	text-align: center;
+	text-decoration: underline;
+	font-size: 50px;
+}
+
+.LaboutMeInformationTitle{
+	font-size: 25px;
+	text-decoration: underline;
+	padding-bottom: 8px;
+}
+
+.LaboutMeInformation{
+	color: White;
+	float: left;
+	padding-left: 20%;
+}
+
+.aboutMeInformationInfo{
+	padding-bottom: 8px;
+}
+
+.aboutMePhoto{
+	position: absolute;
+	left: 40%;
+}
+
+.RaboutMeInformationTitle{
+	font-size: 25px;
+	text-decoration: underline;
+	padding-bottom: 8px;
+}
+
+.RaboutMeInformation{
+	color: White;
+	float: left;
+	padding-left: 23%;
+}
+
+.break{
+	margin-top: 420px;
+	border: 1px solid #610000;
+}
+
+.breakInfo{
+	color: white;
+	text-align: center;
+}
+
+/* Slideshow container */
+.quotes {
+	position: relative;
+	background: #191818;
+}
+
+/* Slides */
+.horses {
+	display: none;
+	padding: 80px;
+	text-align: center;
+}
+
+.quote{
+	color: white;
+}
+
+/* Next & previous buttons */
+.prev, .next {
+	cursor: pointer;
+	position: absolute;
+	top: 50%;
+	width: auto;
+	margin-top: -10px;
+	padding: 16px;
+	color: #888;
+	font-weight: bold;
+	font-size: 20px;
+	border-radius: 0 3px 3px 0;
+	user-select: none;
+}
+
+/* Position the "next button" to the right */
+.next {
+	position: absolute;
+	right: 0;
+	border-radius: 3px 0 0 3px;
+}
+
+/* On hover, add a black background color with a little bit see-through */
+.prev:hover, .next:hover {
+	background-color: rgba(0,0,0,0.8);
+	color: white;
+}
+
+/* The dot/bullet/indicator container */
+.amount {
+	text-align: center;
+	padding: 10px;
+	background: black;
+}
+
+/* The dots/bullets/indicators */
+.dot {
+	cursor: pointer;
+	height: 15px;
+	width: 15px;
+	margin: 0 2px;
+	background-color: #bbb;
+	border-radius: 50%;
+	display: inline-block;
+	transition: background-color 0.6s ease;
+}
+
+/* Add a background color to the active dot/circle */
+.active, .dot:hover {
+	background-color: #717171;
+}
+
+/* Add an italic font style to all quotes */
+q {font-style: italic;}
+
+/* Add a blue color to the author */
+.author {color: gray;}
+
+.WallpapersTitle{
+	color: white;
+	text-align: center;
+	text-decoration: underline;
+}
+
+.WallpapersInformation1{
+	color: white;
+	text-align: center;
+	position: relative;
+	top: -5px;
+}
+
+.WallpapersInformation2{
+	color: white;
+	text-align: center;
+	position: relative;
+	top: -15px;
+}
+
+.WallpapersWorkshop{
+	text-decoration: none;
+	color: white;
+	border-style: solid;
+	border-width: 2px;
+	border-color: black;
+	background: black; 
+}
+
+.WallpapersExample{
+  width: 100%;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.WallpapersExample img{
+  max-width: 100%;
+  opacity: .2;
+  transition: opacity .5s;
+}
+.WallpapersExample-ease img{
+    transition: opacity .5s ease-in-out;
+}
+.WallpapersExample img:hover{
+  opacity: 1;
+}
+
+.container{
+	position: relative;
+}
+
+.WallpapersExampleTextCenter{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: white;
+}
+
+/*test*/
+
+.gif-hover {
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+.gif-hover:hover {
+  opacity: 1;
+  background-image: url(my-gif-first-frame.png);
+  background-size: cover;
+  animation-play-state: resume;
+}
+
+.gif-hover:not(:hover) {
+  opacity: 0.5;
+  animation-play-state: paused;
+}
+
+#videosList {
+ max-width: 600px; 
+  overflow: hidden;
+}
+
+.video {
+  background-image: 'test-image.png';
+  height: 1917px;
+  width: 316px;
+  margin-bottom: 50px;
+}
+
+/* Hide Play button + controls on iOS */
+video::-webkit-media-controls {
+    display:none !important;
+}
