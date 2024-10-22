@@ -534,10 +534,15 @@ img {vertical-align: middle;}
   text-decoration: none;
 }
 
-#Mast, #Steam, #Git, #Spot, #Insta1, #Insta2, #X1, #X2, #YT1, #YT2, #AniList, #Lett, #Monk{
+#Mast, #Steam, #Git, #Spot, #Insta1, #Insta2, #X1, #X2, #YT1, #YT2, #AniList, #Lett, #Monk, #Stats{
   background-repeat: no-repeat;
   background-size: cover;
   border-style: solid;
+}
+
+#Stats{
+  background-image: url("images/Socials/StatsfmProfile.png");
+  border-color: green;
 }
 
 #Monk{
