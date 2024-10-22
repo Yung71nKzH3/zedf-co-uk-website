@@ -1,0 +1,30 @@
+.greeting{
+    background-color: #808080;
+    padding: 10px;
+}
+
+.heading{
+    color: white;
+    font-family: "Baskerville", serif;
+    font-weight: bold;
+    text-align: center;
+}
+
+.headingtext{
+    color: white;
+    font-family: "Baskerville", serif;
+    text-align: center;
+}
+
+a{
+    color: darkred;
+}
+
+body{
+    background-color: black;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+

@@ -1,0 +1,58 @@
+body {
+  background-image: url(https://www.teahub.io/photos/full/307-3070565_94-2560-x-1440-wallpaper-black-black-and..jpg);
+}
+
+h1 {
+  text-decoration: underline;
+  text-align: center;
+  text-decoration-color: red;
+  font-size: 25px;
+  background: -webkit-linear-gradient(#d90db7, #36062e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+p {
+  font-size: 15px;
+  text-align: center;
+}
+
+.all {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.container {
+  position: relative;
+}
+
+.image {
+  opacity: 1;
+  transition: .5s ease;
+  backface-visibility: hidden;
+}
+
+.middle {
+  transition: .5s ease;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.container:hover .image {
+  opacity: 0.3;
+}
+
+.container:hover .middle {
+  opacity: 1;
+}
+
+img {
+  border: 5px solid red;
+  margin-left: 43.5%;
+}
