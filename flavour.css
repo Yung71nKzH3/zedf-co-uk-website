@@ -5,6 +5,8 @@
     background-color: black;
     font-size: 16px;
     margin: 0;
+    border-style: none double none double;
+    border-color: darkred;
   }
 
   footer {
