@@ -767,10 +767,12 @@
     #SitemapTitle{
       font-family: Libre Baskerville;
       margin-top: 0;
+      padding-top: 1%;
     }
 
     #SitemapEndTitle{
       margin-bottom: 0;
+      padding-bottom: 1%;
     }
   
   /*ZF - Test*/
