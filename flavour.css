@@ -21,7 +21,7 @@
     border-color: darkred;
   }
 
-  p{
+  p, h1, h2, h3{
     color: white;
   }
 
@@ -322,7 +322,7 @@
       }
       
       .ender{
-        text-align: center;
+        text-align: center; /*Create overall class for centered text*/
       }
 
 
@@ -333,7 +333,7 @@
         }
         
         .tytitle{
-          text-align: center;
+          text-align: center; /*Create overall class for centered text*/
         }
         
         .tycontainer{
@@ -371,7 +371,7 @@
         }
         
         .backer{
-          text-align: center;
+          text-align: center; /*Create overall class for centered text*/
         }
 
   /*ZF - About*/
@@ -534,7 +534,7 @@
     /*ZF - Quotes*/
 
       .QuoteTitle{
-        text-align: center;
+        text-align: center; /*Create overall class for centered text*/
       }
       
       .QuoteTitle h1{
@@ -753,10 +753,20 @@
       margin: 0 auto;
     }
 
+  /*ZF - Sitemap*/
+
+    .MiddleText{ /*TRANSFER THIS TO TOTAL CLASS FOR DOMAIN USE*/
+      text-align: center;
+    }
+
+    #SitemapTitle{
+      font-family: Libre Baskerville;
+    }
+  
   /*ZF - Test*/
 
     .TestTitle{
-      text-align: center;
+      text-align: center; /*Create overall class for centered text*/
       color: white;
       font-family: Libre Baskerville;
     }
