@@ -672,12 +672,17 @@
     text-decoration: none;
   }
   
-  #Mast, #Steam, #Git, #Spot, #Insta1, #Insta2, #X1, #X2, #YT1, #YT2, #AniList, #Lett, #Monk, #Stats{
+  #Mast, #Steam, #Git, #Spot, #Insta1, #Insta2, #X1, #X2, #YT1, #YT2, #AniList, #Lett, #Monk, #Stats, #AllT{
     background-repeat: no-repeat;
     background-size: cover;
     border-style: solid;
   }
   
+  #AllT{
+    background-image: url("images/Socials/AllTrailBanner.png");
+    border-color: green;
+  }
+
   #Stats{
     background-image: url("images/Socials/StatsfmProfile.png");
     border-color: green;
