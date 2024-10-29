@@ -5,8 +5,6 @@
     background-color: black;
     font-size: 16px;
     margin: 0;
-    border-style: none double none double;
-    border-color: darkred;
   }
 
   footer {
@@ -768,6 +766,11 @@
 
     #SitemapTitle{
       font-family: Libre Baskerville;
+      margin-top: 0;
+    }
+
+    #SitemapEndTitle{
+      margin-bottom: 0;
     }
   
   /*ZF - Test*/
