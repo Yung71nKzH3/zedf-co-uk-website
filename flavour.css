@@ -37,6 +37,10 @@
     border: 0;
   }
 
+  .MiddleText{
+    text-align: center;
+  }
+
   /*ZF - Index*/
 
     .opener{
@@ -324,20 +328,11 @@
       .BlogMainText p{
         color: white;
       }
-      
-      .ender{
-        text-align: center; /*Create overall class for centered text*/
-      }
-
 
       /*ZF - ty*/
 
         .tymain{
           border-style: none;
-        }
-        
-        .tytitle{
-          text-align: center; /*Create overall class for centered text*/
         }
         
         .tycontainer{
@@ -372,10 +367,6 @@
         
         .gal{
           color: pink;
-        }
-        
-        .backer{
-          text-align: center; /*Create overall class for centered text*/
         }
 
   /*ZF - About*/
@@ -536,10 +527,6 @@
       }
 
     /*ZF - Quotes*/
-
-      .QuoteTitle{
-        text-align: center; /*Create overall class for centered text*/
-      }
       
       .QuoteTitle h1{
         margin-top: 0;
@@ -764,10 +751,6 @@
 
   /*ZF - Sitemap*/
 
-    .MiddleText{ /*TRANSFER THIS TO TOTAL CLASS FOR DOMAIN USE*/
-      text-align: center;
-    }
-
     #SitemapTitle{
       font-family: Libre Baskerville;
       margin-top: 0;
@@ -782,7 +765,6 @@
   /*ZF - Test*/
 
     .TestTitle{
-      text-align: center; /*Create overall class for centered text*/
       color: white;
       font-family: Libre Baskerville;
     }
