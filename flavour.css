@@ -33,6 +33,10 @@
     color: darkred;
   }
 
+  .NoBorder{
+    border: 0;
+  }
+
   /*ZF - Index*/
 
     .opener{
