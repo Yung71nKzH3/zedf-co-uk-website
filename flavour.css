@@ -46,6 +46,8 @@
     .opener{
       max-width: 100%;
       display: flex;
+      justify-content: center;
+      align-items: center;
       border-color: darkred;
       border-style: double;
     }
@@ -56,10 +58,6 @@
     }
 
     .bgimagetxt{
-      position: absolute;  /* Position on top of the image */
-      top: 50%;  /* Center vertically (adjust as needed) */
-      left: 50%;  /* Center horizontally (adjust as needed) */
-
       color: white;  /* Adjust text color for visibility */
       text-align: center;  /* Center text horizontally */
       font-family: Libre Baskerville;
