@@ -446,7 +446,7 @@
     }
     
     .bold{
-      color: darkred;
+      color: red;
     }
 
   /*ZF - Stuff*/
@@ -586,6 +586,10 @@
 
     /*ZF - Uni*/
 
+      .Attention{
+        color: yellow;
+      }
+
       .UoPLogo{
         display: block;
         margin: 0 auto;
@@ -609,11 +613,20 @@
       .StatusExp{
         color: white;
         text-align: center;
+        padding: 5px;
         margin-top: 0;
         margin-bottom: 0; 
       }
 
   /*ZF - Socials*/
+
+  #AllTrailsUserTxtColour{
+    color: black;
+  }
+
+  #YT1NameTxtColour{
+    color: black;
+  }
 
   .scSocialPer{
     max-width: 100vw;
