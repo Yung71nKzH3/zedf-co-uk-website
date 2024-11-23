@@ -558,6 +558,7 @@
       
       .QuoteContainer{
         margin: 0 auto;
+        margin-bottom: 1%;
         width: 90%;
         background-color: #333;
         border: ridge;
@@ -582,6 +583,13 @@
         text-align: center;
         margin: 0;
         padding-bottom: 1%;
+      }
+      
+      .QuoteAuthor{
+        font-style: italic;
+        font-size: 0.8em;
+        margin-bottom: 5px;
+        text-align: right;
       }
 
     /*ZF - Uni*/
@@ -677,10 +685,15 @@
     text-decoration: none;
   }
   
-  #Mast, #Steam, #Git, #Spot, #Insta1, #Insta2, #X1, #X2, #YT1, #YT2, #AniList, #Lett, #Monk, #Stats, #AllT{
+  #Mast, #Steam, #Git, #Spot, #Insta1, #Insta2, #X1, #X2, #YT1, #YT2, #AniList, #Lett, #Monk, #Stats, #AllT, #KeyBr{
     background-repeat: no-repeat;
     background-size: cover;
     border-style: solid;
+  }
+
+  #KeyBr{
+    background-image: url("images/Socials/keybr_bg.png");
+    border-color: gray;
   }
   
   #AllT{
