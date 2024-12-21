@@ -353,7 +353,7 @@
           flex-wrap: wrap;
         }
         
-        .brick{
+        .brick, .brick2{
           width: fit-content;
           height: fit-content;
           background-color: #444;
@@ -367,9 +367,11 @@
           font-size: 1.2rem;
           margin: 0;
         }
-        
-        .gal{
+
+        .brick2 p{
           color: pink;
+          font-size: 1.2rem;
+          margin: 0;
         }
 
   /*ZF - About*/
