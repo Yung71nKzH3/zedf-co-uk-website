@@ -331,6 +331,26 @@
         color: white;
       }
 
+      sup a {
+        position: relative;
+        font-size: 0.8em; 
+        text-decoration: none; 
+      }
+
+      #footnotes {
+        margin-top: 2em;
+        font-size: 0.8em;
+      }
+
+      #footnotes ol {
+        list-style-type: decimal;
+        margin-left: 1em;
+      }
+
+      #footnotes li {
+        margin-bottom: 0.5em;
+      }
+
       /*ZF - ty*/
 
         .tymain{
@@ -806,30 +826,6 @@
     
     .TestTitle h1{
       margin-top: 0;
-    }
-
-    /* Style for footnote references */
-    sup a {
-      position: relative;
-      top: -0.5em; /* Adjust as needed for superscript effect */
-      font-size: 0.8em; 
-      text-decoration: none; 
-    }
-
-    /* Style for the footnotes section */
-    #footnotes {
-      margin-top: 2em;
-      font-size: 0.8em;
-    }
-
-    /* Style for individual footnotes */
-    #footnotes ol {
-      list-style-type: decimal;
-      margin-left: 1em;
-    }
-
-    #footnotes li {
-      margin-bottom: 0.5em;
     }
 
 /**/
