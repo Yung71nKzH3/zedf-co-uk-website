@@ -264,17 +264,25 @@
         align-items: center;
         padding-top: 1%;
         padding-bottom: 1%;
-        position: relative;
       }
 
-      .BlogBoxmedial{
+      .BlogImageLeft, .BlogImageRight{
         position: absolute;
-        left: 10%;
+        max-width: 23%;
+        border-style: groove;
+        border: red;
+        border-width: 2px;
+        margin: 0 auto;
       }
 
-      .BlogBoxmediar{
-        position: absolute;
-        right: 10%;
+      .BlogImageRight{
+        right: 1%;
+        left: 75%;
+      }
+
+      .BlogImageLeft{
+        left: 1%;
+        right: 75%;
       }
       
       .BlogContainer{
