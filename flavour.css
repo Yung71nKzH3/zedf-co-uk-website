@@ -284,6 +284,26 @@
         left: 1%;
         right: 75%;
       }
+
+      /*VIDEO HIGHLIGHTING*/
+
+        #FinchVideoText{
+          background: darkgreen;
+        }
+
+        #FinchVideo{
+          border-style: solid;
+          border-color: green;
+        }
+
+        #OptimusVideoText{
+          background: darkblue;
+        }
+
+        #OptimusVideo{
+          border-style: solid;
+          border-color: blue;
+        }
       
       .BlogContainer{
         background-color: #808080;
