@@ -265,6 +265,18 @@
         padding-top: 1%;
         padding-bottom: 1%;
       }
+
+      .BlogBoxmedial{
+        position: absolute;
+        left: 10%;
+        padding-right: 5px;
+      }
+
+      .BlogBoxmediar{
+        position: absolute;
+        right: 10%;
+        padding-left: 5px;
+      }
       
       .BlogContainer{
         background-color: #808080;
