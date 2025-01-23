@@ -304,6 +304,15 @@
           border-style: solid;
           border-color: blue;
         }
+
+        #EuSurveyHouseRobotVideoText{
+          background: darkmagenta;
+        }
+
+        #EuSurveyHouseRobotVideo{
+          border-style: solid;
+          border-color: magenta;
+        }
       
       .BlogContainer{
         background-color: #808080;
