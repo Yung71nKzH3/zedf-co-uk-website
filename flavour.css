@@ -288,7 +288,8 @@
       /*VIDEO HIGHLIGHTING*/
 
         #FinchVideoText{
-          background: darkgreen;
+          text-decoration: underline;
+          text-decoration-color: darkgreen;
         }
 
         #FinchVideo{
@@ -297,7 +298,8 @@
         }
 
         #OptimusVideoText{
-          background: darkblue;
+          text-decoration: underline;
+          text-decoration-color: darkblue;
         }
 
         #OptimusVideo{
@@ -306,7 +308,8 @@
         }
 
         #EuSurveyHouseRobotVideoText{
-          background: darkmagenta;
+          text-decoration: underline;
+          text-decoration-color: darkmagenta;
         }
 
         #EuSurveyHouseRobotVideo{
