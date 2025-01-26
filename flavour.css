@@ -316,6 +316,33 @@
           border-style: solid;
           border-color: magenta;
         }
+
+        #ChinaHealthRobVideoText{
+          text-decoration: underline;
+          text-decoration-color: darkkhaki;
+        }
+
+        #ChinaHealthRobVideo{
+          border-style: solid;
+          border-color: khaki;
+        }
+
+        #AdoptionRateImageText{
+          text-decoration: underline;
+          text-decoration-color: darkorange;
+        }
+
+        #AdoptionRateImage{
+          border-style: solid;
+          border-color: orange;
+        }
+
+        #editnote{
+          text-align: left;
+          margin: 0;
+          padding: 0;
+          border: 0;
+        }
       
       .BlogContainer{
         background-color: #808080;
