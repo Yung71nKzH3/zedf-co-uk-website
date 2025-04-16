@@ -479,31 +479,32 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      padding-top: 1.2%;
-      padding-bottom: 1.2%;
+      padding: 2%;
     }
     
     .AboutContainer{
       background-color: #808080;
-      max-width: 50%;
+      max-width: 90%;
       max-height: fit-content;
       border-style: ridge;
       border-color: darkred;
     }
     
     .AboutSection{
-      margin: 7.3%;
+      padding-top: 2%;
+      padding-bottom: 2%;
     }
     
     .AboutIntro{
       background-color: #333;
-      max-width: 100%;
+      max-width: 90%;
       height: min-content;
     
       display: flex; /* Use flexbox for layout */
     
       border-style: groove;
       border-color: darkred;
+      margin: 0 auto;
     }
     
     .AboutIntroTitle{
@@ -523,10 +524,12 @@
     }
     
     .AboutMain{
-      margin-top: 5%;
+      margin-top: 2%;
+      margin-left: auto;
+      margin-right: auto;
     
       background-color: #333;
-      max-width: 100%;
+      max-width: 90%;
       height: 100%;
     
       border-style: groove;
