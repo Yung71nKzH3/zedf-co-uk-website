@@ -475,16 +475,16 @@
 
   /*ZF - About*/
 
-    .AboutBox{
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 2%;
+    .AboutBox {
+      display: block; /* Ensures it's a block-level element */
+      margin: 0 auto; /* Centers horizontally */
+      padding: 2%; /* Adds some internal spacing */
+      max-width: 90%; /* Or any value less than 100% of the parent */
     }
-    
+
     .AboutContainer{
       background-color: #808080;
-      max-width: 90%;
+      max-width: 100%;
       max-height: fit-content;
       border-style: ridge;
       border-color: darkred;
