@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Data Scientist Portfolio</title>
+    <title>3D File Explorer Portfolio</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -15,35 +15,101 @@
         
         /* --- Root Variables & Base --- */
         :root {
-            --bg-body: #0c1422; /* Dark Blue/Grey Background */
-            --bg-container: #172033; /* Slightly lighter for the pop-out effect */
+            --bg-body: #0c1422;
+            --bg-container: #172033;
             --text-light: #f1f5f9;
             --text-muted: #94a3b8;
             --accent-color: #06b6d4; /* Cyan 500 */
+            
+            --max-zoom-dim: 60vh; 
+            --initial-box-size: 300px; 
+            --transition-speed: 0.8s;
+            
+            --border-start-size: 15px; /* Not used for animations anymore, but kept for reference */
+            --border-end-size: 5px;   /* Not used for animations anymore, but kept for reference */
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-body); 
             color: var(--text-light); 
-            height: 100vh; /* Critical: No scrolling */
-            overflow: hidden; /* Critical: No scrolling */
+            height: 100vh;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 2rem; /* Outer border */
-            position: relative; /* Needed for absolute back button */
+            padding: 2rem;
+            perspective: 1500px;
+            position: relative;
+        }
+        
+        /* --- Background Overlay for V2 (Click to close) --- */
+        #v2-overlay-background {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7); /* Semi-transparent dark overlay */
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-speed);
+            z-index: 40; /* Below V2 content, above V1 content */
+        }
+        #v2-overlay-background.active {
+            opacity: 1;
+            pointer-events: auto;
         }
 
-        /* --- Main Layout: Two Columns --- */
+        /* --- Global Hidden State for V2 Content (Off-Screen and Transparent) --- */
+        .v2-content-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: var(--max-zoom-dim);
+            height: var(--max-zoom-dim);
+            background-color: var(--bg-container);
+            border-radius: 1rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            
+            /* Initial Hidden State (Off-screen, scaled down, and transparent) */
+            transform: translate(-50%, -50%) scale(0.5); 
+            opacity: 0;
+            pointer-events: none;
+            overflow: hidden; /* For initial state, will be auto when active */
+            
+            transition: all var(--transition-speed) cubic-bezier(0.86, 0, 0.07, 1);
+            z-index: 50; 
+        }
+
+        /* --- V2 Active State --- */
+        .v2-content-wrapper.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+            overflow-y: auto; /* Enable scrolling for content when active */
+        }
+
+        /* --- Title/Bio Element --- */
+        #title-bio {
+            position: absolute;
+            top: 15%; 
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            z-index: 10;
+            transition: opacity var(--transition-speed);
+        }
+
+        /* --- Main Layout: V1 View --- */
         #app-container {
             display: flex;
             width: 100%;
-            max-width: 1400px;
-            height: 100%; /* FIX: Ensure container takes full body height */
+            max-width: calc(var(--initial-box-size) * 2 + 4rem);
+            height: var(--initial-box-size);
             gap: 2rem;
-            transition: all 0.6s cubic-bezier(0.86, 0, 0.07, 1);
             align-items: center;
+            justify-content: center;
+            transition: all var(--transition-speed) cubic-bezier(0.86, 0, 0.07, 1);
         }
         
         .panel {
@@ -53,292 +119,190 @@
             cursor: pointer;
             position: relative;
             overflow: hidden; 
-            transition: all 0.6s cubic-bezier(0.86, 0, 0.07, 1);
-            flex: 1;
-            padding: 3rem;
-            /* FIX: Default state content sizing */
-            min-height: 250px; 
+            transition: all var(--transition-speed) cubic-bezier(0.86, 0, 0.07, 1);
+            
+            width: var(--initial-box-size);
+            height: var(--initial-box-size);
+            flex-shrink: 0;
+            
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
         }
+        
+        .initial-content { transition: opacity 0.3s; width: 100%; z-index: 1; }
+        
+        /* The .focused-content divs are now truly empty placeholders, can be removed from HTML or kept for structure. */
+        .focused-content { display: none; } 
 
-        /* Initial Content Display */
-        .initial-content {
-            transition: opacity 0.3s;
-            width: 100%; /* Ensure content fills the panel */
+        /* --- Animation Overlay (Removed, but keeping class for cleanup if needed in JS) --- */
+        .loading-overlay { display: none; } 
+        
+        /* --- V2 Layout & Styles --- */
+        .v2-content-inner { padding: 3rem; }
+        
+        /* FIX for overlapping: Re-add essential display properties for sub-panels */
+        .sub-panel {
+            background-color: var(--bg-body); 
+            border-radius: 0.75rem; 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); 
+            min-height: 150px; min-width: 150px; padding: 1rem; transition: all 0.3s; 
+            
+            /* Crucial: Restore flexbox properties for proper grid layout */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
         
-        /* Focused Content Display */
-        .focused-content {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%; /* FIX: Ensure focused content takes 100% of the panel height */
-            padding: 3rem;
-            opacity: 0;
-            pointer-events: none;
-            overflow-y: auto; /* Allows scrolling only within the focused panel */
-            z-index: 2; 
-            transition: opacity 0.5s 0.3s; 
+        .sub-panel .initial-content { 
+            opacity: 1; pointer-events: auto; 
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; 
+            width: 100%; height: 100%; 
+        }
+
+        /* Layout Optimization: Increase density (4 columns, smaller gap) */
+        .v2-content-inner .grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1.25rem;
         }
         
-        /* --- General Text & Accent Styling --- */
-        .directory-link:hover {
-            color: var(--accent-color); 
-            text-decoration: underline;
-        }
-
-        .monospace-text {
-            font-family: 'IBM Plex Mono', monospace;
-        }
-
-        .section-title {
-            color: var(--text-muted);
-            font-weight: 500;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            letter-spacing: 0.1em;
-            border-top: 1px solid rgba(255, 255, 255, 0.1); 
-            padding-top: 1.5rem;
-        }
-
-        /* --- Back Button Styling --- */
-        .back-button-global {
-            position: absolute;
-            top: 2rem;
-            left: 2rem;
-            color: var(--accent-color);
-            background: rgba(0, 0, 0, 0.3);
-            padding: 0.75rem;
-            border-radius: 50%;
-            font-size: 1.5rem;
-            z-index: 100;
-            cursor: pointer;
-            transition: all 0.3s, opacity 0.5s;
-            opacity: 0;
-            pointer-events: none;
-        }
-        .back-button-global:hover {
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        /* --- ZOOM STATES (PROJECTS FOCUS) --- */
-        #app-container.projects-focus {
-            transform: scale(1.05);
-        }
-
-        #app-container.projects-focus #projects-panel {
-            flex-grow: 10;
-            height: 100%; /* FIX: Ensure the zoomed panel takes full vertical space */
-        }
-
-        #app-container.projects-focus #links-panel {
-            transform: translateX(100%);
-            opacity: 0;
-            pointer-events: none;
-            position: absolute;
-        }
-
-        #app-container.projects-focus .initial-content.projects {
-            opacity: 0;
-            pointer-events: none;
-        }
-        #app-container.projects-focus .focused-content.projects {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        /* --- ZOOM STATES (LINKS FOCUS) --- */
-        #app-container.links-focus {
-            transform: scale(1.05);
-        }
-
-        #app-container.links-focus #links-panel {
-            flex-grow: 10;
-            height: 100%; /* FIX: Ensure the zoomed panel takes full vertical space */
-        }
-
-        #app-container.links-focus #projects-panel {
-            transform: translateX(-100%);
-            opacity: 0;
-            pointer-events: none;
-            position: absolute;
-        }
-
-        #app-container.links-focus .initial-content.links {
-            opacity: 0;
-            pointer-events: none;
-        }
-        #app-container.links-focus .focused-content.links {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        
+        .sub-panel:hover { box-shadow: 0 0 15px rgba(6, 182, 212, 0.5); transform: scale(1.03); }
+        .sub-panel h3 { font-size: 1.1rem; margin-top: 0.5rem; } 
+        .sub-panel p { font-size: 0.7rem; color: var(--text-muted); } 
     </style>
 </head>
-<body>
-
-    <button class="back-button-global" id="back-button" onclick="resetFocus()">
-        <i class="fas fa-arrow-left"></i>
-    </button>
+<body id="body-main">
     
-    <div id="app-container" class="default-view">
+    <!-- TOP-LEVEL V1 ELEMENT: TITLE / BIO --><div id="title-bio">
+        <h1 class="text-6xl font-extrabold tracking-tight mb-2 text-cyan-400">
+            [DATA SCIENCE STUDENT]
+        </h1>
+        <p class="text-xl font-light text-gray-300">
+            UK Data Science Student | Analyzing data with R & Python.
+        </p>
+    </div>
 
-        <div id="projects-panel" class="panel group" onclick="focusPanel('projects')">
-            
-            <div class="initial-content projects w-full transition duration-500 group-hover:scale-[1.02] group-hover:text-cyan-400">
-                <i class="fas fa-microchip text-7xl mb-4 text-cyan-500 transition duration-300"></i>
-                <h2 class="text-3xl font-bold mb-1">Projects & Repos</h2>
-                <p class="text-gray-400 text-sm">Click to view my data science portfolio and code archive.</p>
-            </div>
-            
-            <div class="focused-content projects">
-                <i class="fas fa-microchip text-5xl text-cyan-500 mb-4"></i>
-                <h1 class="text-5xl font-extrabold tracking-tight mb-8 text-cyan-400">
-                    Project Archive
-                </h1>
+    <!-- BACKGROUND OVERLAY for V2 content - clickable to close --><div id="v2-overlay-background"></div>
 
-                <p class="text-lg text-gray-300 mb-8">
-                    As a UK-based Data Science student, these repositories showcase my ability to handle, model, and visualize data using **Python** and **R**.
-                </p>
-
-                <h2 class="section-title">
-                    Featured Repositories
-                </h2>
-                
-                <div class="space-y-6 monospace-text text-lg">
-                    <a href="[LINK_TO_PYTHON_PROJECT]" target="_blank" class="block directory-link transition duration-150 p-2 border-l-4 border-cyan-500 hover:border-cyan-300 bg-gray-800 bg-opacity-30 rounded-r">
-                        <span class="font-semibold">[PYTHON/SKL]</span> University Capstone Project: Predictive Model
-                    </a>
-                    
-                    <a href="[LINK_TO_R_PROJECT]" target="_blank" class="block directory-link transition duration-150 p-2 border-l-4 border-cyan-500 hover:border-cyan-300 bg-gray-800 bg-opacity-30 rounded-r">
-                        <span class="font-semibold">[R/VIZ]</span> UK Housing Data Regression Analysis & Visualisation
-                    </a>
-                    
-                    <a href="[LINK_TO_DART_PROJECT]" target="_blank" class="block directory-link transition duration-150 p-2 border-l-4 border-cyan-500 hover:border-cyan-300 bg-gray-800 bg-opacity-30 rounded-r">
-                        <span class="font-semibold">[DART/FLUTTER]</span> Simple Mobile Application Concept
-                    </a>
-                    
-                    <a href="[YOUR_GITHUB_URL]" target="_blank" class="block directory-link transition duration-150 p-2 border-l-4 border-cyan-500 hover:border-cyan-300 bg-gray-800 bg-opacity-30 rounded-r">
-                        <span class="font-semibold">[GITHUB]</span> Full Code Archive
-                    </a>
-                </div>
+    <!-- TOP-LEVEL V2 ELEMENT: STUFF CONTENT --><div id="stuff-content-v2" class="v2-content-wrapper">
+        <div class="v2-content-inner">
+            <h1 class="text-4xl font-extrabold tracking-tight mb-12 text-cyan-400 text-center">
+                Projects, Experiments & Tools
+            </h1>
+            <!-- Changed grid-cols-3 to grid-cols-4 and gap-6 to gap-4 (from previous discussion) --><div class="grid grid-cols-4 gap-4">
+                <a href="https://github.com/data-proj-1" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-python text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">Python: ML Model</h3> <p class="text-gray-400 text-xs">Predictive Classifier</p> </div> </a>
+                <a href="https://github.com/r-viz-project" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-chart-line text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">R: Tidy Report</h3> <p class="text-gray-400 text-xs">Statistical Analysis</p> </div> </a>
+                <a href="https://github.com/dart-web-tool" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-code text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">Dart: Web App</h3> <p class="text-gray-400 text-xs">Flutter Experiment</p> </div> </a>
+                <a href="https://github.com/nn-playground" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-brain text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">ML: CNN Demo</h3> <p class="text-gray-400 text-xs">Image Classification</p> </div> </a>
+                <a href="https://github.com/personal-scripts" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-robot text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">Personal: Linux Scripts</h3> <p class="text-gray-400 text-xs">Bash Automation</p> </div> </a>
+                <a href="https://github.com/sql-design" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-database text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">SQL: Database Design</h3> <p class="text-gray-400 text-xs">Schema & Queries</p> </div> </a>
+                <a href="https://github.com/css-experiment" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-flask text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">Exp: CSS Animation</h3> <p class="text-gray-400 text-xs">Layout Test</p> </div> </a>
+                <a href="https://github.com/archive-repo" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-github text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">GitHub: Archive</h3> <p class="text-gray-400 text-xs">Old Code Repo</p> </div> </a>
+                <a href="https://github.com/r-package-dev" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-puzzle-piece text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">R: Custom Package</h3> <p class="text-gray-400 text-xs">Data Cleaning Tool</p> </div> </a>
+                <a href="https://github.com/linux-tools" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-terminal text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">Linux: Terminal Tools</h3> <p class="text-gray-400 text-xs">System Automation</p> </div> </a>
             </div>
         </div>
+    </div>
 
-        <div id="links-panel" class="panel group" onclick="focusPanel('links')">
+    <!-- TOP-LEVEL V2 ELEMENT: LINKS CONTENT --><div id="links-content-v2" class="v2-content-wrapper">
+        <div class="v2-content-inner">
+            <h1 class="text-4xl font-extrabold tracking-tight mb-12 text-cyan-400 text-center">
+                Professional Links & Contact
+            </h1>
+            <!-- Changed grid-cols-3 to grid-cols-4 and gap-6 to gap-4 (from previous discussion) --><div class="grid grid-cols-4 gap-4">
+                <a href="https://www.linkedin.com/in/datasci-student" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-linkedin text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">LinkedIn</h3> <p class="text-gray-400 text-xs">Professional</p> </div> </a>
+                <a href="mailto:datascience.student@email.com" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-envelope text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">Email Me</h3> <p class="text-gray-400 text-xs">Direct Contact</p> </div> </a>
+                <a href="https://my-cloud-storage.com/cv.pdf" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-file-pdf text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">Download CV</h3> <p class="text-gray-400 text-xs">Curriculum Vitae</p> </div> </a>
+                <a href="https://github.com/your-datasci-profile" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-github text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">GitHub</h3> <p class="text-gray-400 text-xs">Code Repos</p> </div> </a>
+                <a href="https://x.com/datasci_thoughts" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-twitter text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">X / Twitter</h3> <p class="text-gray-400 text-xs">Thoughts</p> </div> </a>
+                <a href="https://instagram.com/datasci_visuals" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-instagram text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">Instagram</h3> <p class="text-gray-400 text-xs">Visuals</p> </div> </a>
+                <a href="https://medium.com/datasci-articles" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-medium text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">Medium</h3> <p class="text-gray-400 text-xs">Articles/Essays</p> </div> </a>
+                <a href="https://stackoverflow.com/users/datasci-profile" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-stack-overflow text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">Stack Overflow</h3> <p class="text-gray-400 text-xs">Q&A</p> </div> </a>
+                <a href="https://bsky.app/datasci_casual" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-feather-alt text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">BlueSky</h3> <p class="text-gray-400 text-xs">Casual</p> </div> </a>
+                <a href="https://old-portfolio.com" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-link text-5xl mb-3 text-cyan-400"></i> <h3 class="text-xl font-bold">Old Site</h3> <p class="text-gray-400 text-xs">Archived Portfolio</p> </div> </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MAIN V1 CONTENT (The two square buttons) --><div id="app-container" class="default-view">
+        
+        <!-- PANEL 1: STUFF (LEFT) --><div id="stuff-panel" class="panel" 
+             data-target="stuff" 
+             onclick="focusPanel('stuff')"> <!-- CLICK ONLY --><div class="initial-content w-full">
+                <i class="fas fa-archive text-7xl mb-4 text-cyan-500 transition duration-300"></i>
+                <h2 class="text-3xl font-bold mb-1">Stuff</h2>
+                <p class="text-gray-400 text-sm">Projects, Experiments & Code.</p>
+            </div>
 
-            <div class="initial-content links w-full transition duration-500 group-hover:scale-[1.02] group-hover:text-cyan-400">
+            <div class="loading-overlay" id="stuff-overlay"></div> <!-- Removed timer, but keeping div to avoid JS errors --><div class="focused-content"></div> 
+        </div>
+
+        <!-- PANEL 2: SOCIALS (RIGHT) --><div id="links-panel" class="panel" 
+             data-target="links" 
+             onclick="focusPanel('links')"> <!-- CLICK ONLY --><div class="initial-content w-full">
                 <i class="fas fa-user-astronaut text-7xl mb-4 text-cyan-500 transition duration-300"></i>
-                <h2 class="text-3xl font-bold mb-1">Connect & Bio</h2>
-                <p class="text-gray-400 text-sm">Click to view my personal profile, CV, and professional links.</p>
+                <h2 class="text-3xl font-bold mb-1">Socials</h2>
+                <p class="text-gray-400 text-sm">View CV, LinkedIn, and contact info.</p>
             </div>
-
-            <div class="focused-content links">
-                <h1 class="text-5xl font-extrabold tracking-tight mb-2">
-                    [YOUR NAME]
-                </h1>
-                <p class="text-2xl font-light text-cyan-300 mb-8">
-                    Data Scientist | Portsmouth, UK
-                </p>
-
-                <p class="text-lg text-gray-300 mb-10">
-                    I am a dedicated Data Science student with experience in **statistical programming (R)** and **machine learning (Python)**, complemented by a background in web development fundamentals (**HTML, CSS, Dart**). My focus is on transforming complex datasets into actionable insights and clean, documented code.
-                </p>
-
-                <h2 class="section-title">
-                    Professional Links
-                </h2>
-
-                <div class="flex flex-col space-y-4 text-xl">
-                    <a href="[YOUR_GITHUB_URL]" target="_blank" class="text-gray-200 directory-link hover:text-cyan-300 transition duration-150">
-                        <i class="fab fa-github w-6 mr-2 text-cyan-500"></i> GitHub Profile
-                    </a>
-                    <a href="[YOUR_LINKEDIN_URL]" target="_blank" class="text-gray-200 directory-link hover:text-cyan-300 transition duration-150">
-                        <i class="fab fa-linkedin w-6 mr-2 text-cyan-500"></i> LinkedIn Network
-                    </a>
-                    <a href="mailto:[YOUR_EMAIL_ADDRESS]" target="_blank" class="text-gray-200 directory-link hover:text-cyan-300 transition duration-150">
-                        <i class="fas fa-envelope w-6 mr-2 text-cyan-500"></i> Send an Email
-                    </a>
-                    <a href="[LINK_TO_CV_OR_RESUME]" target="_blank" class="text-gray-200 directory-link hover:text-cyan-300 transition duration-150">
-                        <i class="fas fa-file-pdf w-6 mr-2 text-cyan-500"></i> Download CV / Resume
-                    </a>
-                </div>
-                
-                <p class="mt-12 text-xs text-gray-500 monospace-text">
-                    &copy; 2024. Code is functional. Design is intentional.
-                </p>
-            </div>
+            
+            <div class="loading-overlay" id="links-overlay"></div> <!-- Removed timer, but keeping div to avoid JS errors --><div class="focused-content"></div>
         </div>
-
     </div>
     
     <script>
-        const appContainer = document.getElementById('app-container');
-        const projectsPanel = document.getElementById('projects-panel');
-        const linksPanel = document.getElementById('links-panel');
-        const backButton = document.getElementById('back-button');
+        const BODY_MAIN = document.getElementById('body-main');
+        const APP_CONTAINER = document.getElementById('app-container');
+        const TITLE_BIO = document.getElementById('title-bio');
+        const V2_OVERLAY_BACKGROUND = document.getElementById('v2-overlay-background');
+        
+        // V2 Content Containers (New Top-Level Elements)
+        const STUFF_V2_CONTAINER = document.getElementById('stuff-content-v2');
+        const LINKS_V2_CONTAINER = document.getElementById('links-content-v2');
+        
+        let activeV2Container = null; // Track which V2 content is active
 
-        /**
-         * Focuses on a specific panel, triggering the CSS transition for the "zoom."
-         * @param {string} panelId - 'projects' or 'links'
-         */
-        function focusPanel(panelId) {
-            if (appContainer.classList.contains('default-view')) {
-                // Apply focus classes
-                appContainer.classList.remove('default-view');
-                appContainer.classList.add(`${panelId}-focus`);
-                
-                // Show global back button
-                backButton.style.opacity = '1';
-                backButton.style.pointerEvents = 'auto';
+        /** Zooms into the selected panel on click. */
+        window.focusPanel = function(targetId) {
+            // 1. Hide V1 elements
+            APP_CONTAINER.style.opacity = '0';
+            APP_CONTAINER.style.pointerEvents = 'none';
+            TITLE_BIO.style.opacity = '0';
+            TITLE_BIO.style.pointerEvents = 'none';
+            
+            // 2. Show V2 content and overlay
+            activeV2Container = targetId === 'stuff' ? STUFF_V2_CONTAINER : LINKS_V2_CONTAINER;
+            activeV2Container.classList.add('active');
+            V2_OVERLAY_BACKGROUND.classList.add('active');
+            
+            // Add click listener to background to reset
+            V2_OVERLAY_BACKGROUND.addEventListener('click', resetFocus);
 
-                // Manage cursor and interaction state
-                projectsPanel.style.cursor = 'default';
-                linksPanel.style.cursor = 'default';
-                
-                if (panelId === 'projects') {
-                    linksPanel.style.pointerEvents = 'none';
-                } else {
-                    projectsPanel.style.pointerEvents = 'none';
-                }
+            // Stop propagation on V2 content itself to prevent background click triggering immediately
+            activeV2Container.addEventListener('click', (e) => e.stopPropagation());
+        }
+
+        /** Resets the view back to the default layout by clicking outside the V2 content. */
+        window.resetFocus = function() {
+            // 1. Hide V2 content and overlay
+            if (activeV2Container) {
+                activeV2Container.classList.remove('active');
+                activeV2Container.removeEventListener('click', (e) => e.stopPropagation()); // Remove listener
             }
+            V2_OVERLAY_BACKGROUND.classList.remove('active');
+            V2_OVERLAY_BACKGROUND.removeEventListener('click', resetFocus); // Remove listener
+
+            // 2. Show V1 elements
+            APP_CONTAINER.style.opacity = '1';
+            APP_CONTAINER.style.pointerEvents = 'auto';
+            TITLE_BIO.style.opacity = '1';
+            TITLE_BIO.style.pointerEvents = 'auto';
+
+            activeV2Container = null; // Clear active V2 container
         }
-
-        /**
-         * Resets the view back to the default two-column layout.
-         */
-        function resetFocus() {
-            // Remove focus classes
-            appContainer.classList.remove('projects-focus', 'links-focus');
-            // Re-add default state
-            appContainer.classList.add('default-view');
-
-            // Hide global back button
-            backButton.style.opacity = '0';
-            backButton.style.pointerEvents = 'none';
-
-            // Re-enable clicks and cursor style
-            projectsPanel.style.pointerEvents = 'auto';
-            linksPanel.style.pointerEvents = 'auto';
-            projectsPanel.style.cursor = 'pointer';
-            linksPanel.style.cursor = 'pointer';
-        }
-        
-        // Initial setup for default state styling
-        document.addEventListener('DOMContentLoaded', () => {
-            // Hide back button on load
-            backButton.style.opacity = '0';
-            backButton.style.pointerEvents = 'none';
-
-            appContainer.classList.add('default-view');
-        });
-        
     </script>
 
 </body>
