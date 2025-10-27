@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Data Scientist Portfolio</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        /* Custom font import */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=IBM+Plex+Mono:wght@400;600&display=swap');
+        
+        /* --- Root Variables & Base --- */
+        :root {
+            --bg-body: #0c1422; /* Dark Blue/Grey Background */
+            --bg-container: #172033; /* Slightly lighter for the pop-out effect */
+            --text-light: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-color: #06b6d4; /* Cyan 500 */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body); 
+            color: var(--text-light); 
+            height: 100vh; /* Critical: No scrolling */
+            overflow: hidden; /* Critical: No scrolling */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem; /* Outer border */
+            position: relative; /* Needed for absolute back button */
+        }
+
+        /* --- Main Layout: Two Columns --- */
+        #app-container {
+            display: flex;
+            width: 100%;
+            max-width: 1400px;
+            height: 100%; /* FIX: Ensure container takes full body height */
+            gap: 2rem;
+            transition: all 0.6s cubic-bezier(0.86, 0, 0.07, 1);
+            align-items: center;
+        }
+        
+        .panel {
+            background-color: var(--bg-container);
+            border-radius: 1rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden; 
+            transition: all 0.6s cubic-bezier(0.86, 0, 0.07, 1);
+            flex: 1;
+            padding: 3rem;
+            /* FIX: Default state content sizing */
+            min-height: 250px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* Initial Content Display */
+        .initial-content {
+            transition: opacity 0.3s;
+            width: 100%; /* Ensure content fills the panel */
+        }
+        
+        /* Focused Content Display */
+        .focused-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%; /* FIX: Ensure focused content takes 100% of the panel height */
+            padding: 3rem;
+            opacity: 0;
+            pointer-events: none;
+            overflow-y: auto; /* Allows scrolling only within the focused panel */
+            z-index: 2; 
+            transition: opacity 0.5s 0.3s; 
+        }
+        
+        /* --- General Text & Accent Styling --- */
+        .directory-link:hover {
+            color: var(--accent-color); 
+            text-decoration: underline;
+        }
+
+        .monospace-text {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .section-title {
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            border-top: 1px solid rgba(255, 255, 255, 0.1); 
+            padding-top: 1.5rem;
+        }
+
+        /* --- Back Button Styling --- */
+        .back-button-global {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            color: var(--accent-color);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.75rem;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            z-index: 100;
+            cursor: pointer;
+            transition: all 0.3s, opacity 0.5s;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .back-button-global:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- ZOOM STATES (PROJECTS FOCUS) --- */
+        #app-container.projects-focus {
+            transform: scale(1.05);
+        }
+
+        #app-container.projects-focus #projects-panel {
+            flex-grow: 10;
+            height: 100%; /* FIX: Ensure the zoomed panel takes full vertical space */
+        }
+
+        #app-container.projects-focus #links-panel {
+            transform: translateX(100%);
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+        }
+
+        #app-container.projects-focus .initial-content.projects {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #app-container.projects-focus .focused-content.projects {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* --- ZOOM STATES (LINKS FOCUS) --- */
+        #app-container.links-focus {
+            transform: scale(1.05);
+        }
+
+        #app-container.links-focus #links-panel {
+            flex-grow: 10;
+            height: 100%; /* FIX: Ensure the zoomed panel takes full vertical space */
+        }
+
+        #app-container.links-focus #projects-panel {
+            transform: translateX(-100%);
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+        }
+
+        #app-container.links-focus .initial-content.links {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #app-container.links-focus .focused-content.links {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <button class="back-button-global" id="back-button" onclick="resetFocus()">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+    
+    <div id="app-container" class="default-view">
+
+        <div id="projects-panel" class="panel group" onclick="focusPanel('projects')">
+            
+            <div class="initial-content projects w-full transition duration-500 group-hover:scale-[1.02] group-hover:text-cyan-400">
+                <i class="fas fa-microchip text-7xl mb-4 text-cyan-500 transition duration-300"></i>
+                <h2 class="text-3xl font-bold mb-1">Projects & Repos</h2>
+                <p class="text-gray-400 text-sm">Click to view my data science portfolio and code archive.</p>
+            </div>
+            
+            <div class="focused-content projects">
+                <i class="fas fa-microchip text-5xl text-cyan-500 mb-4"></i>
+                <h1 class="text-5xl font-extrabold tracking-tight mb-8 text-cyan-400">
+                    Project Archive
+                </h1>
+
+                <p class="text-lg text-gray-300 mb-8">
+                    As a UK-based Data Science student, these repositories showcase my ability to handle, model, and visualize data using **Python** and **R**.
+                </p>
+
+                <h2 class="section-title">
+                    Featured Repositories
+                </h2>
+                
+                <div class="space-y-6 monospace-text text-lg">
+                    <a href="[LINK_TO_PYTHON_PROJECT]" target="_blank" class="block directory-link transition duration-150 p-2 border-l-4 border-cyan-500 hover:border-cyan-300 bg-gray-800 bg-opacity-30 rounded-r">
+                        <span class="font-semibold">[PYTHON/SKL]</span> University Capstone Project: Predictive Model
+                    </a>
+                    
+                    <a href="[LINK_TO_R_PROJECT]" target="_blank" class="block directory-link transition duration-150 p-2 border-l-4 border-cyan-500 hover:border-cyan-300 bg-gray-800 bg-opacity-30 rounded-r">
+                        <span class="font-semibold">[R/VIZ]</span> UK Housing Data Regression Analysis & Visualisation
+                    </a>
+                    
+                    <a href="[LINK_TO_DART_PROJECT]" target="_blank" class="block directory-link transition duration-150 p-2 border-l-4 border-cyan-500 hover:border-cyan-300 bg-gray-800 bg-opacity-30 rounded-r">
+                        <span class="font-semibold">[DART/FLUTTER]</span> Simple Mobile Application Concept
+                    </a>
+                    
+                    <a href="[YOUR_GITHUB_URL]" target="_blank" class="block directory-link transition duration-150 p-2 border-l-4 border-cyan-500 hover:border-cyan-300 bg-gray-800 bg-opacity-30 rounded-r">
+                        <span class="font-semibold">[GITHUB]</span> Full Code Archive
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="links-panel" class="panel group" onclick="focusPanel('links')">
+
+            <div class="initial-content links w-full transition duration-500 group-hover:scale-[1.02] group-hover:text-cyan-400">
+                <i class="fas fa-user-astronaut text-7xl mb-4 text-cyan-500 transition duration-300"></i>
+                <h2 class="text-3xl font-bold mb-1">Connect & Bio</h2>
+                <p class="text-gray-400 text-sm">Click to view my personal profile, CV, and professional links.</p>
+            </div>
+
+            <div class="focused-content links">
+                <h1 class="text-5xl font-extrabold tracking-tight mb-2">
+                    [YOUR NAME]
+                </h1>
+                <p class="text-2xl font-light text-cyan-300 mb-8">
+                    Data Scientist | Portsmouth, UK
+                </p>
+
+                <p class="text-lg text-gray-300 mb-10">
+                    I am a dedicated Data Science student with experience in **statistical programming (R)** and **machine learning (Python)**, complemented by a background in web development fundamentals (**HTML, CSS, Dart**). My focus is on transforming complex datasets into actionable insights and clean, documented code.
+                </p>
+
+                <h2 class="section-title">
+                    Professional Links
+                </h2>
+
+                <div class="flex flex-col space-y-4 text-xl">
+                    <a href="[YOUR_GITHUB_URL]" target="_blank" class="text-gray-200 directory-link hover:text-cyan-300 transition duration-150">
+                        <i class="fab fa-github w-6 mr-2 text-cyan-500"></i> GitHub Profile
+                    </a>
+                    <a href="[YOUR_LINKEDIN_URL]" target="_blank" class="text-gray-200 directory-link hover:text-cyan-300 transition duration-150">
+                        <i class="fab fa-linkedin w-6 mr-2 text-cyan-500"></i> LinkedIn Network
+                    </a>
+                    <a href="mailto:[YOUR_EMAIL_ADDRESS]" target="_blank" class="text-gray-200 directory-link hover:text-cyan-300 transition duration-150">
+                        <i class="fas fa-envelope w-6 mr-2 text-cyan-500"></i> Send an Email
+                    </a>
+                    <a href="[LINK_TO_CV_OR_RESUME]" target="_blank" class="text-gray-200 directory-link hover:text-cyan-300 transition duration-150">
+                        <i class="fas fa-file-pdf w-6 mr-2 text-cyan-500"></i> Download CV / Resume
+                    </a>
+                </div>
+                
+                <p class="mt-12 text-xs text-gray-500 monospace-text">
+                    &copy; 2024. Code is functional. Design is intentional.
+                </p>
+            </div>
+        </div>
+
+    </div>
+    
+    <script>
+        const appContainer = document.getElementById('app-container');
+        const projectsPanel = document.getElementById('projects-panel');
+        const linksPanel = document.getElementById('links-panel');
+        const backButton = document.getElementById('back-button');
+
+        /**
+         * Focuses on a specific panel, triggering the CSS transition for the "zoom."
+         * @param {string} panelId - 'projects' or 'links'
+         */
+        function focusPanel(panelId) {
+            if (appContainer.classList.contains('default-view')) {
+                // Apply focus classes
+                appContainer.classList.remove('default-view');
+                appContainer.classList.add(`${panelId}-focus`);
+                
+                // Show global back button
+                backButton.style.opacity = '1';
+                backButton.style.pointerEvents = 'auto';
+
+                // Manage cursor and interaction state
+                projectsPanel.style.cursor = 'default';
+                linksPanel.style.cursor = 'default';
+                
+                if (panelId === 'projects') {
+                    linksPanel.style.pointerEvents = 'none';
+                } else {
+                    projectsPanel.style.pointerEvents = 'none';
+                }
+            }
+        }
+
+        /**
+         * Resets the view back to the default two-column layout.
+         */
+        function resetFocus() {
+            // Remove focus classes
+            appContainer.classList.remove('projects-focus', 'links-focus');
+            // Re-add default state
+            appContainer.classList.add('default-view');
+
+            // Hide global back button
+            backButton.style.opacity = '0';
+            backButton.style.pointerEvents = 'none';
+
+            // Re-enable clicks and cursor style
+            projectsPanel.style.pointerEvents = 'auto';
+            linksPanel.style.pointerEvents = 'auto';
+            projectsPanel.style.cursor = 'pointer';
+            linksPanel.style.cursor = 'pointer';
+        }
+        
+        // Initial setup for default state styling
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hide back button on load
+            backButton.style.opacity = '0';
+            backButton.style.pointerEvents = 'none';
+
+            appContainer.classList.add('default-view');
+        });
+        
+    </script>
+
+</body>
+</html>
