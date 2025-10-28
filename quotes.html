@@ -3,399 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favorite Quotes</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        /* Inherit Main Dashboard Styles */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=IBM+Plex+Mono:wght@400;600&display=swap');
+        :root {
+            --bg-body: #0c1422;
+            --bg-container: #172033;
+            --text-light: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-color: #06b6d4;
+        }
 
-    <meta name="author" content="Leonardo Paolo Valenti">
-    <meta name="generator" content="Visual Studio Code">
-    <meta name="description" content="A webpage featuring favourite quotes of the author">
-    <meta name="revised" content="2024-10-21">
-    <meta name="robots" content="index, follow">
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body); 
+            color: var(--text-light); 
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 3rem 1rem;
+        }
 
-    <link rel="stylesheet" href="flavour.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap">
-    <link rel="canonical" href="https://zedf.co.uk/quotes"/>
-    <script src="script.js" defer></script>
-    <title>ZF - Quotes</title>
+        .main-content {
+            width: 100%;
+            max-width: 900px;
+            background-color: var(--bg-container);
+            padding: 3rem;
+            border-radius: 1rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .quote-item-card {
+            background-color: var(--bg-body);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .quote-text {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.75rem;
+        }
+
+        .quote-author {
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--accent-color);
+            font-size: 0.85rem;
+            display: block;
+            margin-top: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .main-content {
+                padding: 1.5rem;
+            }
+            .quote-text {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
 </head>
-
 <body>
-    <header>
-        <nav class="navigation-ribbon">
-          <p></p>
-          <a href="index.html">Home</a>
-          <p>|</p>
-          <a href="about.html">About</a>
-          <p>|</p>
-          <a href="stuff.html">Stuff</a>
-          <p>|</p>
-          <a href="socials.html">Socials</a>
-          <p></p>
-        </nav>
-    </header>
-    <main>
-        <div class="QuoteTitle MiddleText">
-            <h1>Favourite Quotes</h1>
-        </div>
-        <p class="MiddleText"><a href="stuff.html">Click me to go back</a></p>
-
-        <div class="BoxOfQuoteBox">
-            <div class="QuoteBox">
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-                            <p>A quote from the film Shawshank Redemption which started my true appreciation for words once said.</p>
-        
-                                <blockquote cite="https://www.imdb.com/title/tt0111161/quotes/?item=qt0470750&ref_=ext_shr_lnk">
-                                    Sometimes it makes me sad, though, Andy being gone. I have to remind myself that some birds aren't meant to be caged. 
-                                    Their feathers are just too bright and when they fly away, the part of you that knows it was a sin to lock them up does rejoice, but still, 
-                                    the place you live in is that much more drab and empty now that they're gone. I guess I just miss my friend.
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ <a href="https://youtu.be/n45R0eF1ctc?si=Ok5HzrHWggg11-Ap&t=35">The Shawshank Redemption</a> (Morgan Freeman)</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-                            <p>Valve's original slogan</p>
-        
-                                <blockquote cite="https://combineoverwiki.net/wiki/Mr._Valve">
-                                    Open your mind. Open your eyes.
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ <a href="https://youtu.be/ayDd_aZ1P7k?si=Kpp5bHkWufE01bFA&t=170">Valve</a></p> <!--First time I heard of the quote.-->
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-        
-                            <p>A play on the good ol' Once a ... Always a ...</p>
-        
-                                <blockquote>
-                                    Once, Always.
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ Me</p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-                            <p>First of many quotes that stood out to me in John Wick: Chapter 4 after recently watching it again.</p>
-        
-                                <blockquote cite="https://www.imdb.com/title/tt10366206/quotes/?item=qt6810001&ref_=ext_shr_lnk">
-                                    Friendship means little when it's convenient.
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ <a href="https://youtube.com/shorts/c6h0bbX79F0?si=ETGRFxooUtN9SEbZ">John Wick: Chapter 4</a> (Hiroyuki Sanada)</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-                            <p>Reflection and Judgement</p>
-        
-                                <blockquote cite="https://www.imdb.com/title/tt10366206/quotes/?item=qt6809204&ref_=ext_shr_lnk">
-                                    How you do anything is how you do everything.
-                                </blockquote>
-    
-                            <p class="QuoteAuthor">~ <a href="https://youtube.com/shorts/zG5uf3OP2Xg?si=nrJRGBKMT_H73ORw">John Wick: Chapter 4</a> (Bill Skarsgård)</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-
-                            <p>Unbeatable execution</p>
-
-                                <blockquote cite="https://www.quotes.net/mquote/75855">
-                                    The path of the righteous man is beset on all sides by the inequities of the selfish and the tyranny of evil men. Blessed is he, who in the name of charity and good will, shepherds the weak through the valley of darkness, for he is truly his brother's keeper and the finder of lost children. And I will strike down upon thee with great vengeance and furious anger those who would attempt to poison and destroy my brothers. And you will know my name is the Lord when I lay my vengeance upon thee.
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ <a href="https://youtu.be/65HBibknLi8?si=Jvtv6xA0q6LMBanj&t=110">Pulp Fiction</a> (Samuel L. Jackson)</p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-
-                            <p>Kept coming back to me had to add it</p>
-
-                                <blockquote cite="https://www.imdb.com/title/tt4425200/quotes/?item=qt7320145&ref_=ext_shr_lnk">
-                                    Rules. Without them, we'd live with the animals.
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ <a href="https://youtu.be/OlPJ9i3lwAw?si=GEw8HZhV5WtMme0j&t=50">John Wick: Chapter 2</a> (Ian McShane)</p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-
-                            <p>Discovered and adapted in Portal 1 but found and appreciated through means.</p>
-
-                                <blockquote cite="https://www.hwlongfellow.org/poems_poem.php?pid=89">
-                                    Oh, not in cruelty, not in wrath,<br>
-                                    The Reaper came that day;<br>
-                                    An angel visited this gray path,<br>
-                                    And took the cube away.
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ <a href="https://www.hwlongfellow.org/poems_poem.php?pid=89">Henry Wadsworth Longfellow</a></p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-
-                            <p>Portal 1 again.</p>
-
-                                <blockquote cite="https://en.wikipedia.org/wiki/The_cake_is_a_lie">
-                                    The cake is a lie!
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ <a href="https://en.wikipedia.org/wiki/The_cake_is_a_lie">Portal 1</a> Writers( Erik Wolpaw , Chet Faliszek )</p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-
-                            <p>Always had the ideaology in my head and have found similar quotes reminding me of it strangely always through means of Anime. BUT after rewatching Arcane s1 again for s2 I came across:<br><br><strong>Vi</strong>: Come on. <br><strong>Claggor</strong>: How can anyone have so much stuff? <br><strong>Mylo</strong>: Simple, just get born lucky. <br><br>Not exactly having the taste I was looking for but this did:</p>
-
-                                <blockquote cite="https://www.goodreads.com/quotes/109016-success-is-simply-a-matter-of-luck-ask-any-failure">
-                                    Success is simply a matter of luck. Ask any failure.
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ <a href="https://www.goodreads.com/quotes/109016-success-is-simply-a-matter-of-luck-ask-any-failure">Earl Wilson</a></p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-
-                            <p>Reminded myself of this one simply looking through my <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2903186392">Steam Workshop</a></p>
-
-                                <blockquote cite="https://www.imdb.com/title/tt6710474/quotes/?item=qt6291477&ref_=ext_shr_lnk">
-                                    Just be a rock.
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ <a href="https://youtu.be/2X1sOTg-ivg?si=SJAjUgviER-AroM_&t=42">Stephanie Hsu</a></p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-
-                            <!--Reminded about from fortnite :skullemoji: I remember attending the fortnite event too-->
-
-                                <blockquote cite="https://www.gilderlehrman.org/sites/default/files/inline-pdfs/king.dreamspeech.excerpts.pdf">
-                                    I Have a Dream
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ <a href="https://www.youtube.com/watch?v=vP4iY1TtS3s">Rev. Martin Luther King Jr.</a></p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-
-                                <p>Use of Gemini AI states that the one who coined this term isn't known SO I'll say it was from Bob Marley</p>
-
-                                <blockquote cite="https://youtu.be/meKhfr_CjQ0?si=oP1jgtNY9ja-20xC">
-                                    Time shall tell.
-                                </blockquote>
-
-                                <p class="QuoteAuthor">~ <a href="https://youtu.be/meKhfr_CjQ0?si=oP1jgtNY9ja-20xC">Bob Marley</a></p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-
-                            <p>Something I learnt durin studies and stuck with both as an excuse as well as belief.</p>
-
-                                <blockquote cite="https://en.wikipedia.org/wiki/Form_follows_function">
-                                    Form Follows Function
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ <a href="https://en.wikipedia.org/wiki/Louis_Sullivan">Louis Sullivan</a></p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-
-                            <p>More copium of which I am addicted to. (Builds upon: "Don't count your chickens before they hatch")</p>
-
-                                <blockquote>
-                                    You never truly know until you do.
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ Me</a></p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-
-                            <p>Personal Belief</p>
-
-                                <blockquote cite="https://www.biblegateway.com/passage/?search=Ecclesiastes%201%3A9&version=NIV">
-                                    What has been will be again,<br>
-                                    what has been done will be done again;<br>
-                                    there is nothing new under the sun
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ <a href="https://en.wikipedia.org/wiki/Ecclesiastes">Qoheleth</a></p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-
-                            <p>Part of my argument towards luck</p>
-
-                                <blockquote cite="https://www.forbes.com/quotes/6145/">
-                                    Dans les champs de l'observation, le hasard ne favorise que les esprits préparés.
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ <a href="https://www.britannica.com/biography/Louis-Pasteur">Louis Pasteur</a></p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-
-                            <p>Can't remember exactly but it stuck with me</p>
-
-                                <blockquote cite="">
-                                    Those who use "like" too much don't really know what they're talking about.
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ My Old Boss</a></p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-
-                            <p>Look different but really just the same thing</p>
-
-                                <blockquote>
-                                    Two sides of the same coin.
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ Uknown</p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-
-                            <p>Someone asked me whats goin on BTH.</p>
-
-                                <blockquote>
-                                    There's only so many seats at the table.
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ Me</p>
-
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Template
-                        
-                <div class="QuoteTemplate">
-                    <div class="QuoteContainer">
-                        <div class="Quote">
-
-                            <p></p>
-
-                                <blockquote cite="">
-
-                                </blockquote>
-
-                            <p class="QuoteAuthor">~ <a href=""></a></p>
-
-                        </div>
-                    </div>
-                </div>
-
-                -->
-
+    <div class="main-content">
+        <header class="mb-12 text-center">
+            <h1 class="text-4xl font-extrabold tracking-tight text-cyan-400">
+                Favorite Quotes
+            </h1>
+            <p class="text-gray-400 mt-2">The philosophy and wisdom that stuck with me.</p>
+        </header>
+
+        <section class="space-y-6">
+            
+            <!-- Shawshank Redemption -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">A quote from the film Shawshank Redemption which started my true appreciation for words once said.</p>
+                <blockquote class="quote-text">
+                    "Sometimes it makes me sad, though, Andy being gone. I have to remind myself that some birds aren't meant to be caged. Their feathers are just too bright and when they fly away, the part of you that knows it was a sin to lock them up does rejoice, but still, the place you live in is that much more drab and empty now that they're gone. I guess I just miss my friend."
+                </blockquote>
+                <p class="quote-author">~ <a href="https://youtu.be/n45R0eF1ctc?si=Ok5HzrHWggg11-Ap&t=35" target="_blank" class="hover:underline">The Shawshank Redemption</a> (Morgan Freeman)</p>
             </div>
-        </div>
+            
+            <!-- Valve -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">Valve's original slogan</p>
+                <blockquote class="quote-text">
+                    "Open your mind. Open your eyes."
+                </blockquote>
+                <p class="quote-author">~ <a href="https://youtu.be/ayDd_aZ1P7k?si=Kpp5bHkWufE01bFA&t=170" target="_blank" class="hover:underline">Valve</a></p>
+            </div>
+            
+            <!-- My Quote: Once, Always -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">A play on the good ol' Once a ... Always a ...</p>
+                <blockquote class="quote-text">
+                    "Once, Always."
+                </blockquote>
+                <p class="quote-author">~ Me</p>
+            </div>
 
-        <p class="MiddleText"><a href="stuff.html">Click me to go back</a></p>
-    </main>
-    <footer >
-        <div class="footerContent">
-            <a href="https://github.com/Yung71nKzH3/Website-Project">Source</a>
-    
-            <a href="sitemap.html">Sitemap</a>
+            <!-- John Wick 4: Friendship -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">First of many quotes that stood out to me in John Wick: Chapter 4 after recently watching it again.</p>
+                <blockquote class="quote-text">
+                    "Friendship means little when it's convenient."
+                </blockquote>
+                <p class="quote-author">~ <a href="https://youtube.com/shorts/c6h0bbX79F0?si=ETGRFxooUtN9SEbZ" target="_blank" class="hover:underline">John Wick: Chapter 4</a> (Hiroyuki Sanada)</p>
+            </div>
 
-            <a href="contact.html">Contact</a>
-          
-            <button class="scrollBtn" id="scrollToTopBtn">Back to Top</button>
+            <!-- John Wick 4: How you do anything -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">Reflection and Judgement</p>
+                <blockquote class="quote-text">
+                    "How you do anything is how you do everything."
+                </blockquote>
+                <p class="quote-author">~ <a href="https://youtube.com/shorts/zG5uf3OP2Xg?si=nrJRGBKMT_H73ORw" target="_blank" class="hover:underline">John Wick: Chapter 4</a> (Bill Skarsgård)</p>
+            </div>
+            
+            <!-- Pulp Fiction -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">Unbeatable execution</p>
+                <blockquote class="quote-text">
+                    "The path of the righteous man is beset on all sides by the inequities of the selfish and the tyranny of evil men..." (Ezekiel 25:17)
+                </blockquote>
+                <p class="quote-author">~ <a href="https://youtu.be/65HBibknLi8?si=Jvtv6xA0q6LMBanj&t=110" target="_blank" class="hover:underline">Pulp Fiction</a> (Samuel L. Jackson)</p>
+            </div>
+
+            <!-- John Wick 2: Rules -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">Kept coming back to me had to add it</p>
+                <blockquote class="quote-text">
+                    "Rules. Without them, we'd live with the animals."
+                </blockquote>
+                <p class="quote-author">~ <a href="https://youtu.be/OlPJ9i3lwAw?si=GEw8HZhV5WtMme0j&t=50" target="_blank" class="hover:underline">John Wick: Chapter 2</a> (Ian McShane)</p>
+            </div>
+
+            <!-- Portal: Companion Cube -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">Discovered and adapted in Portal 1 but found and appreciated through means.</p>
+                <blockquote class="quote-text">
+                    "Oh, not in cruelty, not in wrath, The Reaper came that day; An angel visited this gray path, And took the cube away."
+                </blockquote>
+                <p class="quote-author">~ <a href="https://www.hwlongfellow.org/poems_poem.php?pid=89" target="_blank" class="hover:underline">Henry Wadsworth Longfellow</a></p>
+            </div>
+            
+            <!-- Portal: The Cake is a Lie -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">Portal 1 again.</p>
+                <blockquote class="quote-text">
+                    "The cake is a lie!"
+                </blockquote>
+                <p class="quote-author">~ <a href="https://en.wikipedia.org/wiki/The_cake_is_a_lie" target="_blank" class="hover:underline">Portal 1 Writers</a></p>
+            </div>
+            
+            <!-- Luck is a matter of luck -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">Always had the ideaology in my head and have found similar quotes reminding me of it strangely always through means of Anime.</p>
+                <blockquote class="quote-text">
+                    "Success is simply a matter of luck. Ask any failure."
+                </blockquote>
+                <p class="quote-author">~ <a href="https://www.goodreads.com/quotes/109016-success-is-simply-a-matter-of-luck-ask-any-failure" target="_blank" class="hover:underline">Earl Wilson</a></p>
+            </div>
+            
+            <!-- Just be a rock -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">Reminded myself of this one simply looking through my Steam Workshop</p>
+                <blockquote class="quote-text">
+                    "Just be a rock."
+                </blockquote>
+                <p class="quote-author">~ <a href="https://youtu.be/2X1sOTg-ivg?si=SJAjUgviER-AroM_&t=42" target="_blank" class="hover:underline">Stephanie Hsu</a></p>
+            </div>
+
+            <!-- I Have a Dream -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">Reminded about from fortnite, I remember attending the fortnite event too.</p>
+                <blockquote class="quote-text">
+                    "I Have a Dream"
+                </blockquote>
+                <p class="quote-author">~ <a href="https://www.youtube.com/watch?v=vP4iY1TtS3s" target="_blank" class="hover:underline">Rev. Martin Luther King Jr.</a></p>
+            </div>
+
+            <!-- Time Shall Tell -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">Use of Gemini AI states that the one who coined this term isn't known SO I'll say it was from Bob Marley</p>
+                <blockquote class="quote-text">
+                    "Time shall tell."
+                </blockquote>
+                <p class="quote-author">~ <a href="https://youtu.be/meKhfr_CjQ0?si=oP1jgtNY9ja-20xC" target="_blank" class="hover:underline">Bob Marley</a></p>
+            </div>
+            
+            <!-- Form Follows Function -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">Something I learnt durin studies and stuck with both as an excuse as well as belief.</p>
+                <blockquote class="quote-text">
+                    "Form Follows Function"
+                </blockquote>
+                <p class="quote-author">~ <a href="https://en.wikipedia.org/wiki/Louis_Sullivan" target="_blank" class="hover:underline">Louis Sullivan</a></p>
+            </div>
+
+            <!-- You never truly know until you do -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">More copium of which I am addicted to. (Builds upon: "Don't count your chickens before they hatch")</p>
+                <blockquote class="quote-text">
+                    "You never truly know until you do."
+                </blockquote>
+                <p class="quote-author">~ Me</p>
+            </div>
+
+            <!-- What has been will be again -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">Personal Belief</p>
+                <blockquote class="quote-text">
+                    "What has been will be again, what has been done will be done again; there is nothing new under the sun"
+                </blockquote>
+                <p class="quote-author">~ <a href="https://en.wikipedia.org/wiki/Ecclesiastes" target="_blank" class="hover:underline">Qoheleth</a></p>
+            </div>
+
+            <!-- Louis Pasteur -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">Part of my argument towards luck</p>
+                <blockquote class="quote-text">
+                    "Dans les champs de l'observation, le hasard ne favorise que les esprits préparés." (In the fields of observation, chance favors only the prepared mind.)
+                </blockquote>
+                <p class="quote-author">~ <a href="https://www.britannica.com/biography/Louis-Pasteur" target="_blank" class="hover:underline">Louis Pasteur</a></p>
+            </div>
+
+            <!-- My Old Boss -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">Can't remember exactly but it stuck with me</p>
+                <blockquote class="quote-text">
+                    "Those who use 'like' too much don't really know what they're talking about."
+                </blockquote>
+                <p class="quote-author">~ My Old Boss</p>
+            </div>
+
+            <!-- Two sides of the same coin -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">Look different but really just the same thing</p>
+                <blockquote class="quote-text">
+                    "Two sides of the same coin."
+                </blockquote>
+                <p class="quote-author">~ Uknown</p>
+            </div>
+            
+            <!-- There's only so many seats at the table -->
+            <div class="quote-item-card">
+                <p class="text-gray-400 text-sm mb-3">Someone asked me whats goin on BTH.</p>
+                <blockquote class="quote-text">
+                    "There's only so many seats at the table."
+                </blockquote>
+                <p class="quote-author">~ Me</p>
+            </div>
+            
+        </section>
+        
+        <!-- Back button link -->
+        <div class="text-center mt-12">
+            <a href="index.html" class="text-lg text-gray-400 hover:text-cyan-400 transition">
+                ← Return to Dashboard
+            </a>
         </div>
-        <a href="https://mynickname.com/gamingamer"><img src="https://mynickname.com/img.php?nick=w1ll0w&sert=22&text=t6" alt="Nickname w1ll0w"></a>
-    </footer>
+    </div>
 </body>
 </html>

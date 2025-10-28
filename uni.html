@@ -1,306 +1,295 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UoP Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        /* Inherit Main Dashboard Styles */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=IBM+Plex+Mono:wght@400;600&display=swap');
+        :root {
+            --bg-body: #0c1422;
+            --bg-container: #172033;
+            --text-light: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-color: #06b6d4;
+        }
 
-        <meta name="author" content="Leonardo Paolo Valenti">
-        <meta name="generator" content="Visual Studio Code">
-        <meta name="description" content="A webpage featuring helpful links related to the authors university">
-        <meta name="revised" content="2024-10-21">
-        <meta name="robots" content="index, follow">
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body); 
+            color: var(--text-light); 
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
 
-        <link rel="stylesheet" href="flavour.css">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap">
-        <link rel="canonical" href="https://zedf.co.uk/uni"/>
-        <script src="script.js" defer></script>
-        <title>ZF - Uni Shortcuts</title>
-    </head>
+        .main-content-wrapper {
+            width: 100%;
+            max-width: 1100px; /* Slightly wider for the full dashboard feel */
+        }
+        
+        /* Card Styling */
+        .dashboard-card {
+            background-color: var(--bg-container);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 120px;
+        }
 
-    <body>
-        <header>
-            <nav class="navigation-ribbon">
-                <p></p>
-                <a href="index.html">Home</a>
-                <p>|</p>
-                <a href="about.html">About</a>
-                <p>|</p>
-                <a href="stuff.html">Stuff</a>
-                <p>|</p>
-                <a href="socials.html">Socials</a>
-                <p></p>
-            </nav>
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4), 0 0 10px var(--accent-color);
+        }
+
+        .section-header {
+            font-size: 1.875rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            color: var(--accent-color);
+        }
+
+        .iframe-container {
+            background-color: var(--bg-container);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Mobile Adjustments */
+        @media (max-width: 640px) {
+            .dashboard-card {
+                padding: 1rem;
+            }
+            .section-header {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content-wrapper">
+        <header class="text-center mb-10">
+            <h1 class="text-5xl font-extrabold tracking-tight text-cyan-400">
+                UoP Data Dashboard
+            </h1>
+            <p class="text-gray-400 mt-2">
+                Essential services and resources for your Data Science studies in Portsmouth.
+            </p>
+            <div class="mt-4 space-x-4 text-sm text-gray-500">
+                <a href="#Services" class="hover:text-cyan-400 transition">Services</a> | 
+                <a href="#Map" class="hover:text-cyan-400 transition">Maps</a> | 
+                <a href="#Status" class="hover:text-cyan-400 transition">Server Status</a>
+            </div>
         </header>
 
-        <main>
-            <img src="images/uni/University_of_Portsmouth_Logo.png" alt="University of Portsmouth Logo" height="10%" width="10%" class="UoPLogo">
-
-            <h1 class="UoPHead">UoP Shortcuts</h1>
-            <p class="UoPText">  <a href="#Services">Services</a> | <a href="#Map">Maps</a> | <a href="#Status">Server Status</a> </p>
-
-            <section id="Shortcuts">
-                <div class="stuffstuffcontainer">
-                    <div class="stuffcontainer">
-                        <div class="stuffgridcontainer">
-                            <div class="grid-containerStuff">
-        
-                                <!--Row1-->
-
-                                    <div class="grid-itemStuff">
-                                        <div class="item">
-                                            <h1>Uni Timetable</h1>
-                                            <p><a href="https://timetabling.port.ac.uk/CMISGo/Web/Timetable">Timetable Link</a></p>
-                                        </div>
-                                    </div>
-
-                                    <div class="grid-itemStuff">
-                                        <div class="item">
-                                            <h1>Uni Gmail</h1>
-                                            <p><a href="http://mail.myport.ac.uk/">Email Link</a></p>
-                                        </div>
-                                    </div>
-
-                                    <div class="grid-itemStuff">
-                                        <div class="item">
-                                            <h1>Uni Moodle</h1>
-                                            <p><a href="https://moodle.port.ac.uk/">Moodle Link</a></p>
-                                        </div>
-                                    </div>
-
-                                    <div class="grid-itemStuff">
-                                        <div class="item">
-                                            <h1>Uni Student View</h1>
-                                            <p><a href="https://student-system.port.ac.uk/urd/sits.urd/run/siw_sso.saml">SITs View Link</a></p>
-                                        </div>
-                                    </div>
-
-                                <!--Row2-->
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>TO;DO</h1>
-                                        <a href="https://docs.google.com/spreadsheets/d/1hS4vt0g3Tq3updiZxSlnJwenOP0ToHFoEIoPWPn6IaA/edit?usp=sharings">TO;DO List Link</a>
-                                    </div>
-                                </div>
-            
-                                    <!--
-                                    
-                                        TEMPLATE
-                                        
-                                        <div class="grid-itemStuff">
-                                            <div class="item">
-                                                <h1>TO BE</h1>
-                                                <p></p>
-                                            </div>
-                                        </div>
-            
-                                    -->
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="Services">
-                <div class="stuffstuffcontainer">
-                    <div class="stuffcontainer">
-                        <div class="stuffgridcontainer">
-
-                            <p class="MiddleText"><strong class="Attention">*</strong> = Can only be used with School VPN or on School Network</p>
-
-                            <div class="grid-containerStuff">
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>Printing</h1>
-                                            <p><strong class="Attention">*</strong> <a href="https://myprint.port.ac.uk/user">Web Printing</a></p>
-                                    </div>
-                                </div>
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>Remote Access</h1>
-                                        <strong class="Attention">*</strong> <a href="https://keyserver.port.ac.uk/home/Main">Remote Access Website</a><br>
-                                        <a href="https://myport.port.ac.uk/guidance-and-support/student-it-support/using-university-computers-and-laptops/remote-access-to-lab-computers">How To</a>
-                                    </div>
-                                </div>
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>AppsAnywhere</h1>
-                                        <a href="https://appsanywhere.port.ac.uk/login">Uni AA Link</a>
-                                    </div>
-                                </div>
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>Localise N Drive</h1>
-                                        <strong class="Attention">*</strong> <a href="https://sdtools.port.ac.uk/findmyndrive/">Required Tool</a><br>
-                                        <a href="https://myport.port.ac.uk/guidance-and-support/student-it-support/how-to-store-your-files">How to use the tool</a>
-                                    </div>
-                                </div>
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>Attendance</h1>
-                                        <a href="https://app.powerbi.com/groups/me/apps/37518a7a-102b-45de-85a2-47a2dd80ec55/reports/734aa760-ca4b-4c81-8355-5386e6b79d4d/ReportSection46e32ce6bd760951aa77?experience=power-bi">Check your Attendance</a>
-                                    </div>
-                                </div>
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>Key Dates</h1>
-                                        <a href="https://www.port.ac.uk/about-us/key-dates">Important Dates</a>
-                                    </div>
-                                </div>
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>Uni Library</h1>
-                                        <a href="https://library.port.ac.uk/">University Library</a><br>
-                                        <a href="https://librarystudyrooms.port.ac.uk/RoomBooking.dll">Book a Room</a>
-                                    </div>
-                                </div>
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>VM</h1>
-                                        <a href="https://uop-1-server-per-student-prod.appspot.com/instance/get">University VM</a><br>
-                                        <a href="https://docs.google.com/document/d/1c51G-G6du82NTc5VRGBEpZiDyNJxUg-jSsSpk2tP0rs/edit?pli=1&tab=t.0">How to use the VM</a>
-                                    </div>
-                                </div>
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>Academic Tutor</h1>
-                                        <a href="https://moodle.port.ac.uk/course/view.php?id=9173">Available Academic Tutors</a>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="Map">
-                <div class="stuffstuffcontainer">
-                    <div class="stuffcontainer">
-                        <div class="stuffgridcontainer">
-                            <div class="grid-containerStuff">
-        
-                                <!--Row1-->
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>Lion Gate</h1>
-                                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d723.1936065340819!2d-1.0990046714494315!3d50.798972745857625!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48745d82ab570739%3A0x8dbb770f2f7b0f93!2sLion%20Gate%20Building!5e1!3m2!1sen!2suk!4v1728389736683!5m2!1sen!2suk" width="90%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                                    </div>
-                                </div>
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>Richmond</h1>
-                                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1216.2778750354396!2d-1.098440068942203!3d50.79835597677476!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48745d82b1444c21%3A0xfab689f1c52ef3f5!2sRichmond%20Building!5e1!3m2!1sen!2suk!4v1727217600298!5m2!1sen!2suk" width="90%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                                    </div>
-                                </div>
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>Dennis Sciama</h1>
-                                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d723.2137710731776!2d-1.0983673498436821!3d50.797669750407366!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48745d3f7af46fb5%3A0x42f684866a6b4420!2sDennis%20Sciama%20Building!5e1!3m2!1sen!2suk!4v1727217811823!5m2!1sen!2suk" width="90%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                                    </div>
-                                </div>
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>Portland</h1>
-                                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d608.1411993061405!2d-1.0981430360918167!3d50.79818217092172!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48745d82af3b85b3%3A0xb77da1a35fb0e74a!2sPortland%20Building!5e1!3m2!1sen!2suk!4v1727217907427!5m2!1sen!2suk" width="90%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                                    </div>
-                                </div>
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>Angelsea</h1>
-                                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d723.2126371342257!2d-1.0972314086658403!3d50.79774302409942!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48745d9d72565203%3A0x61b9f47b77a31a37!2sAnglesea%20Building!5e1!3m2!1sen!2suk!4v1728389819387!5m2!1sen!2suk" width="90%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                                    </div>
-                                </div>
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>Uni Library</h1>
-                                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1022.8608409060569!2d-1.0971062219106593!3d50.793917513900325!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48745d9ca77650bd%3A0xfd6c18fc9db4af7e!2sUniversity%20Library!5e1!3m2!1sen!2suk!4v1728389890241!5m2!1sen!2suk" width="90%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                                    </div>
-                                </div>
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>University Learning Centre</h1>
-                                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d351.76919201800143!2d-1.09250190527338!3d50.79592686760205!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48745dba2a562aa7%3A0x1b459502a1e88a93!2sUniversity%20Learning%20Centre!5e1!3m2!1sen!2suk!4v1731684908158!5m2!1sen!2suk" width="90%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                                    </div>
-                                </div>
-
-                                <div class="grid-itemStuff">
-                                    <div class="item">
-                                        <h1>Buckingham Building</h1>
-                                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d699.3963827199376!2d-1.099174071424214!3d50.798422098221444!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48745d9d5230695b%3A0xc36a460305fe1251!2sBuckingham%20Building%2C%20Portsmouth%20PO1%203HE!5e1!3m2!1sen!2suk!4v1738849148461!5m2!1sen!2suk" width="90%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                                    </div>
-                                </div>
-            
-                                    <!--
-                                    
-                                        TEMPLATE
-                                        
-                                        <div class="grid-itemStuff">
-                                            <div class="item">
-                                                <h1>TO BE</h1>
-                                                <p></p>
-                                            </div>
-                                        </div>
-            
-                                    -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="Status">
-                <div class="stuffstuffcontainer">
-                    <div class="stuffcontainer">
-                        <div class="stuffgridcontainer">
-
-                            <p class="StatusExp">Server Statuses</p>
-                            <iframe src="https://uopit.freshstatus.io" frameborder="0" width="100%" height="500px"></iframe>
-
-                            <p class="StatusExp">PC/Laptop Availabilities</p>
-                            <iframe src="https://ssd.port.ac.uk/myport/it/openaccess-availability/" frameborder="0" width="100%" height="400px"></iframe>
-                            
-                            <p class="StatusExp">Room Availabilities</p>
-                            <p class="MiddleText"><a href="https://librarystudyrooms.port.ac.uk/RoomBooking.dll">Book a Room</a></p>
-                            <iframe src="https://ssd.port.ac.uk/myport/it/room-availability/" frameborder="0" width="100%" height="500px"></iframe>
-
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-        </main>
-        
-        <footer >
-            <div class="footerContent">
-                <a href="https://github.com/Yung71nKzH3/Website-Project">Source</a>
-        
-                <a href="sitemap.html">Sitemap</a>
-
-                <a href="contact.html">Contact</a>
+        <section id="Shortcuts" class="mb-12">
+            <h2 class="section-header">Core Shortcuts</h2>
+            <div class="grid md:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-4">
                 
-                <button class="scrollBtn" id="scrollToTopBtn">Back to Top</button>
+                <a href="https://timetabling.port.ac.uk/CMISGo/Web/Timetable" target="_blank" class="dashboard-card">
+                    <div>
+                        <i class="fas fa-calendar-alt text-2xl text-cyan-500 mb-1"></i>
+                        <h3 class="text-xl font-bold">Timetable</h3>
+                    </div>
+                    <p class="text-sm text-gray-400">View class schedule.</p>
+                </a>
+
+                <a href="http://mail.myport.ac.uk/" target="_blank" class="dashboard-card">
+                    <div>
+                        <i class="fas fa-envelope text-2xl text-cyan-500 mb-1"></i>
+                        <h3 class="text-xl font-bold">Uni Mail</h3>
+                    </div>
+                    <p class="text-sm text-gray-400">Access student Gmail.</p>
+                </a>
+
+                <a href="https://moodle.port.ac.uk/" target="_blank" class="dashboard-card">
+                    <div>
+                        <i class="fas fa-book-open text-2xl text-cyan-500 mb-1"></i>
+                        <h3 class="text-xl font-bold">Moodle</h3>
+                    </div>
+                    <p class="text-sm text-gray-400">Course materials & submissions.</p>
+                </a>
+
+                <a href="https://student-system.port.ac.uk/urd/sits.urd/run/siw_sso.saml" target="_blank" class="dashboard-card">
+                    <div>
+                        <i class="fas fa-user-graduate text-2xl text-cyan-500 mb-1"></i>
+                        <h3 class="text-xl font-bold">Student View (SITS)</h3>
+                    </div>
+                    <p class="text-sm text-gray-400">Check grades, modules, and admin.</p>
+                </a>
+                
+                <a href="https://docs.google.com/spreadsheets/d/1hS4vt0g3Tq3updiZxSlnJwenOP0ToHFoEIoPWPn6IaA/edit?usp=sharings" target="_blank" class="dashboard-card">
+                    <div>
+                        <i class="fas fa-list-check text-2xl text-cyan-500 mb-1"></i>
+                        <h3 class="text-xl font-bold">TO-DO List</h3>
+                    </div>
+                    <p class="text-sm text-gray-400">Track tasks and deadlines.</p>
+                </a>
             </div>
-            <a href="https://mynickname.com/gamingamer"><img src="https://mynickname.com/img.php?nick=w1ll0w&sert=22&text=t6" alt="Nickname w1ll0w"></a>
-        </footer>
-    </body>
+        </section>
+
+        <section id="Services" class="mb-12">
+            <h2 class="section-header">IT Services & Support</h2>
+            <p class="text-sm text-gray-500 mb-4">
+                <strong class="text-red-400">*</strong> = Requires School VPN or on-campus network.
+            </p>
+            <div class="grid md:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-4">
+                
+                <div class="dashboard-card">
+                    <div>
+                        <i class="fas fa-print text-2xl text-cyan-500 mb-1"></i>
+                        <h3 class="text-xl font-bold">Printing <strong class="text-red-400">*</strong></h3>
+                    </div>
+                    <a href="https://myprint.port.ac.uk/user" target="_blank" class="text-cyan-400 hover:underline text-sm">Web Printing Link</a>
+                </div>
+
+                <div class="dashboard-card">
+                    <div>
+                        <i class="fas fa-desktop text-2xl text-cyan-500 mb-1"></i>
+                        <h3 class="text-xl font-bold">Remote Access <strong class="text-red-400">*</strong></h3>
+                    </div>
+                    <a href="https://keyserver.port.ac.uk/home/Main" target="_blank" class="text-cyan-400 hover:underline text-sm">Access Lab Computers</a>
+                    <a href="https://myport.port.ac.uk/guidance-and-support/student-it-support/using-university-computers-and-laptops/remote-access-to-lab-computers" target="_blank" class="text-gray-400 hover:text-cyan-400 text-xs mt-1">How To Guide</a>
+                </div>
+
+                <a href="https://appsanywhere.port.ac.uk/login" target="_blank" class="dashboard-card">
+                    <div>
+                        <i class="fas fa-th text-2xl text-cyan-500 mb-1"></i>
+                        <h3 class="text-xl font-bold">AppsAnywhere</h3>
+                    </div>
+                    <p class="text-sm text-gray-400">Access required software.</p>
+                </a>
+
+                <div class="dashboard-card">
+                    <div>
+                        <i class="fas fa-hdd text-2xl text-cyan-500 mb-1"></i>
+                        <h3 class="text-xl font-bold">Localise N Drive <strong class="text-red-400">*</strong></h3>
+                    </div>
+                    <a href="https://sdtools.port.ac.uk/findmyndrive/" target="_blank" class="text-cyan-400 hover:underline text-sm">Required Tool</a>
+                    <a href="https://myport.port.ac.uk/guidance-and-support/student-it-support/how-to-store-your-files" target="_blank" class="text-gray-400 hover:text-cyan-400 text-xs mt-1">How to Use</a>
+                </div>
+
+                <a href="https://app.powerbi.com/groups/me/apps/37518a7a-102b-45de-85a2-47a2dd80ec55/reports/734aa760-ca4b-4c81-8355-5386e6b79d4d/ReportSection46e32ce6bd760951aa77?experience=power-bi" target="_blank" class="dashboard-card">
+                    <div>
+                        <i class="fas fa-user-check text-2xl text-cyan-500 mb-1"></i>
+                        <h3 class="text-xl font-bold">Attendance</h3>
+                    </div>
+                    <p class="text-sm text-gray-400">Check your record.</p>
+                </a>
+                
+                <a href="https://www.port.ac.uk/about-us/key-dates" target="_blank" class="dashboard-card">
+                    <div>
+                        <i class="fas fa-clock text-2xl text-cyan-500 mb-1"></i>
+                        <h3 class="text-xl font-bold">Key Dates</h3>
+                    </div>
+                    <p class="text-sm text-gray-400">Important academic dates.</p>
+                </a>
+
+                <a href="https://moodle.port.ac.uk/course/view.php?id=9173" target="_blank" class="dashboard-card">
+                    <div>
+                        <i class="fas fa-person-chalkboard text-2xl text-cyan-500 mb-1"></i>
+                        <h3 class="text-xl font-bold">Academic Tutor</h3>
+                    </div>
+                    <p class="text-sm text-gray-400">Find available support.</p>
+                </a>
+                
+                <div class="dashboard-card">
+                    <div>
+                        <i class="fas fa-server text-2xl text-cyan-500 mb-1"></i>
+                        <h3 class="text-xl font-bold">University VM</h3>
+                    </div>
+                    <a href="https://uop-1-server-per-student-prod.appspot.com/instance/get" target="_blank" class="text-cyan-400 hover:underline text-sm">Access VM</a>
+                    <a href="https://docs.google.com/document/d/1c51G-G6du82NTc5VRGBEpZiDyNJxUg-jSsSpk2tP0rs/edit?pli=1&tab=t.0" target="_blank" class="text-gray-400 hover:text-cyan-400 text-xs mt-1">How To Guide</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="Status" class="mb-12">
+            <h2 class="section-header">Real-Time Status</h2>
+            
+            <div class="space-y-6">
+                <div class="iframe-container">
+                    <p class="text-lg font-semibold text-gray-300 mb-2">Server Statuses</p>
+                    <iframe src="https://uopit.freshstatus.io" frameborder="0" class="w-full" style="height: 500px;"></iframe>
+                </div>
+
+                <div class="iframe-container">
+                    <p class="text-lg font-semibold text-gray-300 mb-2">PC/Laptop Availabilities</p>
+                    <iframe src="https://ssd.port.ac.uk/myport/it/openaccess-availability/" frameborder="0" class="w-full" style="height: 400px;"></iframe>
+                </div>
+                
+                <div class="iframe-container">
+                    <p class="text-lg font-semibold text-gray-300 mb-2">Room Availabilities</p>
+                    <a href="https://librarystudyrooms.port.ac.uk/RoomBooking.dll" target="_blank" class="text-cyan-400 hover:underline text-sm block mb-2">Book a Library Room</a>
+                    <iframe src="https://ssd.port.ac.uk/myport/it/room-availability/" frameborder="0" class="w-full" style="height: 500px;"></iframe>
+                </div>
+            </div>
+        </section>
+        
+        <section id="Map" class="mb-12">
+            <h2 class="section-header">Campus Maps</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <div class="dashboard-card">
+                    <h3 class="text-xl font-bold mb-2">Uni Library</h3>
+                    <div class="iframe-container !p-0">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1022.8608409060569!2d-1.0971062219106593!3d50.793917513900325!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48745d9ca77650bd%3A0xfd6c18fc9db4af7e!2sUniversity%20Library!5e1!3m2!1sen!2suk!4v1728389890241!5m2!1sen!2suk" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3 class="text-xl font-bold mb-2">Dennis Sciama (Your Faculty Building)</h3>
+                    <div class="iframe-container !p-0">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d723.2137710731776!2d-1.0983673498436821!3d50.797669750407366!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48745d3f7af46fb5%3A0x42f684866a6b4420!2sDennis%20Sciama%20Building!5e1!3m2!1sen!2suk!4v1727217811823!5m2!1sen!2suk" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3 class="text-xl font-bold mb-2">University Learning Centre</h3>
+                    <div class="iframe-container !p-0">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d351.76919201800143!2d-1.09250190527338!3d50.79592686760205!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48745dba2a562aa7%3A0x1b459502a1e88a93!2sUniversity%20Learning%20Centre!5e1!3m2!1sen!2suk!4v1731684908158!5m2!1sen!2suk" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3 class="text-xl font-bold mb-2">Lion Gate</h3>
+                    <div class="iframe-container !p-0"> <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d723.1936065340819!2d-1.0990046714494315!3d50.798972745857625!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48745d82ab570739%3A0x8dbb770f2f7b0f93!2sLion%20Gate%20Building!5e1!3m2!1sen!2suk!4v1728389736683!5m2!1sen!2suk" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy"></iframe> </div>
+                </div>
+                <div class="dashboard-card">
+                    <h3 class="text-xl font-bold mb-2">Richmond</h3>
+                    <div class="iframe-container !p-0"> <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1216.2778750354396!2d-1.098440068942203!3d50.79835597677476!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48745d82b1444c21%3A0xfab689f1c52ef3f5!2sRichmond%20Building!5e1!3m2!1sen!2suk!4v1727217600298!5m2!1sen!2suk" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy"></iframe> </div>
+                </div>
+                <div class="dashboard-card">
+                    <h3 class="text-xl font-bold mb-2">Portland</h3>
+                    <div class="iframe-container !p-0"> <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d608.1411993061405!2d-1.0981430360918167!3d50.79818217092172!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48745d82af3b85b3%3A0xb77da1a35fb0e74a!2sPortland%20Building!5e1!3m2!1sen!2suk!4v1727217907427!5m2!1sen!2suk" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy"></iframe> </div>
+                </div>
+                <div class="dashboard-card">
+                    <h3 class="text-xl font-bold mb-2">Angelsea</h3>
+                    <div class="iframe-container !p-0"> <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d723.2126371342257!2d-1.0972314086658403!3d50.79774302409942!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48745d9d72565203%3A0x61b9f47b77a31a37!2sAnglesea%20Building!5e1!3m2!1sen!2suk!4v1728389819387!5m2!1sen!2suk" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy"></iframe> </div>
+                </div>
+                <div class="dashboard-card">
+                    <h3 class="text-xl font-bold mb-2">Buckingham Building</h3>
+                    <div class="iframe-container !p-0"> <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d699.3963827199376!2d-1.099174071424214!3d50.798422098221444!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48745d9d5230695b%3A0xc36a460305fe1251!2sBuckingham%20Building%2C%20Portsmouth%20PO1%203HE!5e1!3m2!1sen!2suk!4v1738849148461!5m2!1sen!2suk" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy"></iframe> </div>
+                </div>
+
+            </div>
+        </section>
+
+        <footer class="text-center pt-8 text-sm text-gray-500">
+            <p>&copy; 2024 UoP Dashboard. Built by a Data Science student.</p>
+            </footer>
+    </div>
+</body>
 </html>

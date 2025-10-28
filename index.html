@@ -1,127 +1,452 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Panel Data Dashboard</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        /* Custom font import */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=IBM+Plex+Mono:wght@400;600&display=swap');
+        
+        /* --- Root Variables & Base (Desktop Defaults) --- */
+        :root {
+            --bg-body: #0c1422;
+            --bg-container: #172033;
+            --text-light: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-color: #06b6d4; /* Cyan 500 */
+            
+            /* DESKTOP SIZING */
+            --pop-up-width: 450px; 
+            --pop-up-height: 85vh;
+            --main-width: 650px; 
+            --transition-speed: 0.5s;
+            --initial-box-size: 300px;
+        }
 
-  <meta name="author" content="Leonardo Paolo Valenti">
-  <meta name="generator" content="Visual Studio Code">
-  <meta name="description" content="The main webpage for the overall domain featuring links to other parts of the site">
-  <meta name="revised" content="2024-10-21">
-  <meta name="robots" content="index, follow">
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body); 
+            color: var(--text-light); 
+            height: 100vh;
+            overflow: hidden; /* Desktop default: No scrolling */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0; 
+            position: relative;
 
-  <link rel="stylesheet" href="flavour.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap">
-  <link rel="canonical" href="https://zedf.co.uk">
-  <script src="script.js" defer></script>
-  <title>ZF - Main</title>
+            /* Animated Background Aesthetic */
+            background: linear-gradient(120deg, #0c1422 0%, #152033 50%, #0c1422 100%);
+            background-size: 200% 200%;
+            animation: moveGradient 15s ease infinite alternate;
+        }
+
+        @keyframes moveGradient {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        /* --- V1 Elements: Title and Main Content Container --- */
+        #title-bio {
+            position: absolute;
+            top: 15%; 
+            left: 50%;
+            transform: translateX(-50%);
+            width: var(--main-width);
+            text-align: center;
+            z-index: 10;
+            transition: all var(--transition-speed);
+        }
+
+        #app-container {
+            display: flex;
+            flex-direction: row; /* Desktop default: Side-by-side */
+            width: var(--main-width);
+            height: var(--initial-box-size);
+            gap: 2rem;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-speed); 
+            z-index: 20;
+        }
+        
+        /* --- Desktop Pop-up Window Architecture (Sidebars) --- */
+
+        .sidebar-wrapper {
+            position: absolute;
+            top: 50%; 
+            height: var(--pop-up-height);
+            width: var(--pop-up-width);
+            background-color: var(--bg-container);
+            border-radius: 1rem; 
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+            padding: 2rem;
+            
+            overflow-y: auto; 
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-color) transparent;
+            
+            opacity: 0;
+            pointer-events: none;
+            transition: transform var(--transition-speed), opacity var(--transition-speed);
+            z-index: 40;
+        }
+        
+        .sidebar-wrapper::-webkit-scrollbar { width: 8px; }
+        .sidebar-wrapper::-webkit-scrollbar-thumb { background-color: var(--accent-color); border-radius: 10px; }
+        .sidebar-wrapper::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
+
+        #stuff-sidebar { left: 25%; transform: translate(calc(-50% - 20px), -50%) scale(0.95); }
+        #links-sidebar { left: 75%; transform: translate(calc(-50% + 20px), -50%) scale(0.95); }
+        
+        .sidebar-wrapper.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+        
+        /* --- V1 Panel Styles (Buttons) --- */
+        
+        .panel {
+            background-color: var(--bg-container);
+            border-radius: 1rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            border: 3px solid transparent; 
+            cursor: pointer;
+            
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .panel .initial-content {
+            width: auto; 
+            padding: 2.5rem; /* Desktop spacing */
+            max-width: 100%; 
+        }
+        
+        .panel:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.5); 
+            border-color: var(--accent-color); 
+        }
+
+        /* --- V2 Content Layout (Grid) --- */
+
+        .v2-content-inner { padding: 0 1rem; }
+        
+        .sub-panel {
+            background-color: var(--bg-body); 
+            border-radius: 0.75rem; 
+            
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 0, 0, 0.3); 
+            
+            padding: 1rem;
+            transition: all 0.2s ease-out;
+            
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            
+            min-height: 120px;
+        }
+        
+        .sub-panel:hover {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 0 15px var(--accent-color);
+            transform: scale(1.05);
+            background-color: var(--bg-container);
+        }
+
+        .v2-content-inner .grid {
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 1rem;
+        }
+        
+        .sub-panel.span-2 {
+            grid-column: span 1 / span 1;
+        }
+        
+        /* =================================== */
+        /* === MOBILE OPTIMIZATION (<= 768px) === */
+        /* =================================== */
+        @media (max-width: 768px) {
+            
+            body {
+                height: auto; 
+                overflow-y: auto;
+                align-items: flex-start; 
+                padding: 1rem 0; 
+                display: block; 
+            }
+            
+            /* V1 Elements: Switch to Static Vertical Flow */
+            
+            #title-bio { 
+                position: static; 
+                transform: translateX(0); 
+                width: 90%; 
+                margin: 1rem auto; 
+            }
+
+            #app-container {
+                position: static; 
+                flex-direction: row; /* Keep side-by-side on mobile V1 */
+                width: 90%;
+                margin: 1.5rem auto 0; 
+                height: 120px; /* Fixed height for centered buttons */
+                gap: 0.5rem; /* Reduced gap */
+                transform: translateX(0);
+                padding: 0; 
+            }
+
+            /* FIX: Ensure V1 panels take up half the width to sit side-by-side */
+            .panel {
+                width: 50%; 
+                height: 120px; 
+                box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+            }
+
+            /* FIX: Contain text within V1 buttons and reduce sizes */
+            .panel .initial-content {
+                padding: 1rem 0.5rem; 
+                overflow: hidden; 
+                text-overflow: ellipsis; 
+            }
+            
+            .panel .initial-content h2 { font-size: 1.5rem; margin-bottom: 0.1rem; }
+            .panel .initial-content p { font-size: 0.7rem; }
+            .panel .initial-content i { font-size: 2.5rem; margin-bottom: 0.2rem; }
+            
+            /* Hide the Desktop Pop-ups completely */
+            #stuff-sidebar, #links-sidebar {
+                display: none;
+            }
+            
+            /* New Mobile Content Pane (Static Flow underneath V1) */
+            #mobile-content-pane {
+                position: static; 
+                width: 90%;
+                height: auto;
+                margin: 1rem auto 2rem; 
+                box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+                
+                background-color: var(--bg-container);
+                border-radius: 1rem;
+                padding: 1rem;
+                
+                /* Collapsible Logic */
+                max-height: 0;
+                transition: max-height 0.7s ease-out;
+                overflow: hidden; 
+            }
+            
+            #mobile-content-pane.active {
+                max-height: 2000px;
+            }
+            
+            #mobile-content-pane .v2-content-inner {
+                padding: 0;
+            }
+
+            /* V2 Content: Single Column for readability */
+            .v2-content-inner .grid {
+                grid-template-columns: 1fr; /* Single column */
+                gap: 0.75rem;
+            }
+            
+            .sub-panel { min-height: 80px; }
+            
+            .v2-content-inner h1 {
+                margin-top: 0;
+                margin-bottom: 0.75rem;
+                font-size: 2rem;
+            }
+        }
+        
+    </style>
 </head>
-
-<body>
-  <header>
-    <nav class="navigation-ribbon">
-      <p></p>
-      <h1>Home</h1>
-      <p>|</p>
-      <a href="about.html">About</a>
-      <p>|</p>
-      <a href="stuff.html">Stuff</a>
-      <p>|</p>
-      <a href="socials.html">Socials</a>
-      <p></p>
-    </nav>
-  </header>
-
-  <div class="opener">
-    <img class="welcomeImage" src="images/Main/bgimage.png" alt="Welcome Image">
-    <h1 class="bgimagetxt">Willow</h1>
-  </div>
-
-  <main>
-    <h1 class="BlogTitle">Blog</h1>
-    <div>
-      <div class="slideshow-container">
-
-        <div class="mySlides fade">
-          <div class="numbertext">1 / 3</div>
-          <img src="images/Main/Software.png" style="width:100%" alt="Placeholder image">
-          <div class="text"><a href="blogs/blog1.html">The First Blog</a></div>
-        </div>
-        
-        <div class="mySlides fade">
-          <div class="numbertext">2 / 3</div>
-          <img src="images/Socials/Insta2.png" style="width:100%" alt="Placeholder image">
-          <div class="text"><a href="blogs/AI.html">Robotics Literature Review</a></div>
-        </div>
-        
-        <div class="mySlides fade">
-          <div class="numbertext">3 / 3</div>
-          <img src="images/Socials/Steam.png" style="width:100%" alt="Placeholder image">
-          <div class="text">Placeholder 3</div>
-        </div>
-        
-        <a class="prev" onclick="plusSlides(-1)">❮</a>
-        <a class="next" onclick="plusSlides(1)">❯</a>
-        
-      </div>
-      
-      <br>
-        
-      <div style="text-align:center">
-        <span class="dot" onclick="currentSlide(1)"></span> 
-        <span class="dot" onclick="currentSlide(2)"></span> 
-        <span class="dot" onclick="currentSlide(3)"></span> 
-      </div>
+<body id="body-main">
+    
+    <!-- TOP-LEVEL V1 ELEMENT: TITLE / BIO -->
+    <div id="title-bio">
+        <h1 class="text-6xl font-extrabold tracking-tight mb-2 text-cyan-400">
+            DATA SCIENCE STUDENT
+        </h1>
+        <p class="text-xl font-light text-gray-300">
+            UK-based Student | Analyzing data with R & Python.
+        </p>
     </div>
 
-    <div class="BlogContainerMain">
-      <div class="Blog1">
-        <img src="images/Main/Software.png" alt="Relating Imagery" class="BlogImage1" width="120" height="120">
-        <div class="BlogText">
-          <p>Excuse the imagery. Didn't want to find or make something more relevant.</p>
-          <p>This being the very first blog ish thing as I dont truly know what counts as a blog with my knowledge of it simply just being some informational writing in a post type fashion</p>
-          <p>I decided to make the first one about Software because firstly makes it easier for me to download them all when I factory reset or something AND if someone maybe has a bit too much storage and needs something to fill a bit more up.</p>
-          <a href="/blogs/blog1.html">The Actual Blog</a>
+    <!-- MAIN V1 CONTENT (The two square buttons) -->
+    <div id="app-container">
+        
+        <!-- PANEL 1: STUFF (LEFT) -->
+        <div id="stuff-panel" class="panel" 
+             data-target="stuff" 
+             onclick="toggleSidebar('stuff')"> 
+            <div class="initial-content w-full">
+                <i class="fas fa-box-open text-7xl mb-4 text-cyan-500 transition duration-300"></i>
+                <h2 class="text-3xl font-bold mb-1">Stuff</h2>
+                <p class="text-gray-400 text-sm">Projects, Experiments & Code.</p>
+            </div>
         </div>
-      </div>
 
-      <div class="Blog2">
-        <div class="BlogText">
-            <a href="/blogs/AI.html">LITERATURE REVIEW!!!</a>
+        <!-- PANEL 2: SOCIALS (RIGHT) -->
+        <div id="links-panel" class="panel" 
+             data-target="links" 
+             onclick="toggleSidebar('links')"> 
+            <div class="initial-content w-full">
+                <i class="fas fa-user-circle text-7xl mb-4 text-cyan-500 transition duration-300"></i>
+                <h2 class="text-3xl font-bold mb-1">Socials</h2>
+                <p class="text-gray-400 text-sm">View all my links & contact info.</p>
+            </div>
         </div>
-          <img src="images/Socials/steam-logo-transparent.png" alt="Relating Imagery" class="BlogImage2" width="120" height="120">
-      </div>
-
-
-      <!--
-      <div class="Blog2">
-        <div class="BlogText">
-            <p>This is some text content.This is some text content. This is some text content. This is some text content. This is some text content.This is some text content. This is some text content. This is some text content. This is some text content.This is some text content. This is some text content. This is some text content. </p>
-        </div>
-          <img src="images/Socials/steam-logo-transparent.png" alt="Relating Imagery" class="BlogImage2" width="120" height="120">
-      </div>
-      -->
     </div>
     
-
-  
-  </main>
-
-  <footer >
-    <div class="footerContent">
-        <a href="https://github.com/Yung71nKzH3/Website-Project">Source</a>
-
-        <a href="sitemap.html">Sitemap</a>
-
-        <a href="contact.html">Contact</a>
-      
-        <button class="scrollBtn" id="scrollToTopBtn">Back to Top</button>
+    <!-- NEW: SINGLE MOBILE CONTENT PANE -->
+    <div id="mobile-content-pane">
+        <div class="v2-content-inner" id="mobile-content-inner">
+            <!-- Content will be injected here -->
+        </div>
     </div>
-    <a href="https://mynickname.com/gamingamer"><img src="https://mynickname.com/img.php?nick=w1ll0w&sert=22&text=t6" alt="Nickname w1ll0w" class="NoBorder"></a>
-</footer>
+    
+    <!-- DESKTOP-ONLY SIDEBARS (Content kept for injection) -->
+    <div id="stuff-sidebar" class="sidebar-wrapper">
+        <div class="v2-content-inner" id="stuff-desktop-content">
+            <h1 class="text-3xl font-extrabold tracking-tight mb-8 text-cyan-400 text-center">
+                Stuff (Projects & Tools)
+            </h1>
+            <div class="grid grid-cols-2 gap-4">
+                <a href="uni.html" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-graduation-cap text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Uni Dash</h3> <p class="text-gray-400 text-xs">Helpful Shortcuts</p> </div> </a>
+                <a href="quotes.html" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-quote-right text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Fav Quotes</h3> <p class="text-gray-400 text-xs">Just the Hits</p> </div> </a>
+                <a href="https://falixnodes.net/startserver" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-server text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Minecraft Server</h3> <p class="text-gray-400 text-xs">ip=zfgaming</p> </div> </a>
+                <a href="https://youtube.com/playlist?list=PLmDAk0SfywoVrnnN4JBR4tLcjPqfDA5N4&si=TBfZ-AnuuMInpFTM" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-calendar-alt text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">College CS Project</h3> <p class="text-gray-400 text-xs">Timetable Scheduler</p> </div> </a>
+                <a href="https://docs.google.com/document/d/1hdCehlL4bRm4cgJa2KhzUSMKTOEiEcjmxxgih3togmM/edit?usp=sharing" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-brain text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">EPQ</h3> <p class="text-gray-400 text-xs">AI, Humans best friend?</p> </div> </a>
+                <a href="https://steamcommunity.com/id/zfw1ll0w/myworkshopfiles/" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-steam text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Wallpaper Engine</h3> <p class="text-gray-400 text-xs">My work</p> </div> </a>
+                <a href="https://steamcommunity.com/groups/0fukkes" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-steam-symbol text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Steam Group</h3> <p class="text-gray-400 text-xs">Faze Up</p> </div> </a>
+                <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3323426346" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-image text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Steam Artwork</h3> <p class="text-gray-400 text-xs">Like and Sub</p> </div> </a>
+                <a href="https://mynickname.com/gamingamer" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-gamepad text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">w1ll0w</h3> <p class="text-gray-400 text-xs">Peep it</p> </div> </a>
+                <a href="https://youtu.be/ItC8GV4BJuw" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-gift text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Christmas Album</h3> <p class="text-gray-400 text-xs">Ho Ho Ho</p> </div> </a>
+                <a href="https://steamcommunity.com/broadcast/watch/76561198151099217/" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-video text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Steam Stream</h3> <p class="text-gray-400 text-xs">wassup</p> </div> </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="links-sidebar" class="sidebar-wrapper">
+        <div class="v2-content-inner" id="links-desktop-content">
+            <h1 class="text-3xl font-extrabold tracking-tight mb-8 text-cyan-400 text-center">
+                Links & Contact
+            </h1>
+            <div class="grid grid-cols-2 gap-4">
+                <a href="https://www.amazon.co.uk/gp/profile/amzn1.account.AFZV5OZGH35QG65NFVT623ERKCJA/ref=cm_cr_dp_d_gw_tr?ie=UTF8" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-amazon text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Amazon</h3> <p class="text-gray-400 text-xs">bought&thought</p> </div> </a>
+                <a href="https://www.google.com/maps/contrib/109714089787548110234/reviews" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-google text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Maps</h3> <p class="text-gray-400 text-xs">reviews</p> </div> </a>
+                <a href="https://www.youtube.com/@w1ll0w62" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-youtube text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">YouTube</h3> <p class="text-gray-400 text-xs">bits&bobs</p> </div> </a>
+                <a href="https://open.spotify.com/user/vleonardo2006" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-spotify text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Spotify</h3> <p class="text-gray-400 text-xs">connoisseur</p> </div> </a>
+                <a href="https://stats.fm/wi110w" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-chart-bar text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Stats.fm</h3> <p class="text-gray-400 text-xs">OG</p> </div> </a>
+                <a href="https://letterboxd.com/w1ll0ww/" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-film text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Letterboxd</h3> <p class="text-gray-400 text-xs">fanatic</p> </div> </a>
+                <a href="https://www.alltrails.com/en-gb/members/w1ll0w-user?ref=header" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-mountain text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">AllTrails</h3> <p class="text-gray-400 text-xs">checkit</p> </div> </a>
+                <a href="https://github.com/Yung71nKzH3" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-github text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">GitHub</h3> <p class="text-gray-400 text-xs">damn SSH</p> </div> </a>
+                <a href="https://www.instagram.com/w1ll0_w/" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-instagram text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Instagram</h3> <p class="text-gray-400 text-xs">reposts fire</p> </div> </a>
+                <a href="https://www.threads.net/@w1ll0_w" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-threads text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Threads</h3> <p class="text-gray-400 text-xs">don' look</p> </div> </a>
+                <a href="https://steamcommunity.com/id/zfw1ll0w/" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fab fa-steam text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Steam</h3> <p class="text-gray-400 text-xs">goated</p> </div> </a>
+                <a href="https://anilist.co/user/w1ll0wW/" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-tv text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">AniList</h3> <p class="text-gray-400 text-xs">Violet bro</p> </div> </a>
+                <a href="https://social.vivaldi.net/@W1ll0w" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-comments text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Vivaldi Social</h3> <p class="text-gray-400 text-xs">wut is ts?</p> </div> </a>
+                <a href="https://www.keybr.com/profile/b57ds5l" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-keyboard text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">Keybr</h3> <p class="text-gray-400 text-xs">type</p> </div> </a>
+                <a href="https://monkeytype.com/profile/w1LL0w" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content w-full"> <i class="fas fa-laptop-code text-4xl mb-2 text-cyan-400"></i> <h3 class="font-bold">MonkeyType</h3> <p class="text-gray-400 text-xs">yurr</p> </div> </a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const BODY_MAIN = document.getElementById('body-main');
+        const STUFF_SIDEBAR = document.getElementById('stuff-sidebar');
+        const LINKS_SIDEBAR = document.getElementById('links-sidebar');
+        const MOBILE_CONTENT_PANE = document.getElementById('mobile-content-pane');
+        const MOBILE_CONTENT_INNER = document.getElementById('mobile-content-inner');
+
+        let activePanelId = null;
+
+        /**
+         * Checks if the screen is mobile size.
+         * @returns {boolean}
+         */
+        function isMobile() {
+            // Using a max-width of 768px as the breakpoint
+            return window.innerWidth <= 768;
+        }
+
+        /**
+         * Injects content into the mobile pane for a single-view scroll experience.
+         * @param {string} targetId - 'stuff' or 'links'
+         */
+        function injectMobileContent(targetId) {
+            const contentSourceId = `${targetId}-desktop-content`;
+            const contentSource = document.getElementById(contentSourceId);
+            
+            // Get desktop content and modify grid layout for mobile
+            let mobileContent = contentSource.innerHTML;
+            // FIX: Ensure single column grid for mobile
+            mobileContent = mobileContent.replace('grid-cols-2', 'grid-cols-1');
+            
+            MOBILE_CONTENT_INNER.innerHTML = mobileContent;
+        }
+
+        /**
+         * Toggles the specified content view open or closed based on device size.
+         * @param {string} targetId - 'stuff' or 'links'
+         */
+        window.toggleSidebar = function(targetId) {
+            const sidebar = targetId === 'stuff' ? STUFF_SIDEBAR : LINKS_SIDEBAR;
+            const isOpening = !sidebar.classList.contains('active'); // Define locally
+
+            if (isMobile()) {
+                // --- MOBILE LOGIC (Scroll Collapse/Expand) ---
+                
+                if (isOpening) {
+                    // 1. Inject content and open the pane
+                    injectMobileContent(targetId);
+                    
+                    // Close the other panel's visual active state
+                    document.getElementById('stuff-panel').classList.remove('active');
+                    document.getElementById('links-panel').classList.remove('active');
+                    
+                    // Open the current content pane
+                    MOBILE_CONTENT_PANE.classList.add('active');
+                    
+                    // Set current active state
+                    sidebar.classList.add('active'); // This is the state holder
+                    document.getElementById(`${targetId}-panel`).classList.add('active'); // Visual active state
+                    activePanelId = targetId;
+
+                } else {
+                    // If closing, collapse the pane
+                    MOBILE_CONTENT_PANE.classList.remove('active');
+                    sidebar.classList.remove('active');
+                    document.getElementById(`${targetId}-panel`).classList.remove('active'); // Visual active state
+                    activePanelId = null;
+                }
+                
+            } else {
+                // --- DESKTOP LOGIC (Floating Pop-ups) ---
+                
+                // Toggle the current sidebar
+                sidebar.classList.toggle('active');
+                
+                // Toggle the main body state class (moves the central content)
+                BODY_MAIN.classList.toggle(`${targetId}-active`, isOpening);
+            }
+        }
+    </script>
 
 </body>
 </html>
