@@ -70,9 +70,43 @@
         .modal-backdrop {
             background-color: rgba(0, 0, 0, 0.8);
         }
+	/* Ensure the iframe itself is responsive within its container */
+        .youtube-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
     </style>
 </head>
 <body class="p-4 flex items-center justify-center min-h-screen">
+
+
+    <!-- The container for the music player -->
+    <div class="fixed top-4 left-4 w-96 h-80 bg-gray-900 rounded-xl shadow-2xl transition-all duration-300 hover:shadow-3xl overflow-hidden ring-4 ring-gray-700/50">
+        
+        <!-- Player Title/Header -->
+        <div class="p-2 bg-gray-800 text-white flex items-center justify-between shadow-md">
+            <h2 class="text-sm font-semibold truncate">🎧 Dark Mode Beats</h2>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-music"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        </div>
+
+        <!-- YouTube Iframe Embed -->
+        <div class="h-[calc(100%-32px)]">
+            <!-- 
+            FIXED EMBED URL:
+            We now target a specific video ID (41nREvWSTyg) while keeping the playlist parameter (list=...).
+            This tells the player exactly where to start, resolving configuration issues.
+            -->
+            <iframe
+                class="youtube-iframe"
+                src="https://www.youtube-nocookie.com/embed/41nREvWSTyg?list=PLtUOgklcCF2yZBHr80NKtIyZXdnJhEHJ2&autoplay=0&loop=1&color=white&modestbranding=1"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+                title="YouTube Playlist Embed"
+                referrerPolicy="strict-origin-when-cross-origin"
+            ></iframe>
+        </div>
+    </div>
 
     <div id="app" class="w-full max-w-md bg-gray-800 p-6 rounded-3xl shadow-2xl">
         <h1 class="text-3xl font-bold text-center text-white mb-2">Calc67</h1>
