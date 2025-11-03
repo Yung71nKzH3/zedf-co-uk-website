@@ -4,102 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calc67</title>
-    <!-- Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Custom font for a clean look */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #1f2937; /* Dark background */
-        }
-        /* Custom styles for the display to look like a digital calculator screen */
-        .calculator-display {
-            background-color: #111827; /* Very dark background for display */
-            color: #34d399; /* Neon green text */
-            text-shadow: 0 0 5px rgba(52, 211, 153, 0.5);
-            min-height: 4.5rem;
-        }
-        /* Custom button style for calculator keys */
-        .calc-button {
-            transition: all 0.1s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .calc-button:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-        /* Style for operation buttons */
-        .op-button {
-            background-color: #f59e0b;
-            color: white;
-        }
-        .op-button.selected {
-            background-color: #fcd34d;
-            color: #1f2937;
-            border: 2px solid #f97316;
-        }
-        .op-button:hover {
-            background-color: #d97706;
-        }
-        /* Style for number/entry buttons */
-        .num-button {
-            background-color: #374151;
-            color: white;
-        }
-        .num-button:hover {
-            background-color: #4b5563;
-        }
-        /* Style for the main AC/Clear button */
-        .clear-button {
-            background-color: #ef4444;
-            color: white;
-        }
-        .clear-button:hover {
-            background-color: #dc2626;
-        }
-        /* Style for the check/submit button */
-        .apply-button {
-            background-color: #10b981;
-            color: white;
-        }
-        .apply-button:hover {
-            background-color: #059669;
-        }
-        /* Modal Backdrop */
-        .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-	/* Ensure the iframe itself is responsive within its container */
-        .youtube-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-    </style>
+    
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body class="p-4 flex items-center justify-center min-h-screen">
+<body id="body-calc">
 
-
-    <!-- The container for the music player -->
-    <div class="fixed top-4 left-4 w-96 h-80 bg-gray-900 rounded-xl shadow-2xl transition-all duration-300 hover:shadow-3xl overflow-hidden ring-4 ring-gray-700/50">
+    <div class="music-player-container">
         
-        <!-- Player Title/Header -->
-        <div class="p-2 bg-gray-800 text-white flex items-center justify-between shadow-md">
-            <h2 class="text-sm font-semibold truncate">🎧 Dark Mode Beats</h2>
+        <div class="player-header">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-music"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
         </div>
 
-        <!-- YouTube Iframe Embed -->
-        <div class="h-[calc(100%-32px)]">
-            <!-- 
-            FIXED EMBED URL:
-            We now target a specific video ID (41nREvWSTyg) while keeping the playlist parameter (list=...).
-            This tells the player exactly where to start, resolving configuration issues.
-            -->
+        <div class="youtube-embed-wrapper">
             <iframe
                 class="youtube-iframe"
-                src="https://www.youtube-nocookie.com/embed/41nREvWSTyg?list=PLtUOgklcCF2yZBHr80NKtIyZXdnJhEHJ2&autoplay=0&loop=1&color=white&modestbranding=1"
+                src="https://www.youtube-nocookie.com/embed/41nREvWSTyg?list=PLtUOgklcCF2yZBHr80NKtIyZXdnJhEHJ2&autoplay=1&mute=1&loop=1&color=white&modestbranding=1"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen
                 title="YouTube Playlist Embed"
@@ -108,553 +27,127 @@
         </div>
     </div>
 
-    <div id="app" class="w-full max-w-md bg-gray-800 p-6 rounded-3xl shadow-2xl">
-        <h1 class="text-3xl font-bold text-center text-white mb-2">Calc67</h1>
-        <p class="text-center text-sm text-gray-400 mb-4">Target: <span id="target-display" class="font-bold text-yellow-400">67</span></p>
+    <div id="app">
+        <h1>Calc67</h1>
+        <p class="target-label">Target: <span id="target-display">67</span></p>
+        
+        <div id="profile-box" class="profile-box" onclick="toggleLeaderboardModal(true)">
+            <span class="profile-tag" id="profile-tag">--</span>
+            <span class="profile-info">Click to view Leaderboard</span>
+        </div>
+        
+        <div id="loading">Loading daily challenge...</div>
 
-        <!-- Loading Indicator -->
-        <div id="loading" class="text-center text-gray-400 p-8">Loading daily challenge...</div>
-
-        <!-- Main Game Container (Hidden until loaded) -->
         <div id="game-container" class="hidden">
             
-            <!-- Result and Input Displays (Fixed Current Result -> Input Operator/Number) -->
-            <div class="mb-4 p-4 rounded-xl calculator-display text-right">
-                <div class="text-xs text-gray-400 mb-1">CURRENT RESULT (Operand 1)</div>
-                <div id="current-result" class="font-mono text-5xl font-bold">0</div>
+            <div class="calculator-display">
+                <div class="current-result-label">CURRENT RESULT (Operand 1)</div>
+                <div id="current-result" class="current-result-value">0</div>
             </div>
 
-            <div class="mb-4 p-3 bg-gray-700 rounded-xl text-white flex justify-between items-center">
-                <!-- Operation Step Input -->
-                <span class="text-lg font-semibold">=</span>
-                <span id="input-operator" class="w-1/4 text-center text-yellow-400 p-2 text-3xl font-mono bg-gray-900 rounded-lg shadow-inner">?</span>
-                <span id="input-number" class="w-2/3 text-right p-2 text-3xl font-mono bg-gray-900 rounded-lg shadow-inner text-white">0</span>
+            <div class="input-container">
+                <span class="input-equals">=</span>
+                <span id="input-operator" class="input-operator-display font-bold">?</span>
+                <span id="input-number" class="input-number-display">0</span>
             </div>
             
-            <!-- Info Box and History Button -->
-            <div class="text-center mb-4 p-3 bg-gray-700 rounded-xl text-white">
-                <div id="starting-number-display" class="text-sm font-semibold mb-1"></div>
-                <div class="flex justify-between items-center">
-                    <div id="op-counter" class="text-base font-bold text-yellow-300">Operations: 0</div> 
-                    <button id="history-button" class="px-3 py-1 bg-gray-600 rounded-lg text-sm hover:bg-gray-500 transition" onclick="toggleModal(true)">History</button>
+            <div class="info-box">
+                <div id="starting-number-display" class="info-header"></div>
+                <div class="info-footer">
+                    <div id="op-counter" class="op-counter-text">Operations: 0</div> 
+                    <button id="history-button" class="history-button" onclick="toggleModal(true)">History</button>
                 </div>
-                <div id="message-box" class="text-sm font-medium h-6 mt-1 text-yellow-300">Enter a number and an operation.</div>
+                <div id="message-box" class="message-box">Enter a number and an operation.</div>
             </div>
 
-            <!-- Calculator Keypad -->
-            <div id="keypad" class="grid grid-cols-4 gap-3">
-                <!-- Row 1 -->
-                <button class="col-span-2 p-4 rounded-xl clear-button font-bold text-xl" onclick="handleInput('AC')">AC</button>
-                <button id="op-div" class="p-4 rounded-xl op-button font-bold text-xl" onclick="handleInput('/')">/</button>
-                <button id="op-mult" class="p-4 rounded-xl op-button font-bold text-xl" onclick="handleInput('*')">*</button>
+            <div id="keypad" class="keypad-grid">
+                
+                <button id="ac-button" class="calc-button clear-button" onclick="handleInput('AC')">AC</button>
+                <button id="del-button" class="calc-button clear-button" onclick="handleInput('DEL')">DEL</button>
+                <button id="op-div" class="calc-button op-button" onclick="handleInput('/')">/</button>
 
-                <!-- Row 2 -->
-                <button class="p-4 rounded-xl num-button font-bold text-xl" onclick="handleInput('7')">7</button>
-                <button class="p-4 rounded-xl num-button font-bold text-xl" onclick="handleInput('8')">8</button>
-                <button class="p-4 rounded-xl num-button font-bold text-xl" onclick="handleInput('9')">9</button>
-                <button id="op-add" class="p-4 rounded-xl op-button font-bold text-xl" onclick="handleInput('+')">+</button>
+                <button class="calc-button num-button" onclick="handleInput('7')">7</button>
+                <button class="calc-button num-button" onclick="handleInput('8')">8</button>
+                <button class="calc-button num-button" onclick="handleInput('9')">9</button>
+                <button id="op-mult" class="calc-button op-button" onclick="handleInput('*')">*</button>
 
-                <!-- Row 3 -->
-                <button class="p-4 rounded-xl num-button font-bold text-xl" onclick="handleInput('4')">4</button>
-                <button class="p-4 rounded-xl num-button font-bold text-xl" onclick="handleInput('5')">5</button>
-                <button class="p-4 rounded-xl num-button font-bold text-xl" onclick="handleInput('6')">6</button>
-                <!-- NOTE: Subtraction is NOT allowed per user request -->
-                <div class="p-4 rounded-xl bg-gray-700 text-gray-400 font-bold text-xl flex items-center justify-center">−</div>
+                <button class="calc-button num-button" onclick="handleInput('4')">4</button>
+                <button class="calc-button num-button" onclick="handleInput('5')">5</button>
+                <button class="calc-button num-button" onclick="handleInput('6')">6</button>
+                <button id="op-add" class="calc-button op-button" onclick="handleInput('+')">+</button>
 
-                <!-- Row 4 -->
-                <button class="p-4 rounded-xl num-button font-bold text-xl" onclick="handleInput('1')">1</button>
-                <button class="p-4 rounded-xl num-button font-bold text-xl" onclick="handleInput('2')">2</button>
-                <button class="p-4 rounded-xl num-button font-bold text-xl" onclick="handleInput('3')">3</button>
+                <button class="calc-button num-button" onclick="handleInput('1')">1</button>
+                <button class="calc-button num-button" onclick="handleInput('2')">2</button>
+                <button class="calc-button num-button" onclick="handleInput('3')">3</button>
+                <div class="subtract-placeholder">−</div>
 
-                <!-- Row 5 -->
-                <button class="col-span-1 p-4 rounded-xl num-button font-bold text-xl" onclick="handleInput('0')">0</button>
-                <button class="p-4 rounded-xl num-button font-bold text-xl" onclick="handleInput('.')">.</button>
-                <button class="p-4 rounded-xl apply-button font-bold text-xl col-span-2" onclick="executeStep()">APPLY</button>
+                <button class="calc-button num-button" onclick="handleInput('0')">0</button>
+                <button class="calc-button num-button" onclick="handleInput('.')">.</button>
+                <button id="apply-button" class="calc-button apply-button" onclick="executeStep()">APPLY</button>
             </div>
         </div>
 
-        <!-- Solved Status -->
-        <div id="solved-status" class="hidden text-center p-6 mt-4 bg-green-900 text-white rounded-xl">
-            <h2 class="text-2xl font-bold">🎉 Challenge Solved! 🎉</h2>
-            <p id="solved-expression" class="mt-2 text-lg font-mono"></p>
-            <p id="solved-operations" class="mt-1 text-sm text-green-300"></p>
-            <!-- MOVED: Share Button to solved screen -->
-            <button id="solved-share-button" class="mt-4 w-full p-3 bg-blue-600 rounded-lg font-bold text-lg hover:bg-blue-700 transition" onclick="shareResults()">
+        <div id="solved-status" class="solved-status-box hidden">
+            <h2 class="solved-header">🎉 Challenge Solved! 🎉</h2>
+            <p id="solved-expression" class="solved-expression-text"></p>
+            <p id="solved-operations" class="solved-operations-text"></p>
+            
+            <button id="solved-share-button" class="share-button" onclick="shareResults()">
                 Share Score
             </button>
-            <p id="solved-share-message" class="mt-2 text-sm text-center text-gray-300 hidden"></p>
+            <p id="solved-share-message" class="share-message"></p>
+            
+            <button id="show-leaderboard-button" class="share-button view-leaderboard-button" onclick="toggleLeaderboardModal(true)">
+                View Daily Leaderboard
+            </button>
         </div>
     </div>
 
-    <!-- Operation History Modal -->
     <div id="history-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
-        <div class="bg-gray-800 p-6 rounded-xl w-full max-w-sm shadow-2xl text-white">
-            <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
-                <h3 class="text-2xl font-bold text-yellow-400">Operation Log</h3>
-                <button class="text-gray-400 hover:text-white text-xl" onclick="toggleModal(false)">&times;</button>
+        <div class="modal-content">
+            <div class="modal-header-container">
+                <h3>Operation Log</h3>
+                <button onclick="toggleModal(false)">&times;</button>
             </div>
-            <p id="modal-op-count" class="text-base mb-3 font-semibold"></p>
-            <ul id="operation-history-list" class="space-y-2 max-h-80 overflow-y-auto">
-                <li class="text-gray-500">No steps recorded yet.</li>
+            <p id="modal-op-count" class="modal-op-count text-base"></p>
+            <ul id="operation-history-list" class="history-list">
+                <li class="placeholder">No steps recorded yet.</li>
             </ul>
         </div>
     </div>
 
-    <!-- Firebase Imports -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, getDocs, collection, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <div id="leaderboard-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
+        <div class="modal-content leaderboard-content">
+            <div class="modal-header-container">
+                <h3>🏆 Daily Leaderboard</h3>
+                <button onclick="toggleLeaderboardModal(false)">&times;</button>
+            </div>
 
-        // Set Firestore debug logging
-        setLogLevel('Debug');
-
-        // Global variables for Firebase and state
-        let app;
-        let db;
-        let auth;
-        let userId = 'anonymous';
-
-        const TARGET_NUMBER = 67;
-        let dailyStartingNumber = null;
-        let hasSolvedToday = false;
-        
-        // STATE FOR STEP-BY-STEP FLOW
-        let currentResult = 0; // The running total (Operand 1 - Fixed)
-        let currentInputNumber = ''; // The number the user is currently typing (Operand 2)
-        let currentOperator = ''; // The selected operator (+, *, /)
-        let operationCount = 0; 
-        let operationHistory = []; // Array to store history objects: { op: '+', num: 10, result: 52 }
-
-        // Get the current date in YYYY-MM-DD format for the unique daily challenge ID
-        const todayKey = new Date().toISOString().split('T')[0];
-
-        // --- UI Elements ---
-        const loadingEl = document.getElementById('loading');
-        const gameContainerEl = document.getElementById('game-container');
-        const solvedStatusEl = document.getElementById('solved-status');
-        const currentResultEl = document.getElementById('current-result');
-        const opCounterEl = document.getElementById('op-counter'); 
-        const startingNumberDisplayEl = document.getElementById('starting-number-display');
-        const messageBoxEl = document.getElementById('message-box');
-        const solvedExpressionEl = document.getElementById('solved-expression');
-        const solvedOperationsEl = document.getElementById('solved-operations');
-        const inputOperatorEl = document.getElementById('input-operator');
-        const inputNumberEl = document.getElementById('input-number');
-        const historyModalEl = document.getElementById('history-modal');
-        const historyListEl = document.getElementById('operation-history-list');
-        const modalOpCountEl = document.getElementById('modal-op-count');
-        const solvedShareMessageEl = document.getElementById('solved-share-message'); // NEW LOCATION
-
-        
-        // Firestore path helpers
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        /**
-         * Toggles the visibility of the operation history modal.
-         * @param {boolean} show Whether to show or hide the modal.
-         */
-        window.toggleModal = function(show) {
-            if (show) {
-                historyModalEl.classList.remove('hidden');
-                renderHistory();
-            } else {
-                historyModalEl.classList.add('hidden');
-            }
-        }
-
-        /**
-         * Renders the operation history into the modal list.
-         */
-        function renderHistory() {
-            historyListEl.innerHTML = '';
-            modalOpCountEl.textContent = `Total Steps: ${operationCount}`;
-
-            if (operationHistory.length === 0 && !hasSolvedToday) {
-                 historyListEl.innerHTML = `<li class="text-gray-500">Starting with ${dailyStartingNumber}</li>`;
-                 return;
-            }
-
-            // Start with the initial number display
-            const initialLi = document.createElement('li');
-            initialLi.className = 'text-gray-400 border-b border-gray-700 pb-1';
-            initialLi.innerHTML = `&rarr; **Start:** <span class="text-yellow-400">${dailyStartingNumber}</span>`;
-            historyListEl.appendChild(initialLi);
-
-
-            operationHistory.forEach((step, index) => {
-                const li = document.createElement('li');
-                li.className = 'py-1 text-sm border-b border-gray-700 last:border-b-0';
-                // Show the full step: [Prev Result] [OP] [Num] = [New Result]
-                li.innerHTML = `
-                    <span class="text-gray-400">${index + 1}.</span> 
-                    <span class="font-mono text-base">${step.prevResult.toFixed(4).replace(/\.?0+$/, '')}</span> 
-                    <span class="text-yellow-400 font-bold">${step.op}</span> 
-                    <span class="font-mono text-base">${step.num.toFixed(4).replace(/\.?0+$/, '')}</span> 
-                    = 
-                    <span class="text-green-400 font-bold text-base">${step.result.toFixed(4).replace(/\.?0+$/, '')}</span>
-                `;
-                historyListEl.appendChild(li);
-            });
-        }
-        
-        /**
-         * Creates and copies the share message to the clipboard.
-         */
-        window.shareResults = function() {
-            if (!hasSolvedToday) return;
-
-            // Generate a simple emoji grid based on the operations used
-            let emojiGrid = operationHistory.map(h => {
-                switch(h.op) {
-                    case '+': return '🟢'; // Green for addition
-                    case '*': return '🟡'; // Yellow for multiplication
-                    case '/': return '🔵'; // Blue for division
-                    default: return '⚪️';
-                }
-            }).join(' ');
-
-            // Construct the share message
-            const shareText = 
-`🔢 **Calc67** Daily Challenge: ${todayKey}
-Target: ${TARGET_NUMBER}
-Started at: ${dailyStartingNumber}
-Solved in **${operationCount} steps**!
-
-${emojiGrid}
-
-#Calc67 #MathGame
-https://zedf.co.uk/calc67/`;
-
-            // Use the Clipboard API
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(shareText).then(() => {
-                    solvedShareMessageEl.textContent = "Copied to clipboard!";
-                    solvedShareMessageEl.classList.remove('hidden');
-                    setTimeout(() => solvedShareMessageEl.classList.add('hidden'), 3000); // Hide after 3 seconds
-                }).catch(err => {
-                    console.error('Could not copy text: ', err);
-                    solvedShareMessageEl.textContent = "Failed to copy. Check console.";
-                    solvedShareMessageEl.classList.remove('hidden');
-                });
-            } else {
-                // Fallback for older browsers
-                const tempTextArea = document.createElement('textarea');
-                tempTextArea.value = shareText;
-                document.body.appendChild(tempTextArea);
-                tempTextArea.focus();
-                tempTextArea.select();
-                try {
-                    document.execCommand('copy');
-                    solvedShareMessageEl.textContent = "Copied to clipboard!";
-                    solvedShareMessageEl.classList.remove('hidden');
-                    setTimeout(() => solvedShareMessageEl.classList.add('hidden'), 3000);
-                } catch (err) {
-                    solvedShareMessageEl.textContent = "Copy failed. Please copy manually.";
-                    solvedShareMessageEl.classList.remove('hidden');
-                }
-                document.body.removeChild(tempTextArea);
-            }
-        }
-
-        /**
-         * Updates the UI elements based on the current state.
-         */
-        function updateUI() {
-            currentResultEl.textContent = currentResult.toFixed(4).replace(/\.?0+$/, ''); // Display running total
-            inputNumberEl.textContent = currentInputNumber === '' ? '0' : currentInputNumber; // Display number input
-            inputOperatorEl.textContent = currentOperator === '' ? '?' : currentOperator; // Display operator input
-            opCounterEl.textContent = `Operations: ${operationCount}`; // Display counter
-
-            // Highlight the selected operator button
-            document.querySelectorAll('.op-button').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            if (currentOperator) {
-                document.getElementById(`op-${currentOperator === '*' ? 'mult' : currentOperator === '/' ? 'div' : 'add'}`).classList.add('selected');
-            }
-        }
-
-        /**
-         * Initializes Firebase and authenticates the user.
-         */
-        async function initializeFirebase() {
-            try {
-                if (firebaseConfig) {
-                    app = initializeApp(firebaseConfig);
-                    db = getFirestore(app);
-                    auth = getAuth(app);
-
-                    // Sign in user
-                    if (initialAuthToken) {
-                        await signInWithCustomToken(auth, initialAuthToken);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-
-                    onAuthStateChanged(auth, async (user) => {
-                        if (user) {
-                            userId = user.uid;
-                            console.log("Authenticated User ID:", userId);
-                            await loadDailyChallenge();
-                        } else {
-                            // Use a random ID for unauthenticated users (for private data storage)
-                            userId = crypto.randomUUID();
-                            console.log("Using anonymous ID:", userId);
-                            // Load the challenge even if anonymous
-                            await loadDailyChallenge();
-                        }
-                    });
-                } else {
-                    console.error("Firebase config not available. Running in local fallback mode.");
-                    await loadDailyChallenge(true); // Run with mock data
-                }
-            } catch (error) {
-                console.error("Firebase initialization failed:", error);
-                messageBoxEl.textContent = "Error loading game. Check console.";
-            }
-        }
-
-        /**
-         * Loads or generates the universal daily starting number.
-         */
-        async function loadDailyChallenge(useFallback = false) {
-            if (useFallback || !db) {
-                // Generate a simple deterministic number based on the date hash
-                dailyStartingNumber = (todayKey.charCodeAt(8) * todayKey.charCodeAt(9) % 1000) + 10;
-            } else {
-                try {
-                    const dailyNumDocRef = doc(db, `/artifacts/${appId}/public/data/daily_numbers`, todayKey);
-                    const dailyNumDoc = await getDoc(dailyNumDocRef);
-
-                    if (dailyNumDoc.exists()) {
-                        dailyStartingNumber = dailyNumDoc.data().number;
-                    } else {
-                        // Generate a new random number (e.g., 10 to 10000)
-                        const min = 10;
-                        const max = 10000;
-                        const seed = todayKey.replace(/-/g, '').substring(4); 
-                        const seededRandom = new (function(seed) {
-                            let s = seed;
-                            this.next = function() {
-                                s = (s * 9301 + 49297) % 233280;
-                                return s / 233280.0;
-                            };
-                        })(parseInt(seed));
-                        
-                        // Range: 10 to 10000
-                        dailyStartingNumber = Math.floor(seededRandom.next() * (max - min + 1)) + min;
-                        
-                        await setDoc(dailyNumDocRef, { number: dailyStartingNumber, date: todayKey });
-                    }
-
-                    // Check user's solved status
-                    const userStatusDocRef = doc(db, `/artifacts/${appId}/users/${userId}/daily_challenges`, todayKey);
-                    const userStatusDoc = await getDoc(userStatusDocRef);
-                    if (userStatusDoc.exists() && userStatusDoc.data().solved) {
-                        hasSolvedToday = true;
-                        solvedExpressionEl.textContent = userStatusDoc.data().expression || '—';
-                        solvedOperationsEl.textContent = `Completed in ${userStatusDoc.data().operations || '?'} operations.`;
-                        // Load history from saved data if available
-                        if (userStatusDoc.data().history) {
-                           operationHistory = JSON.parse(userStatusDoc.data().history);
-                           operationCount = userStatusDoc.data().operations;
-                        }
-                    }
-
-                } catch (error) {
-                    console.error("Error loading daily challenge from Firestore:", error);
-                    // Fallback in case of Firebase error
-                    dailyStartingNumber = 42; 
-                }
-            }
-            
-            // Set initial game state and display UI
-            currentResult = dailyStartingNumber;
-            startingNumberDisplayEl.textContent = `Start: ${dailyStartingNumber} | User ID: ${userId.substring(0, 8)}...`;
-            
-            loadingEl.classList.add('hidden');
-            if (hasSolvedToday) {
-                solvedStatusEl.classList.remove('hidden');
-            } else {
-                gameContainerEl.classList.remove('hidden');
-                updateUI();
-            }
-        }
-        
-        /**
-         * Safely evaluates a math expression string, handling division by zero.
-         */
-        function safeEval(exp) {
-            try {
-                if (!/^[\d\s\.\+\*\/\-]+$/.test(exp)) {
-                    console.error("Invalid characters in expression.");
-                    return null;
-                }
+            <div class="leaderboard-container">
+                <p class="leaderboard-info">Sorted by **Diversity** then **Steps** (Unique wins!)</p>
                 
-                // Replace division operator with a safe check for zero
-                let finalExp = exp.replace(/\s*\/\s*(\d+\.?\d*)/g, (match, divisor) => {
-                    if (parseFloat(divisor) === 0) {
-                        throw new Error("Division by zero error.");
-                    }
-                    return `/${divisor}`;
-                });
-                
-                return new Function('return ' + finalExp)();
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Tag</th>
+                            <th>Diversity</th>
+                            <th>Steps</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body">
+                        <tr><td colspan="4" class="leaderboard-loading">Loading scores...</td></tr>
+                    </tbody>
+                </table>
+            </div>
 
-            } catch (e) {
-                console.error("Evaluation error:", e.message);
-                return null;
-            }
-        }
+            <button class="share-button edit-name-button" onclick="updateDisplayName()">
+                Change Your Tag (Max 2 Chars)
+            </button>
+        </div>
+    </div>
 
-        /**
-         * Handles all button clicks on the calculator (numbers and operators).
-         */
-        window.handleInput = function(value) {
-            if (hasSolvedToday) {
-                messageBoxEl.textContent = "Already solved today!";
-                return;
-            }
-            
-            const isNumber = !isNaN(parseFloat(value)) || value === '.';
-            const isOperator = ['+', '*', '/'].includes(value);
+    <script type="module" src="scripts.js"></script> 
 
-            if (isNumber) {
-                if (currentInputNumber === '' && value === '.') {
-                    currentInputNumber = '0.';
-                } else if (currentInputNumber.includes('.') && value === '.') {
-                    // Ignore second decimal point
-                } else {
-                    // Start fresh if the entry is '0' and we type a non-dot number
-                    if (currentInputNumber === '0' && value !== '.') {
-                        currentInputNumber = value;
-                    } else {
-                        currentInputNumber += value;
-                    }
-                }
-                
-            } else if (isOperator) {
-                currentOperator = value;
-                messageBoxEl.textContent = `Operator selected: ${value}. Ready to APPLY.`;
-            } else if (value === 'AC') {
-                // All Clear
-                currentResult = dailyStartingNumber;
-                currentInputNumber = '';
-                currentOperator = '';
-                operationCount = 0; 
-                operationHistory = [];
-                messageBoxEl.textContent = "Challenge reset. Start a new step!";
-            }
-            updateUI();
-        }
-
-        /**
-         * Executes the step: Current Result [Op] Second Number = New Result.
-         */
-        window.executeStep = function() {
-            if (hasSolvedToday) {
-                messageBoxEl.textContent = "Already solved today!";
-                return;
-            }
-
-            const operand2 = parseFloat(currentInputNumber);
-
-            if (currentOperator === '') {
-                messageBoxEl.textContent = "Please select an operation (+, *, /).";
-                return;
-            }
-            if (isNaN(operand2) || currentInputNumber === '') {
-                messageBoxEl.textContent = "Please enter a valid second number.";
-                return;
-            }
-
-            const expression = `${currentResult} ${currentOperator} ${operand2}`;
-            const newResult = safeEval(expression);
-
-            if (newResult === null) {
-                messageBoxEl.textContent = "Error: Division by zero or invalid operation! Clearing input.";
-                currentInputNumber = '';
-                updateUI();
-                return;
-            }
-
-            // Record step and update state
-            const prevResult = currentResult;
-            currentResult = newResult;
-            operationCount++;
-            
-            operationHistory.push({
-                op: currentOperator,
-                num: operand2,
-                prevResult: prevResult,
-                result: currentResult
-            });
-
-            // Clear input fields for the next step
-            currentInputNumber = '';
-            currentOperator = '';
-            
-            messageBoxEl.textContent = `Step ${operationCount} applied. Result: ${currentResult.toFixed(4).replace(/\.?0+$/, '')}`;
-            updateUI();
-
-            // Check the result against the target
-            checkGoal(currentResult);
-        }
-
-        /**
-         * Checks the calculated result against the target number (67).
-         * @param {number} result The calculated final number.
-         */
-        function checkGoal(result) {
-            const difference = Math.abs(result - TARGET_NUMBER);
-            const tolerance = 0.0001; // Allow for slight floating point inaccuracies
-
-            if (difference < tolerance) {
-                // SUCCESS!
-                messageBoxEl.textContent = "SUCCESS! You hit 67!";
-                hasSolvedToday = true;
-                
-                // Hide game, show success message
-                gameContainerEl.classList.add('hidden');
-                
-                // Reconstruct the full expression string for display
-                const fullExpression = operationHistory.map(h => `${h.op} ${h.num.toFixed(4).replace(/\.?0+$/, '')}`).join(' ');
-                
-                solvedExpressionEl.textContent = `${dailyStartingNumber} ${fullExpression} = ${result.toFixed(4).replace(/\.?0+$/, '')}`;
-                solvedOperationsEl.textContent = `Completed in ${operationCount} operations.`;
-                solvedStatusEl.classList.remove('hidden');
-                solvedShareMessageEl.classList.add('hidden'); // Ensure message is hidden on load
-
-                // Save status to Firestore
-                if (db) {
-                    const userStatusDocRef = doc(db, `/artifacts/${appId}/users/${userId}/daily_challenges`, todayKey);
-                    // Store history array as a JSON string
-                    const historyJson = JSON.stringify(operationHistory);
-                    setDoc(userStatusDocRef, {
-                        solved: true,
-                        date: todayKey,
-                        expression: solvedExpressionEl.textContent,
-                        operations: operationCount, 
-                        result: result,
-                        history: historyJson, // Save history for re-sharing
-                        timestamp: new Date()
-                    }).catch(e => console.error("Failed to save success status:", e));
-                }
-
-            } else if (result > TARGET_NUMBER) {
-                //
-            } else {
-                //
-            }
-        }
-
-        // Initialize the application on window load
-        window.onload = initializeFirebase;
-
-    </script>
 </body>
 </html>
