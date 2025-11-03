@@ -55,7 +55,7 @@
                 <div id="starting-number-display" class="info-header"></div>
                 <div class="info-footer">
                     <div id="op-counter" class="op-counter-text">Operations: 0</div> 
-                    <button id="history-button" class="history-button" onclick="toggleModal(true)">History</button>
+                    <button id="history-button" class="history-button" onclick="toggleModal(true)">History & Share</button>
                 </div>
                 <div id="message-box" class="message-box">Enter a number and an operation.</div>
             </div>
@@ -92,11 +92,6 @@
             <p id="solved-expression" class="solved-expression-text"></p>
             <p id="solved-operations" class="solved-operations-text"></p>
             
-            <button id="solved-share-button" class="share-button" onclick="shareResults()">
-                Share Score
-            </button>
-            <p id="solved-share-message" class="share-message"></p>
-            
             <button id="show-leaderboard-button" class="share-button view-leaderboard-button" onclick="toggleLeaderboardModal(true)">
                 View Daily Leaderboard
             </button>
@@ -113,7 +108,11 @@
             <ul id="operation-history-list" class="history-list">
                 <li class="placeholder">No steps recorded yet.</li>
             </ul>
-        </div>
+            <button id="history-share-button" class="share-button" onclick="shareResults()" disabled>
+                Copy Score to Share
+            </button>
+            <p id="history-share-message" class="share-message"></p>
+            </div>
     </div>
 
     <div id="leaderboard-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
@@ -123,6 +122,15 @@
                 <button onclick="toggleLeaderboardModal(false)">&times;</button>
             </div>
 
+            <div id="leaderboard-user-history" class="user-history-box hidden">
+                <h4 class="user-history-header">Your Score:</h4>
+                <p id="leaderboard-solved-expression" class="solved-expression-text"></p>
+                <p id="leaderboard-solved-operations" class="solved-operations-text"></p>
+                <button class="share-button copy-score-button" onclick="shareResults()">
+                    Copy Score to Share
+                </button>
+                <p id="leaderboard-share-message" class="share-message"></p>
+            </div>
             <div class="leaderboard-container">
                 <p class="leaderboard-info">Sorted by **Diversity** then **Steps** (Unique wins!)</p>
                 

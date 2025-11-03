@@ -18,6 +18,7 @@ let currentInputNumber = '';
 let currentOperator = ''; 
 let operationCount = 0; 
 let operationHistory = []; 
+let fullSolutionExpression = ''; // Store the solved expression
 
 const todayKey = new Date().toISOString().split('T')[0];
 
@@ -36,10 +37,17 @@ const inputNumberEl = document.getElementById('input-number');
 const historyModalEl = document.getElementById('history-modal');
 const historyListEl = document.getElementById('operation-history-list');
 const modalOpCountEl = document.getElementById('modal-op-count');
-const solvedShareMessageEl = document.getElementById('solved-share-message'); 
+
+// MODIFICATION: New elements for share in history/leaderboard modals
+const historyShareButtonEl = document.getElementById('history-share-button');
+const historyShareMessageEl = document.getElementById('history-share-message');
 const leaderboardModalEl = document.getElementById('leaderboard-modal');
 const leaderboardBodyEl = document.getElementById('leaderboard-body');
 const profileTagEl = document.getElementById('profile-tag');
+const leaderboardUserHistoryEl = document.getElementById('leaderboard-user-history'); 
+const leaderboardSolvedExpressionEl = document.getElementById('leaderboard-solved-expression'); 
+const leaderboardSolvedOperationsEl = document.getElementById('leaderboard-solved-operations'); 
+const leaderboardShareMessageEl = document.getElementById('leaderboard-share-message'); 
 
 // --- CORE UTILITY FUNCTIONS ---
 
@@ -96,6 +104,8 @@ window.toggleModal = function(show) {
         renderHistory();
     } else {
         historyModalEl.classList.remove('active'); 
+        // MODIFICATION: Hide the share messages when closing
+        historyShareMessageEl.style.display = 'none';
         setTimeout(() => {
             historyModalEl.classList.add('hidden');
         }, 300); 
@@ -110,9 +120,19 @@ window.toggleLeaderboardModal = function(show) {
         historyModalEl.classList.remove('active'); // Ensure History is closed
         leaderboardModalEl.classList.remove('hidden');
         leaderboardModalEl.classList.add('active');
+        // MODIFICATION: Set user history box visibility based on solved status
+        if (hasSolvedToday) {
+            leaderboardUserHistoryEl.classList.remove('hidden');
+        } else {
+            leaderboardUserHistoryEl.classList.add('hidden');
+        }
+        // MODIFICATION: Hide share message when opening modal
+        leaderboardShareMessageEl.style.display = 'none'; 
         renderLeaderboard();
     } else {
         leaderboardModalEl.classList.remove('active'); 
+        // MODIFICATION: Hide the share messages when closing
+        leaderboardShareMessageEl.style.display = 'none';
         setTimeout(() => {
             leaderboardModalEl.classList.add('hidden');
         }, 300); 
@@ -181,6 +201,14 @@ function renderHistory() {
     historyListEl.innerHTML = '';
     modalOpCountEl.textContent = `Total Steps: ${operationCount}`;
 
+    // MODIFICATION: Enable/Disable share button based on solved status
+    historyShareButtonEl.disabled = !hasSolvedToday;
+    if (hasSolvedToday) {
+        historyShareButtonEl.textContent = "Copy Score to Share";
+    } else {
+        historyShareButtonEl.textContent = "Solve to Share";
+    }
+
     if (operationHistory.length === 0 && !hasSolvedToday) {
         historyListEl.innerHTML = `<li class="placeholder">Starting with ${dailyStartingNumber}</li>`;
         return;
@@ -218,6 +246,7 @@ function renderHistory() {
 
 /**
  * Creates and copies the share message to the clipboard.
+ * MODIFICATION: Now uses the share message element from the currently open modal.
  */
 window.shareResults = function() {
     if (!hasSolvedToday) return;
@@ -242,15 +271,29 @@ ${emojiGrid}
 #Calc67 #MathGame
 https://zedf.co.uk/calc67/`;
 
+    // Determine which message element to use
+    let shareMessageEl = historyModalEl.classList.contains('active') 
+                         ? historyShareMessageEl 
+                         : leaderboardModalEl.classList.contains('active') 
+                            ? leaderboardShareMessageEl 
+                            : null;
+    
+    // Fallback if somehow neither modal is active (shouldn't happen with the new layout)
+    if (!shareMessageEl) {
+        console.error("Share called but no active modal found.");
+        return;
+    }
+
+    // Clear and display copy message logic
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(shareText).then(() => {
-            solvedShareMessageEl.textContent = "Copied to clipboard!";
-            solvedShareMessageEl.style.display = 'block';
-            setTimeout(() => solvedShareMessageEl.style.display = 'none', 3000); 
+            shareMessageEl.textContent = "Copied to clipboard!";
+            shareMessageEl.style.display = 'block';
+            setTimeout(() => shareMessageEl.style.display = 'none', 3000); 
         }).catch(err => {
             console.error('Could not copy text: ', err);
-            solvedShareMessageEl.textContent = "Failed to copy. Check console.";
-            solvedShareMessageEl.style.display = 'block';
+            shareMessageEl.textContent = "Failed to copy. Check console.";
+            shareMessageEl.style.display = 'block';
         });
     } else {
         const tempTextArea = document.createElement('textarea');
@@ -260,12 +303,12 @@ https://zedf.co.uk/calc67/`;
         tempTextArea.select();
         try {
             document.execCommand('copy');
-            solvedShareMessageEl.textContent = "Copied to clipboard!";
-            solvedShareMessageEl.style.display = 'block';
-            setTimeout(() => solvedShareMessageEl.style.display = 'none', 3000);
+            shareMessageEl.textContent = "Copied to clipboard!";
+            shareMessageEl.style.display = 'block';
+            setTimeout(() => shareMessageEl.style.display = 'none', 3000);
         } catch (err) {
-            solvedShareMessageEl.textContent = "Copy failed. Please copy manually.";
-            solvedShareMessageEl.style.display = 'block';
+            shareMessageEl.textContent = "Copy failed. Please copy manually.";
+            shareMessageEl.style.display = 'block';
         }
         document.body.removeChild(tempTextArea);
     }
@@ -367,8 +410,15 @@ async function loadDailyChallenge() {
             const userStatusDoc = await getDoc(userStatusDocRef);
             if (userStatusDoc.exists() && userStatusDoc.data().solved) {
                 hasSolvedToday = true;
-                solvedExpressionEl.textContent = userStatusDoc.data().expression || '—';
+                // MODIFICATION: Store the full expression in a global variable
+                fullSolutionExpression = userStatusDoc.data().expression || '—'; 
+                solvedExpressionEl.textContent = fullSolutionExpression;
                 solvedOperationsEl.textContent = `Diversity: ${userStatusDoc.data().diversityScore} | Steps: ${userStatusDoc.data().operations}`;
+                
+                // NEW: Populate the leaderboard's user history section
+                leaderboardSolvedExpressionEl.textContent = fullSolutionExpression;
+                leaderboardSolvedOperationsEl.textContent = `Diversity: ${userStatusDoc.data().diversityScore} | Steps: ${userStatusDoc.data().operations}`;
+
                 if (userStatusDoc.data().history) {
                     operationHistory = JSON.parse(userStatusDoc.data().history);
                     operationCount = userStatusDoc.data().operations;
@@ -554,14 +604,20 @@ async function checkGoal(result) {
         
         gameContainerEl.classList.add('hidden');
         
-        const fullExpression = operationHistory.map(h => `${h.op} ${h.num.toFixed(4).replace(/\.?0+$/, '')}`).join(' ');
+        const expressionSteps = operationHistory.map(h => `${h.op} ${h.num.toFixed(4).replace(/\.?0+$/, '')}`).join(' ');
+        fullSolutionExpression = `${dailyStartingNumber} ${expressionSteps} = ${result.toFixed(4).replace(/\.?0+$/, '')}`; // Store expression
         
         // --- 2. DIVERSITY SCORING & DISPLAY ---
         const scoreDiversity = calculateDiversityScore(operationHistory);
 
-        solvedExpressionEl.textContent = `${dailyStartingNumber} ${fullExpression} = ${result.toFixed(4).replace(/\.?0+$/, '')}`;
+        solvedExpressionEl.textContent = fullSolutionExpression;
         solvedOperationsEl.textContent = `Diversity: ${scoreDiversity} | Steps: ${operationCount}`;
         solvedStatusEl.classList.add('active'); 
+        
+        // NEW: Update the leaderboard's user history section immediately
+        leaderboardSolvedExpressionEl.textContent = fullSolutionExpression;
+        leaderboardSolvedOperationsEl.textContent = `Diversity: ${scoreDiversity} | Steps: ${operationCount}`;
+
 
         // --- 3. SAVE SCORES TO FIRESTORE ---
         if (db) {
@@ -577,7 +633,8 @@ async function checkGoal(result) {
                 result: result,
                 history: historyJson, 
                 timestamp: new Date(),
-                displayName: userDisplayName
+                displayName: userDisplayName,
+                expression: fullSolutionExpression // Save the full expression here
             }, { merge: true }).catch(e => console.error("Failed to save user status:", e));
 
             // B. Save to PUBLIC Leaderboard (FIX 3: Corrected Path to 5 segments)
