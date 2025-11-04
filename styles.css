@@ -87,8 +87,8 @@ body {
 
 /* --- INDEX.HTML (Dashboard) STYLES --- */
 
-/* NEW: Canvas Styles (Must be fixed and full screen) */
-#particleCanvas {
+/* DESKTOP CANVAS: Fixed and Full Screen */
+#desktopCanvas, #mobileCanvas {
     position: fixed;
     top: 0;
     left: 0;
@@ -106,7 +106,7 @@ body {
     transform: translateX(-50%); /* Centered horizontally */
     width: var(--main-width);
     text-align: center;
-    z-index: 30; 
+    z-index: 90; /* High Z-index */
     transition: all var(--transition-speed);
 }
 #title-bio h1 {
@@ -120,9 +120,9 @@ body {
 
 #app-container {
     position: absolute; 
-    top: 50%; /* ADJUSTED: Perfect Vertical Center */
+    top: 50%; /* Perfect Vertical Center */
     left: 50%; 
-    transform: translate(-50%, -50%); /* ADJUSTED: Perfect Horizontal & Vertical Center */
+    transform: translate(-50%, -50%); /* Perfect Horizontal & Vertical Center */
     display: flex;
     flex-direction: row; 
     width: var(--main-width);
@@ -131,7 +131,7 @@ body {
     align-items: center;
     justify-content: center;
     transition: all var(--transition-speed); 
-    z-index: 40; /* Ensure buttons are above everything */
+    z-index: 100; /* CRITICAL FIX: Ensure main buttons are always the highest Z-index */
 }
 /* Panels (Buttons) - Existing styles maintained */
 .panel {
@@ -172,7 +172,7 @@ body {
     color: var(--gray-400);
     font-size: 0.875rem; 
 }
-/* Sidebars (Popups) - Existing styles maintained */
+/* Sidebars (Popups) */
 .sidebar-wrapper {
     position: absolute;
     top: 50%; 
@@ -188,7 +188,7 @@ body {
     opacity: 0;
     pointer-events: none;
     transition: transform var(--transition-speed), opacity var(--transition-speed), left var(--transition-speed);
-    z-index: 40;
+    z-index: 100; /* CRITICAL FIX: Ensure sidebars are always on top */
 }
 .sidebar-wrapper::-webkit-scrollbar { width: 8px; }
 .sidebar-wrapper::-webkit-scrollbar-thumb { background-color: var(--accent-color); border-radius: 10px; }
@@ -263,10 +263,13 @@ body {
     border-radius: 1rem;
     padding: 1rem;
     max-height: 0;
-    transition: max-height 0.7s ease-out;
+    transition: max-height 0.7s ease-out; 
     overflow: hidden; 
 }
-#mobile-content-pane.active { max-height: 2000px; }
+/* FIX: Use a very large max-height to ensure content never clips on open/active state */
+#mobile-content-pane.active { 
+    max-height: 5000px; 
+}
 
 /* --- QUOTES.HTML STYLES (Content maintained) --- */
 
@@ -460,38 +463,105 @@ body {
     .card-grid-3-cols { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
 }
 @media (max-width: 768px) {
-    body { padding: 1rem 0; display: block; }
-    /* ADJUSTED: Mobile positioning */
-    #title-bio { 
-        position: static; 
-        transform: none; 
-        width: 90%; 
-        margin: 1rem auto; 
+    /* 1. Body setup for scrollable content flow */
+    body { 
+        padding: 0;
+        display: block; 
+        height: auto; 
+        overflow-y: auto; 
     }
-    /* ADD: Mobile Hint positioning */
-    .hint {
-        position: static;
-        transform: none;
-        width: 90%;
-        margin: 0.5rem auto;
-        text-align: center;
+
+    /* MOBILE CANVAS: Set to RELATIVE position to stay in the document flow and scroll. */
+    #desktopCanvas, #mobileCanvas {
+        position: relative; 
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 300px; 
+        z-index: 10;
     }
-    #app-container { position: static; width: 90%; margin: 1.5rem auto 0; height: 120px; gap: 0.5rem; transform: none; padding: 0; }
-    .panel { width: 50%; height: 120px; box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4); }
-    .panel .initial-content { padding: 1rem 0.5rem; overflow: hidden; text-overflow: ellipsis; }
-    .panel .initial-content h2 { font-size: 1.5rem; margin-bottom: 0.1rem; }
-    .panel .initial-content p { font-size: 0.7rem; }
     
-    /* FIX: Ensure desktop sidebars are hidden */
+    /* 2. TITLE BIO: Set to ABSOLUTE for precise positioning low in the canvas area. */
+    #title-bio {
+        position: absolute; 
+        
+        /* Center horizontally */
+        left: 50%;
+        transform: translateX(-50%); 
+        
+        /* FIX: Use fixed pixel value to place it precisely within the 300px header area (250px) */
+        top: 275px; 
+        
+        width: 90%;
+        text-align: center;
+        z-index: 90;
+        
+        /* CRITICAL: Remove all vertical flow margins */
+        margin: 0; 
+    }
+    
+    /* 3. MAIN BOXES CONTAINER: Clears the 300px canvas + desired gap (25px). */
+    #app-container { 
+        position: static; 
+        width: 90%; 
+        
+        /* FIX: Margin must be 300px (canvas height) + 25px (desired gap) = 325px */
+        margin: 10px auto 1.5rem auto; 
+        
+        height: auto; 
+        gap: 0.5rem; 
+        transform: none; 
+        padding: 0;
+        top: auto; 
+        left: auto; 
+    }
+    
+    /* PROPORTIONAL PANELS (The two main boxes) */
+    .panel { 
+        /* Use viewport width (vw) for proportional squares */
+        width: 44vw; 
+        height: 44vw; 
+        justify-content: center; 
+        align-items: center;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4); 
+    }
+    
+    /* PROPORTIONAL CONTENT INSIDE PANELS (using clamp for scaling) */
+    .panel .initial-content { 
+        padding: 1vw; 
+        max-width: 100%; 
+        overflow: hidden; 
+        text-overflow: ellipsis; 
+        display: flex; 
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .panel .initial-content i { 
+        font-size: clamp(30px, 8vw, 4.375rem); 
+        margin-bottom: 0.5rem; 
+    }
+    
+    .panel .initial-content h2 { 
+        font-size: clamp(18px, 4vw, 1.5rem); 
+        margin-bottom: 0.1rem; 
+    }
+    
+    .panel .initial-content p { 
+        font-size: clamp(10px, 2vw, 0.7rem); 
+    }
+    
+    /* Sidebar wrappers remain hidden on mobile */
     #stuff-sidebar, #links-sidebar { display: none; }
     
-    /* FIX: Mobile Pane is displayed on small screen, allowing JS control */
+    /* Mobile Content Pane is displayed on small screen */
     #mobile-content-pane {
         display: block; 
     }
-    
+
+    /* Standard mobile adjustments */
     .v2-content-inner .grid { grid-template-columns: 1fr; gap: 0.75rem; }
-    .sub-panel { min-height: 80px; }
     .v2-content-inner h1 { margin-top: 0; margin-bottom: 0.75rem; font-size: 2rem; }
     .page-body-static { padding: 1rem; }
     .dashboard-card { padding: 1rem; }
