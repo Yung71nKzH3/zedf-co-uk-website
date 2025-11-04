@@ -87,29 +87,42 @@ body {
 
 /* --- INDEX.HTML (Dashboard) STYLES --- */
 
+/* NEW: Canvas Styles (Must be fixed and full screen) */
+#particleCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10; /* Lower than UI elements */
+}
+
+/* ADJUSTED: #title-bio positioned close above the centered panels */
 #title-bio {
     position: absolute;
-    top: 15%; 
+    /* Calculate position just above the centered panels (50% - 150px half height - 50px margin) */
+    top: calc(50% - 200px); 
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%); /* Centered horizontally */
     width: var(--main-width);
     text-align: center;
-    z-index: 10;
+    z-index: 30; 
     transition: all var(--transition-speed);
 }
 #title-bio h1 {
-    font-size: 4rem; 
-    font-weight: 800; 
-    letter-spacing: -0.05em; 
-    margin-bottom: 0.5rem; 
-    color: var(--cyan-400); 
+    display: none; 
 }
 #title-bio p {
     font-size: 1.25rem; 
     font-weight: 300; 
     color: var(--gray-300); 
 }
+
 #app-container {
+    position: absolute; 
+    top: 50%; /* ADJUSTED: Perfect Vertical Center */
+    left: 50%; 
+    transform: translate(-50%, -50%); /* ADJUSTED: Perfect Horizontal & Vertical Center */
     display: flex;
     flex-direction: row; 
     width: var(--main-width);
@@ -118,9 +131,9 @@ body {
     align-items: center;
     justify-content: center;
     transition: all var(--transition-speed); 
-    z-index: 20;
+    z-index: 40; /* Ensure buttons are above everything */
 }
-/* Panels (Buttons) */
+/* Panels (Buttons) - Existing styles maintained */
 .panel {
     background-color: var(--bg-container);
     border-radius: 1rem;
@@ -159,7 +172,7 @@ body {
     color: var(--gray-400);
     font-size: 0.875rem; 
 }
-/* Sidebars (Popups) */
+/* Sidebars (Popups) - Existing styles maintained */
 .sidebar-wrapper {
     position: absolute;
     top: 50%; 
@@ -197,7 +210,7 @@ body {
     color: var(--cyan-400); 
     text-align: center;
 }
-/* Sub-panels (Buttons inside sidebars) */
+/* Sub-panels (Buttons inside sidebars) - Existing styles maintained */
 .v2-content-inner { padding: 0 1rem; }
 .v2-content-inner .grid {
     display: grid; 
@@ -255,7 +268,7 @@ body {
 }
 #mobile-content-pane.active { max-height: 2000px; }
 
-/* --- QUOTES.HTML STYLES --- */
+/* --- QUOTES.HTML STYLES (Content maintained) --- */
 
 /* Main Quotes Content Wrapper */
 .quotes-main-content {
@@ -323,7 +336,7 @@ body {
 }
 .back-link a:hover { color: var(--cyan-400); }
 
-/* --- UNI.HTML (UoP Dashboard) STYLES --- */
+/* --- UNI.HTML (UoP Dashboard) STYLES (Content maintained) --- */
 
 .uni-main-content-wrapper { max-width: 1100px; }
 .page-header {
@@ -448,13 +461,26 @@ body {
 }
 @media (max-width: 768px) {
     body { padding: 1rem 0; display: block; }
-    #title-bio { position: static; transform: none; width: 90%; margin: 1rem auto; }
+    /* ADJUSTED: Mobile positioning */
+    #title-bio { 
+        position: static; 
+        transform: none; 
+        width: 90%; 
+        margin: 1rem auto; 
+    }
+    /* ADD: Mobile Hint positioning */
+    .hint {
+        position: static;
+        transform: none;
+        width: 90%;
+        margin: 0.5rem auto;
+        text-align: center;
+    }
     #app-container { position: static; width: 90%; margin: 1.5rem auto 0; height: 120px; gap: 0.5rem; transform: none; padding: 0; }
     .panel { width: 50%; height: 120px; box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4); }
     .panel .initial-content { padding: 1rem 0.5rem; overflow: hidden; text-overflow: ellipsis; }
     .panel .initial-content h2 { font-size: 1.5rem; margin-bottom: 0.1rem; }
     .panel .initial-content p { font-size: 0.7rem; }
-    .panel .initial-content i { font-size: 2.5rem; margin-bottom: 0.2rem; }
     
     /* FIX: Ensure desktop sidebars are hidden */
     #stuff-sidebar, #links-sidebar { display: none; }

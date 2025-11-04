@@ -12,15 +12,18 @@
 </head>
 <body id="body-main"> 
     
-    <!-- TOP-LEVEL V1 ELEMENT: TITLE / BIO -->
+    <!-- NEW: Full Screen Canvas for Dynamic Title -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- TOP-LEVEL V1 ELEMENT: BIO -->
     <div id="title-bio">
-        <h1>
-            w1ll0w
-        </h1>
         <p>
             UK-based Undergrad Data Science Student
         </p>
     </div>
+    
+    <!-- HINT FOR USER INTERACTION -->
+    <p class="hint text-xl font-light">Mouse over the title area to reveal the title.</p>
 
     <!-- MAIN V1 CONTENT (The two square buttons) -->
     <div id="app-container">
@@ -75,6 +78,7 @@
                 <a href="https://steamcommunity.com/broadcast/watch/76561198151099217/" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-video"></i> <h3>Steam Stream</h3> <p>wassup</p> </div> </a>
                 <a href="/wote/index.html" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-clipboard"></i> <h3>Wote</h3> <p>take note</p> </div> </a>
                 <a href="/calc67/index.html" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-calculator"></i> <h3>Calc67</h3> <p>daily</p> </div> </a>
+                <a href="https://themes.vivaldi.net/users/W1ll0w" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-image"></i> <h3>Vivaldi Themes</h3> <p>Lotta Style</p> </div> </a>
             </div>
         </div>
     </div>
@@ -104,6 +108,238 @@
         </div>
     </div>
     
+    <!-- EMBEDDED PARTICLE SCRIPT -->
+    <script>
+        // --- Configuration ---
+        const TARGET_TEXT = "w1ll0w";
+        const PARTICLE_COLOR = '#06b6d4'; // Cyan-500
+        const TEXT_SIZE = 120; 
+        const RESOLUTION = 4;  // Sample every 4th pixel for particle count
+        const HOVER_AREA_RADIUS = 200; // Mouse influence radius for formation trigger
+        
+        // Physics constants
+        const FRICTION = 0.9;
+        const SPRING = 0.08; // Strong snap to target
+        const DRIFT_SPEED = 0.005; // How quickly the particles drift in SCATTER mode
+        
+        // --- Setup Canvas and Context ---
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let particles = [];
+        let mouse = { x: 0, y: 0, isHovering: false };
+        
+        // State management
+        let isFormed = false;
+        let textMetrics = { width: 0, height: TEXT_SIZE, textX: 0, textY: 0 };
+        let box = { x: 0, y: 0, w: 0, h: 0 }; // The confined area
+
+        
+        // --- Resize Handler ---
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // Re-map the text coordinates on resize
+            mapTextToParticles();
+        }
+        window.addEventListener('resize', resizeCanvas);
+        
+        // --- Particle Class ---
+        class Particle {
+            constructor(targetX, targetY, shape) {
+                this.targetX = targetX;
+                this.targetY = targetY;
+                this.shape = shape;
+
+                // Initial position within the confined box
+                this.x = box.x + Math.random() * box.w;
+                this.y = box.y + Math.random() * box.h;
+
+                // Initial drift target (for SCATTER mode)
+                this.initialX = this.x;
+                this.initialY = this.y;
+
+                this.vx = 0;
+                this.vy = 0;
+                this.size = Math.random() * 2 + 1; 
+            }
+
+            update() {
+                let targetX, targetY;
+                
+                if (isFormed) {
+                    // FORM Mode: Seek text pixel coordinates
+                    targetX = this.targetX;
+                    targetY = this.targetY;
+                } else {
+                    // SCATTER Mode: Seek random drift position within the box
+                    
+                    // Slowly update the scatter target to create subtle movement
+                    if (Math.random() < DRIFT_SPEED) {
+                        this.initialX = box.x + Math.random() * box.w;
+                        this.initialY = box.y + Math.random() * box.h;
+                    }
+                    targetX = this.initialX;
+                    targetY = this.initialY;
+                }
+                
+                // 1. Calculate Snap-to-Target Force
+                const dx = targetX - this.x;
+                const dy = targetY - this.y;
+                
+                this.vx += dx * SPRING;
+                this.vy += dy * SPRING;
+                
+                // 2. Apply Friction
+                this.vx *= FRICTION;
+                this.vy *= FRICTION;
+
+                // 3. Update Position
+                this.x += this.vx;
+                this.y += this.vy;
+            }
+
+            draw() {
+                ctx.fillStyle = PARTICLE_COLOR;
+                
+                // Ensure size is slightly randomized for visual interest
+                const s = this.size;
+
+                ctx.beginPath();
+                if (this.shape === 'square') {
+                    ctx.fillRect(this.x - s / 2, this.y - s / 2, s, s);
+                } else if (this.shape === 'circle') {
+                    ctx.arc(this.x, this.y, s / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (this.shape === 'triangle') {
+                    // Simple equilateral triangle pointing up
+                    ctx.moveTo(this.x, this.y - s);
+                    ctx.lineTo(this.x - s, this.y + s);
+                    ctx.lineTo(this.x + s, this.y + s);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            }
+        }
+        
+        // --- Formation Control ---
+        function startFormation() {
+            if (isFormed) return;
+            isFormed = true;
+        }
+        
+        function breakApart() {
+            if (!isFormed) return;
+            isFormed = false;
+
+            // Reset particle drift targets instantly to ensure quick breakup
+            particles.forEach(p => {
+                p.initialX = box.x + Math.random() * box.w;
+                p.initialY = box.y + Math.random() * box.h;
+            });
+        }
+        
+        // --- Text Mapping Function ---
+        function mapTextToParticles() {
+            particles = []; // Clear existing
+            
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            
+            // 1. Measure and Draw the target text (hidden)
+            tempCtx.font = `${TEXT_SIZE}px 'Inter', sans-serif`;
+            tempCtx.textAlign = 'center';
+            tempCtx.textBaseline = 'middle';
+            
+            // *** CHANGE: Position title 20% down from the top ***
+            const TITLE_TOP_Y = 0.20; 
+            textMetrics.textX = tempCanvas.width / 2;
+            textMetrics.textY = tempCanvas.height * TITLE_TOP_Y;
+            // **************************************************
+            
+            textMetrics.width = tempCtx.measureText(TARGET_TEXT).width;
+            
+            tempCtx.fillStyle = 'white';
+            tempCtx.fillText(TARGET_TEXT, textMetrics.textX, textMetrics.textY);
+            
+            // 2. Define the confined box area (100px padding around the text area)
+            const boxMargin = 100;
+            box.x = textMetrics.textX - textMetrics.width / 2 - boxMargin;
+            box.y = textMetrics.textY - TEXT_SIZE / 2 - boxMargin;
+            box.w = textMetrics.width + 2 * boxMargin;
+            box.h = TEXT_SIZE + 2 * boxMargin;
+
+            // 3. Get pixel data
+            const data = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height).data;
+            const shapes = ['square', 'circle', 'triangle'];
+            
+            // 4. Iterate through pixels and create particles
+            for (let y = 0; y < tempCanvas.height; y += RESOLUTION) {
+                for (let x = 0; x < tempCanvas.width; x += RESOLUTION) {
+                    const index = (y * tempCanvas.width + x) * 4;
+                    
+                    if (data[index + 3] > 0) { // If pixel is part of the text
+                        const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
+                        particles.push(new Particle(x, y, randomShape));
+                    }
+                }
+            }
+        }
+        
+        // --- Animation Loop ---
+        function animate() {
+            // Increased alpha (0.2) for a sharper trail (less blur)
+            ctx.fillStyle = 'rgba(13, 17, 23, 0.2)'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // --- Event Listeners ---
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+
+            // Calculate distance to the center of the text area
+            const dx = mouse.x - textMetrics.textX;
+            const dy = mouse.y - textMetrics.textY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            // Check if the mouse is close enough to trigger formation
+            if (dist < HOVER_AREA_RADIUS) {
+                if (!isFormed) {
+                    startFormation();
+                }
+            } else {
+                // If the user moves out of the area, break it apart immediately
+                if (isFormed) {
+                    breakApart();
+                }
+            }
+        });
+        
+        // Start the process
+        window.onload = function () {
+            resizeCanvas();
+            mapTextToParticles();
+            animate();
+        };
+        
+        // Handle initial load in case load event already fired
+        if (document.readyState === 'complete') {
+            window.onload();
+        }
+    </script>
+
     <!-- LINK UNIVERSAL JAVASCRIPT -->
     <script src="scripts.js"></script> 
 
