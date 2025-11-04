@@ -45,19 +45,19 @@
 }
 a { color: inherit; text-decoration: none; }
 
-/* --- BASE BODY STYLES --- */
+/* --- BASE BODY STYLES (Desktop Centering) --- */
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--calc-bg); 
     color: var(--text-light); 
     padding: 1rem; 
-    display: flex; 
+    display: flex; /* Flex container for centering */
     align-items: center; 
     justify-content: center; 
     min-height: 100vh;
 }
 
-/* --- Profile Tag --- */
+/* --- Profile Tag (Unchanged) --- */
 .profile-box {
     background-color: var(--bg-gray-700);
     padding: 0.5rem 1rem;
@@ -86,7 +86,7 @@ body {
     color: var(--text-gray-400);
 }
 
-/* --- Main App Container --- */
+/* --- Main App Container (Unchanged) --- */
 #app {
     width: 100%; 
     max-width: 28rem; 
@@ -111,14 +111,14 @@ body {
 }
 #app p.target-label span { font-weight: bold; color: var(--text-yellow-400); }
 
-/* Loading Indicator */
+/* Loading Indicator (Unchanged) */
 #loading {
     color: var(--text-gray-400); 
     padding: 2rem; 
     text-align: center;
 }
 
-/* --- Calculator Specific Styles --- */
+/* --- Calculator Specific Styles (Unchanged) --- */
 .calculator-display {
     background-color: var(--calc-display-bg); 
     color: var(--calc-display-color); 
@@ -132,7 +132,7 @@ body {
 .current-result-label { color: var(--text-gray-400); font-size: 0.75rem; margin-bottom: 0.25rem; }
 .current-result-value { font-family: 'IBM Plex Mono', monospace; font-size: 3rem; font-weight: bold; }
 
-/* Input Container */
+/* Input Container (Unchanged) */
 .input-container {
     margin-bottom: 1rem; padding: 0.75rem; background-color: var(--bg-gray-700);
     border-radius: 0.75rem; color: var(--text-white); display: flex; 
@@ -151,7 +151,7 @@ body {
     width: 66.6666%; text-align: right; color: var(--text-white); 
 }
 
-/* Info Box */
+/* Info Box (Unchanged) */
 .info-box {
     text-align: center; margin-bottom: 1rem; padding: 0.75rem; 
     background-color: var(--bg-gray-700); border-radius: 0.75rem; 
@@ -171,10 +171,10 @@ body {
     color: var(--text-yellow-300);
 }
 
-/* Keypad Grid */
+/* Keypad Grid (Unchanged) */
 .keypad-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
 
-/* General Button Style */
+/* General Button Style (Unchanged) */
 .calc-button {
     padding: 1rem; border-radius: 0.75rem; font-weight: bold;
     font-size: 1.25rem; cursor: pointer; border: none;
@@ -182,11 +182,11 @@ body {
 }
 .calc-button:active { transform: translateY(1px); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); }
 
-/* --- KEYPAD LAYOUT FIXES --- */
+/* --- KEYPAD LAYOUT FIXES (Unchanged) --- */
 #ac-button { grid-column: span 2 / span 2; }
 #apply-button { grid-column: span 2 / span 2; }
 
-/* Type Specific Buttons (Color/Hover) */
+/* Type Specific Buttons (Color/Hover) (Unchanged) */
 .op-button { background-color: var(--calc-op-bg); color: var(--text-white); }
 .op-button.selected { background-color: var(--op-selected-bg); color: var(--calc-bg); border: 2px solid var(--op-selected-border); }
 .op-button:hover { background-color: var(--op-hover); }
@@ -202,7 +202,7 @@ body {
     display: flex; align-items: center; justify-content: center;
 }
 
-/* Solved Status */
+/* Solved Status (Unchanged) */
 .solved-status-box { 
     display: none; text-align: center; padding: 1.5rem; margin-top: 1rem; 
     background-color: var(--bg-green-900); color: var(--text-white); 
@@ -223,7 +223,7 @@ body {
     opacity: 0.7;
 }
 .share-button.view-leaderboard-button {
-    background-color: var(--calc-op-bg); /* Use orange for secondary call to action */
+    background-color: var(--calc-op-bg);
     margin-top: 0.75rem;
 }
 .share-button.view-leaderboard-button:hover {
@@ -238,7 +238,7 @@ body {
 }
 .share-message { margin-top: 0.5rem; font-size: 0.875rem; text-align: center; color: var(--text-gray-400); display: none; }
 
-/* --- HISTORY & LEADERBOARD MODALS FIX --- */
+/* --- HISTORY & LEADERBOARD MODALS FIX (Unchanged) --- */
 .modal-backdrop { 
     background-color: rgba(0, 0, 0, 0.8);
     position: fixed;
@@ -281,7 +281,7 @@ body {
 .modal-op-count { margin-bottom: 0.75rem; font-weight: 600; }
 .history-list li.placeholder { color: var(--text-gray-500); }
 
-/* Leaderboard Specific Styles */
+/* Leaderboard Specific Styles (Unchanged) */
 .leaderboard-content {
     max-width: 28rem;
 }
@@ -292,7 +292,7 @@ body {
     padding: 1rem; 
     margin-bottom: 1rem; 
     border-radius: 0.5rem; 
-    background-color: var(--bg-green-900); /* Highlight solved state */
+    background-color: var(--bg-green-900); 
 }
 .user-history-header {
     font-size: 1.25rem;
@@ -344,7 +344,7 @@ body {
 .leaderboard-table tr:last-child td {
     border-bottom: none;
 }
-.leaderboard-table tr:nth-child(2) td { /* Rank 1 */
+.leaderboard-table tr:nth-child(2) td { 
     color: var(--cyan-400); 
     font-weight: bold;
 }
@@ -358,14 +358,28 @@ body {
     padding: 2rem;
 }
 
-/* --- MUSIC PLAYER CLEANUP --- */
-.music-player-container {
-    position: fixed; top: 1rem; left: 1rem; width: 24rem; height: 20rem; 
-    background-color: var(--bg-gray-900); border-radius: 0.75rem; 
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); transition: all 0.3s;
-    overflow: hidden; border: 4px solid rgba(55, 65, 81, 0.5); 
+/* --- MUSIC PLAYER DESKTOP STYLES (Default/Large Screen) --- */
+.music-player-wrapper {
+    position: fixed; /* Keep player off the main flow for desktop */
+    top: 1rem; 
+    left: 1rem;
+    z-index: 5;
+    width: 24rem; 
+    height: 20rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); 
+    transition: all 0.3s;
 }
-.music-player-container:hover { box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.35); }
+
+.music-player-container {
+    background-color: var(--bg-gray-900); 
+    border-radius: 0.75rem;
+    overflow: hidden; 
+    border: 4px solid rgba(55, 65, 81, 0.5); 
+    height: 100%;
+}
+
+.music-player-wrapper:hover { box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.35); }
+
 .player-header { 
     padding: 0.5rem; background-color: var(--bg-gray-800); color: var(--text-white); 
     display: flex; align-items: center; justify-content: center; 
@@ -373,3 +387,49 @@ body {
 }
 .youtube-embed-wrapper { height: calc(100% - 32px); }
 .youtube-iframe { width: 100%; height: 100%; border: none; }
+
+
+/* ------------------------------------------- */
+/* --- 📱 MOBILE STYLES (Screen width up to 640px) --- */
+/* ------------------------------------------- */
+@media (max-width: 640px) {
+    /* 1. Change body layout to a standard block container to enable vertical stacking flow */
+    body {
+        display: block; 
+        align-items: initial;
+        justify-content: initial;
+        min-height: auto;
+        padding: 0; 
+    }
+    
+    /* 2. Make the player part of the normal document flow and place it at the top */
+    .music-player-wrapper {
+        position: relative; 
+        top: auto;
+        left: auto;
+        width: 100%; 
+        height: 200px; 
+        margin-bottom: 0;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 1rem 1rem 0 1rem;
+    }
+
+    .music-player-wrapper:hover {
+        box-shadow: none;
+    }
+
+    .music-player-container {
+        border: 4px solid rgba(55, 65, 81, 0.5); 
+        border-radius: 0.75rem;
+    }
+    
+    /* 3. Adjust the main app container for mobile spacing */
+    #app {
+        width: 100%;
+        max-width: none;
+        border-radius: 0;
+        padding: 1.5rem 1.5rem 1rem 1.5rem; 
+        box-shadow: none;
+    }
+}
