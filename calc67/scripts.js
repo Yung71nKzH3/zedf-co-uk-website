@@ -67,13 +67,23 @@ window.updateDisplayName = async function() {
     let name = '';
     while (true) {
         // NOTE: If using this code in Canvas, replace 'alert' and 'prompt' with custom modal UI.
-        name = prompt(`Enter your new 2-character tag. Current: ${userDisplayName}`).toUpperCase();
-        if (name === null) return; // User cancelled
-        if (name && name.length >= 2 && name.length <= 2) {
+        const userInput = prompt(`Enter your new 2-character tag. Only letters A-Z are allowed. Current: ${userDisplayName}`);
+        
+        if (userInput === null) return; // User cancelled
+        
+        // 1. Remove non-alphabetic characters (the fix)
+        // This regex replaces anything that is NOT a letter (a-z, A-Z) with an empty string
+        const cleanedName = userInput.replace(/[^a-zA-Z]/g, '').toUpperCase();
+        
+        // 2. Validate the cleaned length
+        if (cleanedName.length >= 2 && cleanedName.length <= 2) {
+            name = cleanedName;
             break;
         }
-        alert("Please enter exactly 2 characters (e.g., ZF, LS).");
+        alert("Please enter exactly 2 characters, using only letters (e.g., ZF, LS). Non-letter characters were ignored.");
     }
+    
+    // The rest of the logic remains the same, using the now-clean 'name' variable
     userDisplayName = name;
     
     // Save the new name to the user's private profile document
