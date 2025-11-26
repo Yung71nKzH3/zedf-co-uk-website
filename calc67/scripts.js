@@ -356,7 +356,14 @@ function updateUI() {
  * Loads the user's display name from their private profile document.
  */
 async function loadUserDisplayName() {
-    let prefix = userId.substring(0, 2).toUpperCase();
+    // OLD: let prefix = userId.substring(0, 2).toUpperCase();
+    
+    // FIX: Strip non-letters from the ID first so the default is always letters.
+    // If the ID somehow has fewer than 2 letters, append 'ZF' as a fallback.
+    let lettersOnly = userId.replace(/[^a-zA-Z]/g, ''); 
+    if (lettersOnly.length < 2) lettersOnly += 'ZF';
+    
+    let prefix = lettersOnly.substring(0, 2).toUpperCase();
     
     if (!db) {
         userDisplayName = prefix; 
@@ -371,6 +378,7 @@ async function loadUserDisplayName() {
         if (userDoc.exists() && userDoc.data().displayName) {
             userDisplayName = userDoc.data().displayName;
         } else {
+            // If setting it for the first time, use the sanitized prefix
             userDisplayName = prefix;
             await setDoc(userProfileDocRef, { displayName: userDisplayName }, { merge: true });
         }
