@@ -1,0 +1,17 @@
+# ZEDF | w1ll0w's Dashboard
+
+> Personal website, project dashboard, and link hub.
+
+## Projects
+
+- [Wote](https://www.zedf.co.uk/wote/) - A minimalist note-taking app with markdown support and themes.
+- [Calc67](https://www.zedf.co.uk/calc67/) - A daily calculator puzzle game.
+
+## Personal
+
+- [Quotes](https://www.zedf.co.uk/quotes) - Personal favourite quotes and wisdom.
+- [Uni Dashboard](https://www.zedf.co.uk/uni) - Helpful UoP Student link dashboard.
+
+## Links
+
+- [Home](https://www.zedf.co.uk/) - Main dashboard and social links.

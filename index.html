@@ -1,16 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZF - Index</title>
-    
-    <link rel="stylesheet" href="styles.css"> 
-    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+
+    <title>Home | ZEDF</title>
+    <meta name="description"
+        content="w1ll0w's personal website featuring Projects, random stuff, and a link tree for all my socials.">
+
+    <link rel="canonical" href="https://www.zedf.co.uk/">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.zedf.co.uk/">
+    <meta property="og:title" content="ZEDF | w1ll0w's Dashboard">
+    <meta property="og:description" content="Projects, Stuff and Social Links! w1ll0w's personal digital garden.">
+
+    <meta property="og:image" content="https://www.zedf.co.uk/images/zedf-banner.jpg">
+
+    <meta name="theme-color" content="#ffffff">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
+    <link rel="help" href="/llms.txt">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "w1ll0w",
+      "alternateName": "ZEDF",
+      "url": "https://www.zedf.co.uk",
+      "image": "https://www.zedf.co.uk/images/zedf-banner.jpg"
+    }
+    </script>
+
+    <link rel="stylesheet" href="styles.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
-<body id="body-main"> 
-    
+
+<body id="body-main">
+
     <canvas id="desktopCanvas"></canvas>
     <canvas id="mobileCanvas"></canvas>
 
@@ -19,12 +53,10 @@
             UK-based Undergrad Data Science Student
         </p>
     </div>
-    
+
     <div id="app-container">
-        
-        <div id="stuff-panel" class="panel" 
-            data-target="stuff" 
-            onclick="toggleSidebar('stuff')"> 
+
+        <div id="stuff-panel" class="panel" data-target="stuff" onclick="toggleSidebar('stuff')">
             <div class="initial-content">
                 <i class="fas fa-box-open"></i>
                 <h2>Stuff</h2>
@@ -32,9 +64,7 @@
             </div>
         </div>
 
-        <div id="links-panel" class="panel" 
-            data-target="links" 
-            onclick="toggleSidebar('links')"> 
+        <div id="links-panel" class="panel" data-target="links" onclick="toggleSidebar('links')">
             <div class="initial-content">
                 <i class="fas fa-user-circle"></i>
                 <h2>Socials</h2>
@@ -42,32 +72,112 @@
             </div>
         </div>
     </div>
-    
+
     <div id="mobile-content-pane">
         <div class="v2-content-inner" id="mobile-content-inner">
-            </div>
+        </div>
     </div>
-    
+
     <div id="stuff-sidebar" class="sidebar-wrapper">
         <div class="v2-content-inner" id="stuff-desktop-content">
             <h1>
                 Stuff (Projects & Tools)
             </h1>
             <div class="grid">
-                <a href="uni.html" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-graduation-cap"></i> <h3>Uni Dash</h3> <p>Helpful Shortcuts</p> </div> </a>
-                <a href="quotes.html" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-quote-right"></i> <h3>Fav Quotes</h3> <p>Just the Hits</p> </div> </a>
-                <a href="https://falixnodes.net/startserver" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-server"></i> <h3>Minecraft Server</h3> <p>ip=zfgaming</p> </div> </a>
-                <a href="https://youtube.com/playlist?list=PLmDAk0SfywoVrnnN4JBR4tLcjPqfDA5N4&si=TBfZ-AnuuMInpFTM" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-calendar-alt"></i> <h3>College CS Project</h3> <p>Timetable Scheduler</p> </div> </a>
-                <a href="https://docs.google.com/document/d/1hdCehlL4bRm4cgJa2KhzUSMKTOEiEcjmxxgih3togmM/edit?usp=sharing" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-brain"></i> <h3>EPQ</h3> <p>AI, Humans best friend?</p> </div> </a>
-                <a href="https://steamcommunity.com/id/zfw1ll0w/myworkshopfiles/" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fab fa-steam"></i> <h3>Wallpaper Engine</h3> <p>My work</p> </div> </a>
-                <a href="https://steamcommunity.com/groups/0fukkes" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fab fa-steam-symbol"></i> <h3>Steam Group</h3> <p>Faze Up</p> </div> </a>
-                <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3323426346" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-image"></i> <h3>Steam Artwork</h3> <p>Like and Sub</p> </div> </a>
-                <a href="https://mynickname.com/gamingamer" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-gamepad"></i> <h3>w1ll0w</h3> <p>Peep it</p> </div> </a>
-                <a href="https://youtu.be/ItC8GV4BJuw" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-gift"></i> <h3>Christmas Album</h3> <p>Ho Ho Ho</p> </div> </a>
-                <a href="https://steamcommunity.com/broadcast/watch/76561198151099217/" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-video"></i> <h3>Steam Stream</h3> <p>wassup</p> </div> </a>
-                <a href="/wote/index.html" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-clipboard"></i> <h3>Wote</h3> <p>take note</p> </div> </a>
-                <a href="/calc67/index.html" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-calculator"></i> <h3>Calc67</h3> <p>daily</p> </div> </a>
-                <a href="https://themes.vivaldi.net/users/W1ll0w" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-image"></i> <h3>Vivaldi Themes</h3> <p>Lotta Style</p> </div> </a>
+                <a href="uni.html" target="_blank" class="sub-panel" onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-graduation-cap"></i>
+                        <h3>Uni Dash</h3>
+                        <p>Helpful Shortcuts</p>
+                    </div>
+                </a>
+                <a href="quotes.html" target="_blank" class="sub-panel" onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-quote-right"></i>
+                        <h3>Fav Quotes</h3>
+                        <p>Just the Hits</p>
+                    </div>
+                </a>
+                <a href="https://falixnodes.net/startserver" target="_blank" class="sub-panel"
+                    onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-server"></i>
+                        <h3>Minecraft Server</h3>
+                        <p>ip=zfgaming</p>
+                    </div>
+                </a>
+                <a href="https://youtube.com/playlist?list=PLmDAk0SfywoVrnnN4JBR4tLcjPqfDA5N4&si=TBfZ-AnuuMInpFTM"
+                    target="_blank" class="sub-panel" onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-calendar-alt"></i>
+                        <h3>College CS Project</h3>
+                        <p>Timetable Scheduler</p>
+                    </div>
+                </a>
+                <a href="https://docs.google.com/document/d/1hdCehlL4bRm4cgJa2KhzUSMKTOEiEcjmxxgih3togmM/edit?usp=sharing"
+                    target="_blank" class="sub-panel" onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-brain"></i>
+                        <h3>EPQ</h3>
+                        <p>AI, Humans best friend?</p>
+                    </div>
+                </a>
+                <a href="https://steamcommunity.com/id/zfw1ll0w/myworkshopfiles/" target="_blank" class="sub-panel"
+                    onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fab fa-steam"></i>
+                        <h3>Wallpaper Engine</h3>
+                        <p>My work</p>
+                    </div>
+                </a>
+                <a href="https://steamcommunity.com/groups/0fukkes" target="_blank" class="sub-panel"
+                    onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fab fa-steam-symbol"></i>
+                        <h3>Steam Group</h3>
+                        <p>Faze Up</p>
+                    </div>
+                </a>
+                <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3323426346" target="_blank"
+                    class="sub-panel" onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-image"></i>
+                        <h3>Steam Artwork</h3>
+                        <p>Like and Sub</p>
+                    </div>
+                </a>
+                <a href="https://mynickname.com/gamingamer" target="_blank" class="sub-panel"
+                    onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-gamepad"></i>
+                        <h3>w1ll0w</h3>
+                        <p>Peep it</p>
+                    </div>
+                </a>
+                <a href="https://youtu.be/ItC8GV4BJuw" target="_blank" class="sub-panel"
+                    onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-gift"></i>
+                        <h3>Christmas Album</h3>
+                        <p>Ho Ho Ho</p>
+                    </div>
+                </a>
+                <a href="https://steamcommunity.com/broadcast/watch/76561198151099217/" target="_blank"
+                    class="sub-panel" onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-video"></i>
+                        <h3>Steam Stream</h3>
+                        <p>wassup</p>
+                    </div>
+                </a>
+                <a href="/wote/index.html" target="_blank" class="sub-panel" onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-clipboard"></i>
+                        <h3>Wote</h3>
+                        <p>take note</p>
+                    </div>
+                </a>
+                <a href="/calc67/index.html" target="_blank" class="sub-panel" onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-calculator"></i>
+                        <h3>Calc67</h3>
+                        <p>daily</p>
+                    </div>
+                </a>
+                <a href="https://themes.vivaldi.net/users/W1ll0w" target="_blank" class="sub-panel"
+                    onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-image"></i>
+                        <h3>Vivaldi Themes</h3>
+                        <p>Lotta Style</p>
+                    </div>
+                </a>
             </div>
         </div>
     </div>
@@ -78,26 +188,117 @@
                 Links & Contact
             </h1>
             <div class="grid">
-                <a href="https://www.amazon.co.uk/gp/profile/amzn1.account.AFZV5OZGH35QG65NFVT623ERKCJA/ref=cm_cr_dp_d_gw_tr?ie=UTF8" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fab fa-amazon"></i> <h3>Amazon</h3> <p>bought&thought</p> </div> </a>
-                <a href="https://www.google.com/maps/contrib/109714089787548110234/reviews" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fab fa-google"></i> <h3>Maps</h3> <p>reviews</p> </div> </a>
-                <a href="https://www.youtube.com/@w1ll0w62" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fab fa-youtube"></i> <h3>YouTube</h3> <p>bits&bobs</p> </div> </a>
-                <a href="https://open.spotify.com/user/vleonardo2006" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fab fa-spotify"></i> <h3>Spotify</h3> <p>connoisseur</p> </div> </a>
-                <a href="https://stats.fm/wi110w" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-chart-bar"></i> <h3>Stats.fm</h3> <p>OG</p> </div> </a>
-                <a href="https://letterboxd.com/w1ll0ww/" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-film"></i> <h3>Letterboxd</h3> <p>fanatic</p> <p>fanatic</p> </div> </a>
-                <a href="https://www.alltrails.com/en-gb/members/w1ll0w-user?ref=header" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-mountain"></i> <h3>AllTrails</h3> <p>checkit</p> </div> </a>
-                <a href="https://github.com/Yung71nKzH3" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fab fa-github"></i> <h3>GitHub</h3> <p>damn SSH</p> </div> </a>
-                <a href="https://www.instagram.com/w1ll0_w/" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fab fa-instagram"></i> <h3>Instagram</h3> <p>reposts fire</p> </div> </a>
-                <a href="https://www.threads.net/@w1ll0_w" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fab fa-threads"></i> <h3>Threads</h3> <p>don' look</p> </div> </a>
-                <a href="https://steamcommunity.com/id/zfw1ll0w/" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fab fa-steam"></i> <h3>Steam</h3> <p>goated</p> </div> </a>
-                <a href="https://anilist.co/user/w1ll0wW/" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-tv"></i> <h3>AniList</h3> <p>Violet bro</p> </div> </a>
-                <a href="https://social.vivaldi.net/@W1ll0w" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-comments"></i> <h3>Vivaldi Social</h3> <p>wut is ts?</p> </div> </a>
-                <a href="https://www.keybr.com/profile/b57ds5l" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-keyboard"></i> <h3>Keybr</h3> <p>type</p> </div> </a>
-                <a href="https://monkeytype.com/profile/w1LL0w" target="_blank" class="sub-panel" onclick="event.stopPropagation()"> <div class="initial-content"> <i class="fas fa-laptop-code"></i> <h3>MonkeyType</h3> <p>yurr</p> </div> </a>
+                <a href="https://www.amazon.co.uk/gp/profile/amzn1.account.AFZV5OZGH35QG65NFVT623ERKCJA/ref=cm_cr_dp_d_gw_tr?ie=UTF8"
+                    target="_blank" class="sub-panel" onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fab fa-amazon"></i>
+                        <h3>Amazon</h3>
+                        <p>bought&thought</p>
+                    </div>
+                </a>
+                <a href="https://www.google.com/maps/contrib/109714089787548110234/reviews" target="_blank"
+                    class="sub-panel" onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fab fa-google"></i>
+                        <h3>Maps</h3>
+                        <p>reviews</p>
+                    </div>
+                </a>
+                <a href="https://www.youtube.com/@w1ll0w62" target="_blank" class="sub-panel"
+                    onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fab fa-youtube"></i>
+                        <h3>YouTube</h3>
+                        <p>bits&bobs</p>
+                    </div>
+                </a>
+                <a href="https://open.spotify.com/user/vleonardo2006" target="_blank" class="sub-panel"
+                    onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fab fa-spotify"></i>
+                        <h3>Spotify</h3>
+                        <p>connoisseur</p>
+                    </div>
+                </a>
+                <a href="https://stats.fm/wi110w" target="_blank" class="sub-panel" onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-chart-bar"></i>
+                        <h3>Stats.fm</h3>
+                        <p>OG</p>
+                    </div>
+                </a>
+                <a href="https://letterboxd.com/w1ll0ww/" target="_blank" class="sub-panel"
+                    onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-film"></i>
+                        <h3>Letterboxd</h3>
+                        <p>fanatic</p>
+                        <p>fanatic</p>
+                    </div>
+                </a>
+                <a href="https://www.alltrails.com/en-gb/members/w1ll0w-user?ref=header" target="_blank"
+                    class="sub-panel" onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-mountain"></i>
+                        <h3>AllTrails</h3>
+                        <p>checkit</p>
+                    </div>
+                </a>
+                <a href="https://github.com/Yung71nKzH3" target="_blank" class="sub-panel"
+                    onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fab fa-github"></i>
+                        <h3>GitHub</h3>
+                        <p>damn SSH</p>
+                    </div>
+                </a>
+                <a href="https://www.instagram.com/w1ll0_w/" target="_blank" class="sub-panel"
+                    onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fab fa-instagram"></i>
+                        <h3>Instagram</h3>
+                        <p>reposts fire</p>
+                    </div>
+                </a>
+                <a href="https://www.threads.net/@w1ll0_w" target="_blank" class="sub-panel"
+                    onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fab fa-threads"></i>
+                        <h3>Threads</h3>
+                        <p>don' look</p>
+                    </div>
+                </a>
+                <a href="https://steamcommunity.com/id/zfw1ll0w/" target="_blank" class="sub-panel"
+                    onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fab fa-steam"></i>
+                        <h3>Steam</h3>
+                        <p>goated</p>
+                    </div>
+                </a>
+                <a href="https://anilist.co/user/w1ll0wW/" target="_blank" class="sub-panel"
+                    onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-tv"></i>
+                        <h3>AniList</h3>
+                        <p>Violet bro</p>
+                    </div>
+                </a>
+                <a href="https://social.vivaldi.net/@W1ll0w" target="_blank" class="sub-panel"
+                    onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-comments"></i>
+                        <h3>Vivaldi Social</h3>
+                        <p>wut is ts?</p>
+                    </div>
+                </a>
+                <a href="https://www.keybr.com/profile/b57ds5l" target="_blank" class="sub-panel"
+                    onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-keyboard"></i>
+                        <h3>Keybr</h3>
+                        <p>type</p>
+                    </div>
+                </a>
+                <a href="https://monkeytype.com/profile/w1LL0w" target="_blank" class="sub-panel"
+                    onclick="event.stopPropagation()">
+                    <div class="initial-content"> <i class="fas fa-laptop-code"></i>
+                        <h3>MonkeyType</h3>
+                        <p>yurr</p>
+                    </div>
+                </a>
             </div>
         </div>
     </div>
-    
-    <script src="scripts.js"></script> 
+
+    <script src="scripts.js"></script>
 
 </body>
+
 </html>
