@@ -14,7 +14,8 @@ on:
         type: string
 
 env:
-  DEPLOYMENT_FOLDER: ./
+  DEPLOYMENT_FOLDER: out
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
 # Please do not rename this job
@@ -28,6 +29,17 @@ jobs:
           submodules: 'recursive'
 
 # Please do not touch the following action
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: install dependencies
+        run: npm install
+
+      - name: build project
+        run: npm run build
+
       - name: Store deployment content
         uses: ionos-deploy-now/artifact-action@v1
         with:
