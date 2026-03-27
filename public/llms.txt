@@ -6,6 +6,7 @@
 
 - [Wote](https://www.zedf.co.uk/wote/) - A minimalist note-taking app with markdown support and themes.
 - [Calc67](https://www.zedf.co.uk/calc67/) - A daily calculator puzzle game.
+- [Personal Space](https://www.zedf.co.uk/project-space) - An immersive interactive nebula of projects and star-charts.
 
 ## Personal
 

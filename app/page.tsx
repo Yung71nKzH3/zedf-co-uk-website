@@ -7,7 +7,7 @@ import {
   PackageOpen, UserCircle, GraduationCap, Quote, Server, Calendar, Brain, 
   Gamepad2, Image as ImageIcon, Gamepad, Gift, Video, Clipboard, Calculator, 
   ShoppingCart, MapPin, Youtube, Music, BarChart, Film, Mountain, Github, 
-  Instagram, MessageCircle, Tv, MessageSquare, Keyboard, Laptop, Code 
+  Instagram, MessageCircle, Tv, MessageSquare, Keyboard, Laptop, Code, Rocket
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -25,6 +25,7 @@ const STUFF_LINKS = [
   { href: 'https://steamcommunity.com/broadcast/watch/76561198151099217/', icon: Video, title: 'Steam Stream', desc: 'wassup', external: true },
   { href: '/wote', icon: Clipboard, title: 'Wote', desc: 'take note' },
   { href: '/calc67', icon: Calculator, title: 'Calc67', desc: 'daily' },
+  { href: '/project-space', icon: Rocket, title: 'Personal Space', desc: 'The Nebula' },
   { href: 'https://themes.vivaldi.net/users/W1ll0w', icon: ImageIcon, title: 'Vivaldi Themes', desc: 'Lotta Style', external: true },
 ];
 
