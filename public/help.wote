@@ -16,9 +16,9 @@
             { "i": "s1", "t": "todo", "c": "Enter: Create new node below", "ck": true, "ch": [] },
             { "i": "s2", "t": "todo", "c": "Tab: Indent node", "ck": true, "ch": [] },
             { "i": "s3", "t": "todo", "c": "Shift+Tab: Outdent node", "ck": true, "ch": [] },
-            { "i": "s4", "t": "todo", "c": "Ctrl+Up/Down: Navigate to previous/next node", "ck": false, "ch": [] },
-            { "i": "s5", "t": "todo", "c": "Ctrl+/: Toggle Collapse", "ck": false, "ch": [] },
-            { "i": "s6", "t": "todo", "c": "Ctrl+Shift+.: Cycle Node Type", "ck": false, "ch": [] }
+            { "i": "s4", "t": "todo", "c": "Alt+Up/Down: Navigate to previous/next node", "ck": true, "ch": [] },
+            { "i": "s5", "t": "todo", "c": "Ctrl+/: Toggle Collapse", "ck": true, "ch": [] },
+            { "i": "s6", "t": "todo", "c": "Alt+T: Cycle Node Type", "ck": true, "ch": [] }
           ]
         },
         {
@@ -35,7 +35,7 @@
             {
                "i": "h5",
                "t": "text",
-               "c": "You can insert images by setting the node type (Ctrl+Shift+.) to Image and pasting a URL!",
+               "c": "You can insert images by setting the node type (Alt+T) to Image and pasting a URL!",
                "ch": []
             }
           ]

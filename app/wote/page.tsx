@@ -138,15 +138,15 @@ const NodeItem = memo(({ node, depth, actions }: { node: NoteNode; depth: number
     } else if (e.key === '/' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       actions.updateNode(node.id, { collapsed: !node.collapsed });
-    } else if (e.key === '.' && e.shiftKey && (e.ctrlKey || e.metaKey)) {
+    } else if (e.key === 't' && e.altKey) {
       e.preventDefault();
       actions.cycleType(node.id);
     } else if (e.key === 'Backspace' && e.shiftKey && (e.ctrlKey || e.metaKey)) {
       actions.deleteNode(node.id);
-    } else if (e.key === 'ArrowUp' && (e.ctrlKey || e.metaKey)) {
+    } else if (e.key === 'ArrowUp' && e.altKey) {
       e.preventDefault();
       actions.focusRelativeNode(node.id, 'up');
-    } else if (e.key === 'ArrowDown' && (e.ctrlKey || e.metaKey)) {
+    } else if (e.key === 'ArrowDown' && e.altKey) {
       e.preventDefault();
       actions.focusRelativeNode(node.id, 'down');
     }
@@ -211,7 +211,7 @@ const NodeItem = memo(({ node, depth, actions }: { node: NoteNode; depth: number
     );
   };
 
-  const Icon = () => {
+  const renderIcon = () => {
     switch(node.type) {
       case 'code': return <Code className="w-3.5 h-3.5 text-orange-400" />;
       case 'markdown': return <FileText className="w-3.5 h-3.5 text-cyan-400" />;
@@ -253,7 +253,7 @@ const NodeItem = memo(({ node, depth, actions }: { node: NoteNode; depth: number
                className={`${c.mutedBg} p-1 rounded-lg flex items-center gap-1.5 cursor-pointer ${c.mutedHoverBg} transition-colors`}
                title="Click to change node type"
             >
-               <Icon />
+               {renderIcon()}
                <span className={`text-[9px] font-bold uppercase tracking-widest ${c.muted}`}>{node.type}</span>
             </div>
             <button 
@@ -741,7 +741,9 @@ export default function WotePage() {
                        </label>
                     </div>
                     <Link 
-                      href="?id=help" 
+                      href="?id=help"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       onClick={() => setShowSettings(false)}
                       className="flex items-center justify-center gap-2 p-3 w-full bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-500 border border-cyan-500/20 rounded-2xl transition-all text-sm font-bold"
                     >
@@ -784,8 +786,8 @@ export default function WotePage() {
                    ['Enter', 'Create Node'],
                    ['Tab / Shift+Tab', 'Indent / Outdent'],
                    ['Ctrl + /', 'Toggle Collapse'],
-                   ['Ctrl + Shift + .', 'Cycle Node Type'],
-                   ['Ctrl + Up / Down', 'Move Focus'],
+                   ['Alt + T', 'Cycle Node Type'],
+                   ['Alt + Up / Down', 'Move Focus'],
                    ['Ctrl + Shift + Backspace', 'Delete Node'],
                  ].map(([keys, desc]) => (
                    <div key={keys} className={`flex items-center justify-between p-3 ${c.mutedBg} rounded-xl border ${c.mutedBorder}`}>
