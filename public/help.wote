@@ -1,0 +1,46 @@
+{
+  "v": 1,
+  "title": "Wote Help Manual",
+  "nodes": [
+    {
+      "i": "h1",
+      "t": "markdown",
+      "c": "# Welcome to Wote!\n\nA beautifully minimalist tree-based note-taking app.",
+      "cl": false,
+      "ch": [
+        {
+          "i": "h2",
+          "t": "text",
+          "c": "Keyboard Shortcuts:",
+          "ch": [
+            { "i": "s1", "t": "todo", "c": "Enter: Create new node below", "ck": true, "ch": [] },
+            { "i": "s2", "t": "todo", "c": "Tab: Indent node", "ck": true, "ch": [] },
+            { "i": "s3", "t": "todo", "c": "Shift+Tab: Outdent node", "ck": true, "ch": [] },
+            { "i": "s4", "t": "todo", "c": "Ctrl+Up/Down: Navigate to previous/next node", "ck": false, "ch": [] },
+            { "i": "s5", "t": "todo", "c": "Ctrl+/: Toggle Collapse", "ck": false, "ch": [] },
+            { "i": "s6", "t": "todo", "c": "Ctrl+Shift+.: Cycle Node Type", "ck": false, "ch": [] }
+          ]
+        },
+        {
+          "i": "h3",
+          "t": "text",
+          "c": "Advanced Types",
+          "ch": [
+            {
+              "i": "h4",
+              "t": "code",
+              "c": "// Type javascript or python directly\nconsole.log(\"Wote has syntax highlighting!\");",
+              "ch": []
+            },
+            {
+               "i": "h5",
+               "t": "text",
+               "c": "You can insert images by setting the node type (Ctrl+Shift+.) to Image and pasting a URL!",
+               "ch": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
