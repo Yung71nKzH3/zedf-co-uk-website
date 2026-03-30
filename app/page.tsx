@@ -216,7 +216,7 @@ export default function Home() {
       )}
 
       {/* Torn Banner */}
-      <footer className="relative z-30 w-full pt-20 pb-12 flex justify-center items-center px-4">
+      <footer className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex justify-center items-center px-4 w-auto pointer-events-auto">
         <motion.img 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -225,7 +225,7 @@ export default function Home() {
           style={{ cursor: 'pointer' }} 
           src="https://banners.torn.com/static_728x90_torncity.jpg?v=1528808940574" 
           alt="Torn City"
-          className="max-w-full md:max-w-[728px] h-auto rounded-xl shadow-2xl border border-white/5 hover:border-cyan-500/30 transition-all active:scale-95"
+          className="max-w-[90vw] md:max-w-[728px] h-auto rounded-xl shadow-2xl border border-white/5 hover:border-cyan-500/30 transition-all active:scale-95"
           title="Join me in Torn City!"
         />
       </footer>
