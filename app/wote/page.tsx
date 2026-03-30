@@ -343,7 +343,7 @@ export default function WotePage() {
 
   // True Session Sync & Backup
   useEffect(() => {
-    if (!isLoaded || noteId === 'help') return;
+    if (!isLoaded || noteId === 'help' || showBackupPrompt) return;
     const backupKey = `wote-session-backup-${noteId}`;
     
     // Sync to localStorage for tabs
@@ -353,7 +353,7 @@ export default function WotePage() {
     }, 1000);
 
     return () => clearTimeout(timeout);
-  }, [nodes, title, noteId, isLoaded]);
+  }, [nodes, title, noteId, isLoaded, showBackupPrompt]);
 
   // Handle cross-tab sync
   useEffect(() => {

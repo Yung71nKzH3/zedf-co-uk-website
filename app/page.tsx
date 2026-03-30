@@ -214,6 +214,21 @@ export default function Home() {
         </>
       )}
 
+      {/* Torn Banner */}
+      <footer className="relative z-30 w-full pt-20 pb-12 flex justify-center items-center px-4">
+        <motion.img 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          onClick={() => window.open('https://www.torn.com/4197113')} 
+          style={{ cursor: 'pointer' }} 
+          src="https://banners.torn.com/static_728x90_torncity.jpg?v=1528808940574" 
+          alt="Torn City"
+          className="max-w-full md:max-w-[728px] h-auto rounded-xl shadow-2xl border border-white/5 hover:border-cyan-500/30 transition-all active:scale-95"
+          title="Join me in Torn City!"
+        />
+      </footer>
+
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes moveGradient {
           0% { background-position: 0% 50%; }
