@@ -2,10 +2,11 @@ import Link from 'next/link';
 import { 
   GraduationCap, Mail, BookOpen, UserCircle, CheckSquare, 
   Printer, Monitor, MonitorPlay, HardDrive, CalendarCheck, 
-  Calendar, Users, Server, Building 
+  Calendar, Users, Server, Building, Compass, Globe, Bus
 } from 'lucide-react';
 
 const CORE_SHORTCUTS = [
+  { href: 'https://myport.port.ac.uk/', icon: Compass, title: 'MyPort', desc: 'Student Portal & Information.' },
   { href: 'https://timetabling.port.ac.uk/CMISGo/Web/Timetable', icon: Calendar, title: 'Timetable', desc: 'View class schedule.' },
   { href: 'https://outlook.office.com/mail/', icon: Mail, title: 'Uni Mail', desc: 'Access student Outlook Mail.' },
   { href: 'https://moodle.port.ac.uk/', icon: BookOpen, title: 'Moodle', desc: 'Course materials & submissions.' },
@@ -14,6 +15,7 @@ const CORE_SHORTCUTS = [
 ];
 
 const IT_SERVICES = [
+  { href: 'https://www.port.ac.uk/', icon: Globe, title: 'UoP Website', desc: 'Main University website.' },
   { href: 'https://myprint.port.ac.uk/user', icon: Printer, title: 'Printing *', desc: 'Web Printing Link' },
   { href: 'https://keyserver.port.ac.uk/home/Main', icon: Monitor, title: 'Remote Access *', desc: 'Access Lab Computers', extraLink: { href: 'https://myport.port.ac.uk/guidance-and-support/student-it-support/using-university-computers-and-laptops/remote-access-to-lab-computers', text: 'How To Guide' } },
   { href: 'https://appsanywhere.port.ac.uk/login', icon: MonitorPlay, title: 'AppsAnywhere', desc: 'Access required software.' },
@@ -25,6 +27,31 @@ const IT_SERVICES = [
   { href: 'https://librarystudyrooms.port.ac.uk/RoomBooking.dll', icon: Building, title: 'Book a Room', desc: 'Reserve library study space.' },
 ];
 
+const BUSES = [
+  { 
+    href: 'https://publications.docstore.port.ac.uk/A790056.pdf', 
+    icon: Bus, 
+    title: 'U1 Bus Timetable', 
+    desc: 'View U1 stops and times.',
+    image: 'https://myport.port.ac.uk/sites/default/files/styles/image_with_caption_desktop/public/media/images/U1%20Circular%20Route.PNG.webp?itok=i26HyoJB'
+  },
+  { 
+    href: 'https://publications.docstore.port.ac.uk/A1000163.pdf', 
+    icon: Bus, 
+    title: 'U2 Bus Timetable', 
+    desc: 'View U2 stops and times.',
+    image: 'https://myport.port.ac.uk/sites/default/files/styles/image_with_caption_desktop/public/media/images/U2%20Route.PNG.webp?itok=EvB72LI9'
+  },
+];
+
+interface BusService {
+  href: string;
+  icon: any;
+  title: string;
+  desc: string;
+  image: string;
+}
+
 export default function UniDash() {
   return (
     <div className="min-h-screen bg-[#0c1422] text-slate-100 p-4 md:p-8 font-sans">
@@ -34,12 +61,11 @@ export default function UniDash() {
           <h1 className="text-4xl md:text-5xl font-extrabold text-cyan-400 tracking-tight">UoP Dashboard</h1>
           <p className="text-slate-400 mt-2">Helpful UoP Student link dashboard</p>
           
-          <nav className="mt-4 flex flex-wrap justify-center gap-4 text-sm text-slate-500">
-            <a href="#services" className="hover:text-cyan-400 transition-colors">Services</a>
-            <a href="#maps" className="hover:text-cyan-400 transition-colors">Maps</a>
-            <a href="#status" className="hover:text-cyan-400 transition-colors">Server Status</a>
-            <Link href="/" className="hover:text-cyan-400 transition-colors">← Return to Dashboard</Link>
-          </nav>
+          <div className="mt-4 flex justify-center">
+            <Link href="/" className="text-sm text-cyan-400 hover:text-cyan-300 hover:underline transition-colors">
+              ← Return to Dashboard
+            </Link>
+          </div>
         </header>
 
         <section className="mb-12">
@@ -91,24 +117,37 @@ export default function UniDash() {
           </div>
         </section>
 
-        {/* Placeholders for Status and Maps */}
-        <section id="status" className="mb-12">
-          <h2 className="text-2xl font-extrabold text-cyan-500 border-b-2 border-white/10 pb-2 mb-6">Real-Time Status</h2>
-          <div className="bg-[#172033] p-6 rounded-xl shadow-md text-slate-400 text-center">
-            Server Statuses (Iframes would go here)
+        <section id="buses" className="mb-12">
+          <h2 className="text-2xl font-extrabold text-cyan-500 border-b-2 border-white/10 pb-2 mb-6">Bus Services</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {(BUSES as BusService[]).map((item, idx) => (
+              <a 
+                key={idx} 
+                href={item.href} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="group bg-[#172033] rounded-xl shadow-md hover:shadow-xl hover:shadow-cyan-500/20 transition-all overflow-hidden flex flex-col md:flex-row"
+              >
+                <div className="relative w-full md:w-48 h-48 md:h-auto overflow-hidden">
+                   <img 
+                    src={item.image} 
+                    alt={item.title} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#172033] to-transparent md:hidden" />
+                </div>
+                <div className="p-6 flex flex-col justify-center">
+                  <item.icon className="w-8 h-8 text-cyan-500 mb-3" />
+                  <h3 className="text-xl font-bold text-slate-100">{item.title}</h3>
+                  <p className="text-sm text-slate-400 mt-2">{item.desc}</p>
+                  <span className="text-xs text-cyan-400 mt-4 font-semibold uppercase tracking-wider group-hover:underline">
+                    View Timetable PDF →
+                  </span>
+                </div>
+              </a>
+            ))}
           </div>
         </section>
-
-        <section id="maps" className="mb-12">
-          <h2 className="text-2xl font-extrabold text-cyan-500 border-b-2 border-white/10 pb-2 mb-6">Campus Maps</h2>
-          <div className="bg-[#172033] p-6 rounded-xl shadow-md text-slate-400 text-center">
-            Campus Maps (Iframes would go here)
-          </div>
-        </section>
-
-        <footer className="text-center pt-8 text-sm text-slate-500 border-t border-white/10">
-          ZEDF Dashboard © {new Date().getFullYear()}
-        </footer>
 
       </div>
     </div>
