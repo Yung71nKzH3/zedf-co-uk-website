@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+
+    <title>Wote | ZEDF</title>
+    <meta name="description" content="Project Wote: A minimalist note-taking app with markdown support and themes.">
+
+    <link rel="canonical" href="https://www.zedf.co.uk/wote/">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.zedf.co.uk/wote/">
+    <meta property="og:title" content="Wote | Minimalist Notes">
+    <meta property="og:description"
+        content="Minimalist web-based note-taking with markdown support, themes, and local storage privacy.">
+
+    <meta property="og:image" content="https://www.zedf.co.uk/images/zedf-banner.jpg">
+
+    <meta name="theme-color" content="#ffffff">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
+    <link rel="help" href="/llms.txt">
+
+    <script type="application/ld+json">
+  {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "w1ll0w",
+      "alternateName": "ZEDF",
+      "url": "https://www.zedf.co.uk",
+      "image": "https://www.zedf.co.uk/images/zedf-banner.jpg"
+  }
+  </script>
+
+    <meta name="author" content="Leonardo Paolo Valenti">
+
+    <link rel="stylesheet" href="flavour.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap">
+    <script src="lib/marked.min.js"></script>
+    <script src="lib/purify.min.js"></script>
+    <link rel="stylesheet" href="lib/atom-one-dark.min.css">
+    <script src="lib/highlight.min.js"></script>
+
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+
+    <main>
+        <div id="app-header">
+            <button id="menu-btn">⚙️</button>
+        </div>
+
+        <div id="app-menu" style="display: none;">
+            <h3>App Settings & Data</h3>
+            <p>Current Note ID: <span id="current-note-id"></span></p>
+
+            <button id="help-btn" onclick="window.location.href='?id=help'">Open Help Manual</button>
+            <br><br>
+
+            <button id="export-btn">Export to .wote</button><br>
+            <input type="file" id="import-file" accept=".wote, application/json" style="display:none;">
+            <button id="import-btn">Import from .wote</button>
+
+            <hr>
+            <label>Theme:
+                <select id="theme-selector">
+                    <option value="willow-theme">Willow (Default)</option>
+                    <option value="dark-theme">Dark Theme</option>
+                    <option value="custom-theme">Custom Theme</option>
+                </select>
+            </label>
+
+            <hr>
+
+            <div id="custom-theme-builder" style="display: none;">
+                <h4>Customize Colors</h4>
+                <label>Background: <input type="color" id="color-bg"></label><br>
+                <label>Text: <input type="color" id="color-text"></label><br>
+                <label>Branch Line: <input type="color" id="color-line"></label><br>
+                <label>Note BG: <input type="color" id="color-note-bg"></label><br>
+                <button id="save-custom-theme-btn">Save As Custom</button>
+            </div>
+            <p><button id="close-menu-btn">Close</button></p>
+        </div>
+        <div class="note-area" id="note-container">
+        </div>
+    </main>
+
+</body>
+
+</html>
