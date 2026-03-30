@@ -133,8 +133,83 @@ const QUOTES = [
     text: "\"In order to win, someone must lose.\"",
     author: "Game Theory",
     link: "https://en.wikipedia.org/wiki/Zero-sum_game"
+  },
+  {
+    detail: "I LOVE THE HUNGER GAMES",
+    detailLink: "https://youtu.be/VmZccWuoBr0?si=YSHtWaCq2Df4_E4U&t=475",
+    text: "\"...But there are much worse games to play.\"",
+    author: "Suzanne Collins",
+    link: "https://www.goodreads.com/quotes/8741597-but-one-day-i-ll-have-to-explain-about-my-nightmares"
+  },
+  {
+    detail: "y'aight",
+    text: "\"The time to repair the roof is when the sun is shining.\"",
+    author: "John F. Kennedy",
+    link: "https://www.brainyquote.com/quotes/john_f_kennedy_110220"
+  },
+  {
+    detail: "Releasee the babyyyy",
+    text: "\"Never not be afraid!\"",
+    author: "Croods",
+    link: "https://youtu.be/wmUqs_4nzeg?si=69fb34hhLMXhtcwE"
+  },
+  {
+    detail: "",
+    text: "\"He who chases two rabbits catches neither.\"",
+    author: "Confucius or Russian Folklore",
+    link: "https://www.goodreads.com/quotes/8688305-the-man-who-chases-two-rabbits-catches-neither"
+  },
+  {
+    detail: "Mine, Craft",
+    text: "\"Twenty years from now you will be more disappointed by the things that you didn't do than by the ones you did do. So throw off the bowlines. Sail away from the safe harbor. Catch the trade winds in your sails. Explore. Dream. Discover.\"",
+    author: "Mark Twain"
+  },
+  {
+    detail: "Spend money to make money.",
+    text: "\"Necesse est facere sumptum qui quaerit lucrum\"",
+    author: "Titus Maccius Plautus",
+    link: "https://en.wikipedia.org/wiki/Asinaria"
+  },
+  {
+    detail: "Thank you Ariunbuyan",
+    text: "\"One day or day one.\"",
+    author: "Paulo Coelho",
+    link: "https://www.goodreads.com/quotes/12015583-one-day-or-day-one"
+  },
+  {
+    detail: "Why be sad when you can be happy?",
+    text: "\"Happiness is the meaning and the purpose of life, the whole aim and end of human existence.\"",
+    author: "Aristotle",
+    link: "https://www.pursuit-of-happiness.org/history-of-happiness/aristotle/"
+  },
+  {
+    detail: "Benji",
+    text: "\"He that can have patience can have what he will.\"",
+    author: "Benjamin Franklin",
+    link: "https://www.goodreads.com/quotes/197890-he-who-can-have-patience-can-have-what-he-will"
+  },
+  {
+    detail: "Denz-uhl",
+    text: "\"Do what you have to do, so you can do what you want to do.\"",
+    author: "Denzel Washington",
+    link: "https://youtube.com/shorts/qlpXpxLi8Lg?si=40U_klkGBzD1Q1g0"
+  },
+  {
+    detail: "For Example",
+    detailLink: "https://31.media.tumblr.com/tumblr_m4cs55fdIJ1r3tcqko1_500.jpg",
+    text: "\"The problem with quotations on the Internet, is that you can never be sure of their authenticity.\"",
+    author: "Abraham Lincoln",
+    link: "https://www.reddit.com/r/badhistory/comments/1pkdhw/the_problem_with_quotes_on_the_internet_is_that/"
   }
 ];
+
+interface Quote {
+  detail: string;
+  detailLink?: string;
+  text: string;
+  author: string;
+  link?: string;
+}
 
 export default function QuotesPage() {
   return (
@@ -147,12 +222,25 @@ export default function QuotesPage() {
         </header>
 
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          {QUOTES.map((quote, idx) => (
+          {(QUOTES as Quote[]).map((quote, idx) => (
             <div 
               key={idx} 
               className="bg-[#172033] p-6 rounded-xl shadow-[0_8px_15px_rgba(0,0,0,0.4)] border border-white/5 flex flex-col hover:-translate-y-1 transition-transform duration-300"
             >
-              <p className="text-sm text-slate-400 mb-4 italic">{quote.detail}</p>
+              <div className="text-sm text-slate-400 mb-4 italic">
+                {quote.detailLink ? (
+                  <a 
+                    href={quote.detailLink} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="hover:text-cyan-400 hover:underline transition-colors"
+                  >
+                    {quote.detail}
+                  </a>
+                ) : (
+                  quote.detail
+                )}
+              </div>
               <blockquote className="text-lg font-medium text-slate-200 flex-grow mb-4 leading-relaxed">
                 {quote.text}
               </blockquote>
