@@ -46,6 +46,7 @@ const SOCIAL_LINKS = [
   { href: 'https://www.keybr.com/profile/b57ds5l', icon: Keyboard, title: 'Keybr', desc: 'type', external: true },
   { href: 'https://monkeytype.com/profile/w1LL0w', icon: Laptop, title: 'MonkeyType', desc: 'yurr', external: true },
   { href: 'https://leetcode.com/u/yung71nkzh3/', icon: Code, title: 'LeetCode', desc: 'grind', external: true },
+  { href: 'https://atkjink.github.io/', icon: Github, title: 'Atkjink', desc: 'bruther', external: true },
 ];
 
 export default function Home() {
