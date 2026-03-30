@@ -76,6 +76,10 @@ export default function Calc67Page() {
   // Auth & Data Loading
   useEffect(() => {
     const init = async () => {
+      if (!auth || !db) {
+        setLoading(false);
+        return;
+      }
       try {
         const userCredential = await signInAnonymously(auth);
         setUserId(userCredential.user.uid);
@@ -145,6 +149,7 @@ export default function Calc67Page() {
 
   // Load Leaderboard
   const fetchLeaderboard = useCallback(async () => {
+    if (!db) return;
     try {
       const scoresRef = collection(db, 'artifacts', APP_ID, 'leaderboard_scores', todayKey, 'scores');
       const q = query(
@@ -192,7 +197,7 @@ export default function Calc67Page() {
   };
 
   const executeStep = async () => {
-    if (hasSolvedToday || !currentOperator || currentInput === '') return;
+    if (hasSolvedToday || !currentOperator || currentInput === '' || !db) return;
     
     const operand2 = parseFloat(currentInput);
     if (isNaN(operand2)) return;
@@ -292,7 +297,7 @@ export default function Calc67Page() {
     setUserDisplayName(clean);
     localStorage.setItem('calc67-tag', clean);
     
-    if (userId) {
+    if (userId && db) {
       const profileRef = doc(db, `artifacts/${APP_ID}/users/${userId}/profile`, 'data');
       await setDoc(profileRef, { displayName: clean }, { merge: true });
     }
@@ -307,7 +312,7 @@ export default function Calc67Page() {
     setIsTagLocked(true);
     setShowReveal(false);
     
-    if (userId) {
+    if (userId && db) {
       const statusRef = doc(db, `artifacts/${APP_ID}/users/${userId}/daily_challenges`, todayKey);
       await setDoc(statusRef, { 
         tagLocked: true, 
