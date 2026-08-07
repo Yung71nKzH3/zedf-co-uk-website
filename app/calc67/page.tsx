@@ -14,19 +14,7 @@ import {
   X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  doc, 
-  getDoc, 
-  setDoc, 
-  collection, 
-  query, 
-  orderBy, 
-  limit, 
-  getDocs,
-  Timestamp 
-} from "firebase/firestore";
-import { signInAnonymously, onAuthStateChanged } from "firebase/auth";
-import { db, auth } from "@/lib/firebase";
+import { supabase } from "@/lib/supabase";
 
 // Constants
 const TARGET_NUMBER = 67;
@@ -76,21 +64,31 @@ export default function Calc67Page() {
   // Auth & Data Loading
   useEffect(() => {
     const init = async () => {
-      if (!auth || !db) {
+      if (!supabase) {
         setLoading(false);
         return;
       }
       try {
-        const userCredential = await signInAnonymously(auth);
-        setUserId(userCredential.user.uid);
+        const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
+        if (authError || !authData.user) {
+          console.error("Auth error:", authError);
+          setLoading(false);
+          return;
+        }
+        
+        const currentUid = authData.user.id;
+        setUserId(currentUid);
         
         // Load Profile
-        const profileRef = doc(db, `artifacts/${APP_ID}/users/${userCredential.user.uid}/profile`, 'data');
-        const profileDoc = await getDoc(profileRef);
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('id', currentUid)
+          .maybeSingle();
         
         let initialDisplayName = "";
-        if (profileDoc.exists() && profileDoc.data().displayName) {
-          initialDisplayName = profileDoc.data().displayName;
+        if (profileData && profileData.display_name) {
+          initialDisplayName = profileData.display_name;
         } else {
           // Check local storage for legacy/cached tag
           initialDisplayName = localStorage.getItem('calc67-tag') || "";
@@ -98,42 +96,51 @@ export default function Calc67Page() {
         setUserDisplayName(initialDisplayName);
 
         // Load Daily Challenge
-        const dailyRef = doc(db, `artifacts/${APP_ID}/public/data/daily_numbers`, todayKey);
-        const dailyDoc = await getDoc(dailyRef);
+        const { data: dailyData } = await supabase
+          .from('daily_challenges')
+          .select('starting_number')
+          .eq('date', todayKey)
+          .maybeSingle();
         
         let startingNum = 0;
-        if (dailyDoc.exists()) {
-          startingNum = dailyDoc.data().number;
+        if (dailyData) {
+          startingNum = dailyData.starting_number;
         } else {
           // Generate seeded random starting number
           const seed = parseInt(todayKey.replace(/-/g, '').substring(4));
           const seededNum = (seed * 9301 + 49297) % 233280;
           startingNum = Math.floor((seededNum / 233280.0) * (10000 - 10 + 1)) + 10;
-          await setDoc(dailyRef, { number: startingNum, date: todayKey });
+          await supabase
+            .from('daily_challenges')
+            .insert({ date: todayKey, starting_number: startingNum });
         }
         setDailyStartingNumber(startingNum);
         setCurrentResult(startingNum);
 
         // Load Solve Status & Tag Lock
-        const statusRef = doc(db, `artifacts/${APP_ID}/users/${userCredential.user.uid}/daily_challenges`, todayKey);
-        const statusDoc = await getDoc(statusRef);
+        const { data: statusData } = await supabase
+          .from('leaderboard_scores')
+          .select('solved, history, result, tag_locked, display_name')
+          .eq('user_id', currentUid)
+          .eq('date', todayKey)
+          .maybeSingle();
         
-        if (statusDoc.exists()) {
-           if (statusDoc.data().solved) {
+        if (statusData) {
+           if (statusData.solved) {
              setHasSolvedToday(true);
-             const solvedHistory = JSON.parse(statusDoc.data().history);
-             setHistory(solvedHistory);
-             setCurrentResult(statusDoc.data().result);
+             const solvedHistory = typeof statusData.history === 'string' ? JSON.parse(statusData.history) : statusData.history;
+             setHistory(solvedHistory || []);
+             setCurrentResult(Number(statusData.result));
            }
-           if (statusDoc.data().tagLocked) {
+           if (statusData.tag_locked) {
              setIsTagLocked(true);
-             setUserDisplayName(statusDoc.data().displayName);
+             setUserDisplayName(statusData.display_name);
            }
         }
 
         // Determine if we should show reveal onboarding
         // Show if not solved AND tag not locked for today
-        if (!statusDoc.exists() || !statusDoc.data().tagLocked) {
+        if (!statusData || !statusData.tag_locked) {
           setShowReveal(true);
         }
 
@@ -149,18 +156,28 @@ export default function Calc67Page() {
 
   // Load Leaderboard
   const fetchLeaderboard = useCallback(async () => {
-    if (!db) return;
+    if (!supabase) return;
     try {
-      const scoresRef = collection(db, 'artifacts', APP_ID, 'leaderboard_scores', todayKey, 'scores');
-      const q = query(
-        scoresRef, 
-        orderBy('diversityScore', 'desc'),
-        orderBy('operations', 'asc'),
-        limit(10)
-      );
-      const snapshot = await getDocs(q);
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as LeaderboardEntry));
-      setLeaderboard(data);
+      const { data, error } = await supabase
+        .from('leaderboard_scores')
+        .select('user_id, display_name, operations, diversity_score')
+        .eq('date', todayKey)
+        .eq('solved', true)
+        .order('diversity_score', { ascending: false })
+        .order('operations', { ascending: true })
+        .limit(10);
+      
+      if (error) {
+        console.error("Leaderboard error:", error);
+      } else {
+        const formattedData: LeaderboardEntry[] = (data || []).map(row => ({
+          id: row.user_id,
+          displayName: row.display_name,
+          operations: row.operations || 0,
+          diversityScore: row.diversity_score || 0
+        }));
+        setLeaderboard(formattedData);
+      }
     } catch (err) {
       console.error("Leaderboard error:", err);
     }
@@ -197,7 +214,7 @@ export default function Calc67Page() {
   };
 
   const executeStep = async () => {
-    if (hasSolvedToday || !currentOperator || currentInput === '' || !db) return;
+    if (hasSolvedToday || !currentOperator || currentInput === '' || !supabase) return;
     
     const operand2 = parseFloat(currentInput);
     if (isNaN(operand2)) return;
@@ -245,29 +262,17 @@ export default function Calc67Page() {
       
       // Save
       if (userId) {
-        const statusRef = doc(db, `artifacts/${APP_ID}/users/${userId}/daily_challenges`, todayKey);
-        const fullExpr = `${dailyStartingNumber} ${newHistory.map(h => `${h.op} ${formatNum(h.num)}`).join(' ')} = ${formatNum(nextResult)}`;
-        
-        await setDoc(statusRef, {
-          solved: true,
+        await supabase.from('leaderboard_scores').upsert({
+          user_id: userId,
           date: todayKey,
+          display_name: userDisplayName,
+          solved: true,
           operations: newHistory.length,
-          diversityScore: diversity,
+          diversity_score: diversity,
           result: nextResult,
           history: JSON.stringify(newHistory),
-          timestamp: Timestamp.now(),
-          displayName: userDisplayName,
-          expression: fullExpr
-        }, { merge: true });
-
-        const lbRef = doc(db, 'artifacts', APP_ID, 'leaderboard_scores', todayKey, 'scores', userId);
-        await setDoc(lbRef, {
-          userId,
-          displayName: userDisplayName,
-          operations: newHistory.length,
-          diversityScore: diversity,
-          timestamp: Timestamp.now()
-        }, { merge: true });
+          tag_locked: true
+        });
         
         setShowLeaderboardModal(true);
       }
@@ -297,9 +302,11 @@ export default function Calc67Page() {
     setUserDisplayName(clean);
     localStorage.setItem('calc67-tag', clean);
     
-    if (userId && db) {
-      const profileRef = doc(db, `artifacts/${APP_ID}/users/${userId}/profile`, 'data');
-      await setDoc(profileRef, { displayName: clean }, { merge: true });
+    if (userId && supabase) {
+      await supabase.from('profiles').upsert({
+        id: userId,
+        display_name: clean
+      });
     }
   };
 
@@ -312,12 +319,13 @@ export default function Calc67Page() {
     setIsTagLocked(true);
     setShowReveal(false);
     
-    if (userId && db) {
-      const statusRef = doc(db, `artifacts/${APP_ID}/users/${userId}/daily_challenges`, todayKey);
-      await setDoc(statusRef, { 
-        tagLocked: true, 
-        displayName: userDisplayName 
-      }, { merge: true });
+    if (userId && supabase) {
+      await supabase.from('leaderboard_scores').upsert({
+        user_id: userId,
+        date: todayKey,
+        display_name: userDisplayName,
+        tag_locked: true
+      });
     }
   };
 
