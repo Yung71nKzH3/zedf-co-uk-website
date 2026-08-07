@@ -284,11 +284,14 @@ export default function Calc67Page() {
       const diversity = calculateDiversity(newHistory);
       
       // Save
-      if (userId) {
-        await supabase.from('leaderboard_scores').upsert({
+      if (userId && supabase) {
+        const cleanTag = (userDisplayName || localStorage.getItem('calc67-tag') || 'AA').toUpperCase().slice(0, 2);
+        const validTag = cleanTag.length === 2 ? cleanTag : 'AA';
+
+        const { error: saveErr } = await supabase.from('leaderboard_scores').upsert({
           user_id: userId,
           date: todayKey,
-          display_name: userDisplayName,
+          display_name: validTag,
           solved: true,
           operations: newHistory.length,
           diversity_score: diversity,
@@ -296,6 +299,12 @@ export default function Calc67Page() {
           history: JSON.stringify(newHistory),
           tag_locked: true
         });
+        
+        if (saveErr) {
+          console.error("Leaderboard submit error:", saveErr);
+        } else {
+          await fetchLeaderboard();
+        }
         
         setShowLeaderboardModal(true);
       }
@@ -320,12 +329,10 @@ export default function Calc67Page() {
 
   const updateTag = async (newTag: string) => {
     const clean = newTag.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 2);
-    if (clean.length !== 2) return;
-    
     setUserDisplayName(clean);
     localStorage.setItem('calc67-tag', clean);
     
-    if (userId && supabase) {
+    if (clean.length === 2 && userId && supabase) {
       await supabase.from('profiles').upsert({
         id: userId,
         display_name: clean
@@ -370,19 +377,26 @@ export default function Calc67Page() {
     setShowReveal(false);
     
     if (currentUid && supabase) {
+      const cleanTag = (userDisplayName || 'AA').toUpperCase().slice(0, 2);
+      const validTag = cleanTag.length === 2 ? cleanTag : 'AA';
+
       // Upsert profile
       await supabase.from('profiles').upsert({
         id: currentUid,
-        display_name: userDisplayName
+        display_name: validTag
       });
 
       // Upsert lock status to leaderboard_scores
-      await supabase.from('leaderboard_scores').upsert({
+      const { error: lockErr } = await supabase.from('leaderboard_scores').upsert({
         user_id: currentUid,
         date: todayKey,
-        display_name: userDisplayName,
+        display_name: validTag,
         tag_locked: true
       });
+
+      if (lockErr) {
+        console.error("Lock tag error:", lockErr);
+      }
     }
   };
 
