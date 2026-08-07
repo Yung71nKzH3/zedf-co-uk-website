@@ -53,6 +53,7 @@ export default function Calc67Page() {
   const [showTagModal, setShowTagModal] = useState(false);
   const [isTagLocked, setIsTagLocked] = useState(false);
   const [showReveal, setShowReveal] = useState(false);
+  const [envMissing, setEnvMissing] = useState(false);
 
   const todayKey = new Date().toISOString().split('T')[0];
 
@@ -65,6 +66,7 @@ export default function Calc67Page() {
   useEffect(() => {
     const init = async () => {
       if (!supabase) {
+        setEnvMissing(true);
         setLoading(false);
         return;
       }
@@ -328,6 +330,27 @@ export default function Calc67Page() {
       });
     }
   };
+
+  if (envMissing) {
+    return (
+      <div className="min-h-screen bg-[#020617] flex items-center justify-center p-6 text-center">
+        <div className="max-w-md bg-[#0f172a] border border-red-500/30 rounded-3xl p-8 space-y-4 shadow-2xl">
+          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto text-red-500">
+             <Settings className="w-8 h-8 animate-spin" />
+          </div>
+          <h2 className="text-2xl font-bold text-white tracking-tight">Supabase Config Missing</h2>
+          <p className="text-white/60 text-sm leading-relaxed">
+            Local development environment variables are not set. Please pass `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` when launching the server.
+          </p>
+          <div className="pt-4">
+            <Link href="/" className="text-cyan-400 hover:underline text-sm font-medium">
+               Return to Dashboard
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
