@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Script from 'next/script';
 import { 
   ArrowLeft, 
   RotateCcw, 
@@ -54,6 +55,7 @@ export default function Calc67Page() {
   const [isTagLocked, setIsTagLocked] = useState(false);
   const [showReveal, setShowReveal] = useState(false);
   const [envMissing, setEnvMissing] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const todayKey = new Date().toISOString().split('T')[0];
 
@@ -61,6 +63,24 @@ export default function Calc67Page() {
   const calculateDiversity = useCallback((steps: OperationStep[]) => {
     return new Set(steps.map(s => s.op)).size;
   }, []);
+
+  // Initialize Turnstile widget dynamically
+  useEffect(() => {
+    if (showReveal && !userId && supabase) {
+      const wt = (window as any).turnstile;
+      if (wt && document.getElementById('turnstile-container')) {
+        try {
+          wt.reset('#turnstile-container');
+        } catch (e) {}
+        wt.render('#turnstile-container', {
+          sitekey: process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY || localStorage.getItem('NEXT_PUBLIC_CAPTCHA_SITE_KEY') || '',
+          callback: (token: string) => {
+            setCaptchaToken(token);
+          }
+        });
+      }
+    }
+  }, [showReveal, userId]);
 
   // Auth & Data Loading
   useEffect(() => {
@@ -71,33 +91,7 @@ export default function Calc67Page() {
         return;
       }
       try {
-        const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
-        if (authError || !authData.user) {
-          console.error("Auth error:", authError);
-          setLoading(false);
-          return;
-        }
-        
-        const currentUid = authData.user.id;
-        setUserId(currentUid);
-        
-        // Load Profile
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('display_name')
-          .eq('id', currentUid)
-          .maybeSingle();
-        
-        let initialDisplayName = "";
-        if (profileData && profileData.display_name) {
-          initialDisplayName = profileData.display_name;
-        } else {
-          // Check local storage for legacy/cached tag
-          initialDisplayName = localStorage.getItem('calc67-tag') || "";
-        }
-        setUserDisplayName(initialDisplayName);
-
-        // Load Daily Challenge
+        // Load Daily Challenge Parameters first
         const { data: dailyData } = await supabase
           .from('daily_challenges')
           .select('starting_number')
@@ -119,30 +113,57 @@ export default function Calc67Page() {
         setDailyStartingNumber(startingNum);
         setCurrentResult(startingNum);
 
-        // Load Solve Status & Tag Lock
-        const { data: statusData } = await supabase
-          .from('leaderboard_scores')
-          .select('solved, history, result, tag_locked, display_name')
-          .eq('user_id', currentUid)
-          .eq('date', todayKey)
-          .maybeSingle();
-        
-        if (statusData) {
-           if (statusData.solved) {
-             setHasSolvedToday(true);
-             const solvedHistory = typeof statusData.history === 'string' ? JSON.parse(statusData.history) : statusData.history;
-             setHistory(solvedHistory || []);
-             setCurrentResult(Number(statusData.result));
-           }
-           if (statusData.tag_locked) {
-             setIsTagLocked(true);
-             setUserDisplayName(statusData.display_name);
-           }
-        }
+        // Check for active session
+        const { data: sessionData } = await supabase.auth.getSession();
+        const currentUser = sessionData?.session?.user;
 
-        // Determine if we should show reveal onboarding
-        // Show if not solved AND tag not locked for today
-        if (!statusData || !statusData.tag_locked) {
+        if (currentUser) {
+          const currentUid = currentUser.id;
+          setUserId(currentUid);
+
+          // Load Profile
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('display_name')
+            .eq('id', currentUid)
+            .maybeSingle();
+          
+          let initialDisplayName = "";
+          if (profileData && profileData.display_name) {
+            initialDisplayName = profileData.display_name;
+          } else {
+            // Check local storage for legacy/cached tag
+            initialDisplayName = localStorage.getItem('calc67-tag') || "";
+          }
+          setUserDisplayName(initialDisplayName);
+
+          // Load Solve Status & Tag Lock
+          const { data: statusData } = await supabase
+            .from('leaderboard_scores')
+            .select('solved, history, result, tag_locked, display_name')
+            .eq('user_id', currentUid)
+            .eq('date', todayKey)
+            .maybeSingle();
+          
+          if (statusData) {
+             if (statusData.solved) {
+               setHasSolvedToday(true);
+               const solvedHistory = typeof statusData.history === 'string' ? JSON.parse(statusData.history) : statusData.history;
+               setHistory(solvedHistory || []);
+               setCurrentResult(Number(statusData.result));
+             }
+             if (statusData.tag_locked) {
+               setIsTagLocked(true);
+               setUserDisplayName(statusData.display_name);
+             }
+          }
+
+          // Show reveal onboarding if tag is not locked for today
+          if (!statusData || !statusData.tag_locked) {
+            setShowReveal(true);
+          }
+        } else {
+          // Unauthenticated, show onboarding
           setShowReveal(true);
         }
 
@@ -313,17 +334,51 @@ export default function Calc67Page() {
   };
 
   const lockTagAndStart = async () => {
+    if (!supabase) {
+      setMessage("⚠️ Database client is not ready.");
+      return;
+    }
     if (userDisplayName.length !== 2) {
         setMessage("⚠️ Tag must be exactly 2 letters!");
         return;
     }
     
+    let currentUid = userId;
+    if (!currentUid) {
+      if (!captchaToken) {
+        setMessage("⚠️ Please complete the Captcha puzzle!");
+        return;
+      }
+      try {
+        const { data: authData, error: authError } = await supabase.auth.signInAnonymously({
+          options: { captchaToken }
+        });
+        if (authError || !authData.user) {
+          setMessage(`⚠️ Authentication failed: ${authError?.message || 'Unknown error'}`);
+          console.error("Auth error:", authError);
+          return;
+        }
+        currentUid = authData.user.id;
+        setUserId(currentUid);
+      } catch (err: any) {
+        setMessage(`⚠️ Authentication error: ${err.message || err}`);
+        return;
+      }
+    }
+
     setIsTagLocked(true);
     setShowReveal(false);
     
-    if (userId && supabase) {
+    if (currentUid && supabase) {
+      // Upsert profile
+      await supabase.from('profiles').upsert({
+        id: currentUid,
+        display_name: userDisplayName
+      });
+
+      // Upsert lock status to leaderboard_scores
       await supabase.from('leaderboard_scores').upsert({
-        user_id: userId,
+        user_id: currentUid,
         date: todayKey,
         display_name: userDisplayName,
         tag_locked: true
@@ -831,8 +886,32 @@ export default function Calc67Page() {
                     </div>
                   </div>
 
+                  {!userId && (
+                    <div className="flex flex-col items-center justify-center my-4">
+                      <Script
+                        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+                        strategy="afterInteractive"
+                        onLoad={() => {
+                          const wt = (window as any).turnstile;
+                          if (wt && document.getElementById('turnstile-container')) {
+                            try {
+                              wt.reset('#turnstile-container');
+                            } catch (e) {}
+                            wt.render('#turnstile-container', {
+                              sitekey: process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY || localStorage.getItem('NEXT_PUBLIC_CAPTCHA_SITE_KEY') || '',
+                              callback: (token: string) => {
+                                setCaptchaToken(token);
+                              }
+                            });
+                          }
+                        }}
+                      />
+                      <div id="turnstile-container" className="my-2" style={{ minHeight: '65px' }} />
+                    </div>
+                  )}
+
                   <button 
-                    disabled={userDisplayName.length !== 2}
+                    disabled={userDisplayName.length !== 2 || (!userId && !captchaToken)}
                     onClick={lockTagAndStart}
                     className="w-full py-5 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-20 disabled:grayscale text-black font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 shadow-2xl shadow-cyan-500/40"
                   >
