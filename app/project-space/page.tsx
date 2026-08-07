@@ -8,7 +8,7 @@ import { SearchTelescope } from '@/components/project-space/SearchTelescope';
 import { TetrisGame } from '@/components/project-space/TetrisGame';
 import { Calculator } from '@/components/project-space/Calculator';
 import { stars } from '@/lib/project-space/stars-data';
-import { X, Tag, ArrowLeft } from 'lucide-react';
+import { X, Tag, ArrowLeft, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ProjectSpacePage() {
@@ -123,6 +123,38 @@ export default function ProjectSpacePage() {
                 ) : selectedStar.id === 'calculator' ? (
                   <div className="mb-8 flex justify-center">
                     <Calculator />
+                  </div>
+                ) : selectedStar.id === 'links' ? (
+                  <div className="bg-black/40 rounded-2xl p-4 mb-8 border border-white/5 flex flex-col gap-3">
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-400 font-semibold mb-1 block">
+                      Explore Links
+                    </span>
+                    {selectedStar.links?.map((link: any) => (
+                      <Link
+                        key={link.name}
+                        href={link.url}
+                        className="group flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-all duration-300"
+                      >
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-2">
+                            <span className="font-display font-bold text-white group-hover:text-cyan-300 transition-colors">
+                              {link.name}
+                            </span>
+                            {link.tag && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                                {link.tag}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-xs text-zinc-400 mt-1">
+                            {link.description}
+                          </span>
+                        </div>
+                        <div className="p-2.5 rounded-lg bg-white/5 text-white/40 group-hover:text-cyan-300 group-hover:bg-cyan-500/20 transition-all">
+                          <ExternalLink className="w-4 h-4" />
+                        </div>
+                      </Link>
+                    ))}
                   </div>
                 ) : (
                   <div className="bg-black/40 rounded-2xl p-6 mb-8 border border-white/5">
