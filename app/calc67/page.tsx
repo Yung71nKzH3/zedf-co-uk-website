@@ -288,17 +288,20 @@ export default function Calc67Page() {
         const cleanTag = (userDisplayName || localStorage.getItem('calc67-tag') || 'AA').toUpperCase().slice(0, 2);
         const validTag = cleanTag.length === 2 ? cleanTag : 'AA';
 
-        const { error: saveErr } = await supabase.from('leaderboard_scores').upsert({
-          user_id: userId,
-          date: todayKey,
-          display_name: validTag,
-          solved: true,
-          operations: newHistory.length,
-          diversity_score: diversity,
-          result: nextResult,
-          history: JSON.stringify(newHistory),
-          tag_locked: true
-        });
+        const { error: saveErr } = await supabase.from('leaderboard_scores').upsert(
+          {
+            user_id: userId,
+            date: todayKey,
+            display_name: validTag,
+            solved: true,
+            operations: newHistory.length,
+            diversity_score: diversity,
+            result: nextResult,
+            history: JSON.stringify(newHistory),
+            tag_locked: true
+          },
+          { onConflict: 'user_id,date' }
+        );
         
         if (saveErr) {
           console.error("Leaderboard submit error:", saveErr);
@@ -387,12 +390,15 @@ export default function Calc67Page() {
       });
 
       // Upsert lock status to leaderboard_scores
-      const { error: lockErr } = await supabase.from('leaderboard_scores').upsert({
-        user_id: currentUid,
-        date: todayKey,
-        display_name: validTag,
-        tag_locked: true
-      });
+      const { error: lockErr } = await supabase.from('leaderboard_scores').upsert(
+        {
+          user_id: currentUid,
+          date: todayKey,
+          display_name: validTag,
+          tag_locked: true
+        },
+        { onConflict: 'user_id,date' }
+      );
 
       if (lockErr) {
         console.error("Lock tag error:", lockErr);
