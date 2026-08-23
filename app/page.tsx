@@ -61,7 +61,22 @@ export default function Home() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const isWideDesktop = screenWidth >= 1280;
+  const isWideDesktop = screenWidth >= 1024;
+  const isLargeDesktop = screenWidth >= 1280;
+
+  const buttonsWidth = isWideDesktop ? (isLargeDesktop ? 650 : 500) : 650;
+  const buttonWidth = isWideDesktop ? (isLargeDesktop ? 300 : 230) : undefined;
+  const sidebarWidth = isLargeDesktop ? 450 : 380;
+  const gap = isLargeDesktop ? 48 : 24;
+
+  let buttonsShift = 0;
+  if (isWideDesktop) {
+    if (activePanel === 'stuff') {
+      buttonsShift = (sidebarWidth + gap) / 2;
+    } else if (activePanel === 'links') {
+      buttonsShift = -(sidebarWidth + gap) / 2;
+    }
+  }
 
   const togglePanel = (panel: 'stuff' | 'links') => {
     setActivePanel(prev => prev === panel ? null : panel);
@@ -117,7 +132,17 @@ export default function Home() {
         </div>
 
         {/* Layout Container */}
-        <div className="relative w-[90%] md:w-[650px] flex flex-row gap-4 md:gap-12 items-center justify-center mt-4 md:mt-0 z-50">
+        <motion.div 
+          animate={{
+            x: buttonsShift,
+          }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          style={{ 
+            width: isWideDesktop ? `${buttonsWidth}px` : undefined, 
+            gap: isWideDesktop ? `${gap}px` : undefined 
+          }}
+          className="relative w-[90%] md:w-[650px] flex flex-row gap-4 md:gap-12 items-center justify-center mt-4 md:mt-0 z-50"
+        >
           
           {/* Stuff Panel Button */}
           <motion.button
@@ -129,6 +154,10 @@ export default function Home() {
               boxShadow: activePanel === 'stuff' ? '0 0 25px rgba(6, 182, 212, 0.5)' : '0 15px 30px rgba(0, 0, 0, 0.4)'
             }}
             whileHover={{ scale: 1.02, borderColor: '#06b6d4', boxShadow: '0 0 25px rgba(6, 182, 212, 0.5)' }}
+            style={{
+              width: buttonWidth ? `${buttonWidth}px` : undefined,
+              height: buttonWidth ? `${buttonWidth}px` : undefined
+            }}
             className="w-[44vw] h-[44vw] max-w-[280px] max-h-[280px] md:w-[300px] md:h-[300px] bg-[#172033] rounded-2xl border-[3px] border-transparent flex flex-col items-center justify-center text-center transition-colors cursor-pointer"
           >
             <PackageOpen className={`w-[clamp(30px,8vw,70px)] h-[clamp(30px,8vw,70px)] mb-2 md:mb-4 transition-colors ${activePanel === 'stuff' ? 'text-cyan-400' : 'text-cyan-500'}`} />
@@ -146,15 +175,19 @@ export default function Home() {
               boxShadow: activePanel === 'links' ? '0 0 25px rgba(6, 182, 212, 0.5)' : '0 15px 30px rgba(0, 0, 0, 0.4)'
             }}
             whileHover={{ scale: 1.02, borderColor: '#06b6d4', boxShadow: '0 0 25px rgba(6, 182, 212, 0.5)' }}
+            style={{
+              width: buttonWidth ? `${buttonWidth}px` : undefined,
+              height: buttonWidth ? `${buttonWidth}px` : undefined
+            }}
             className="w-[44vw] h-[44vw] max-w-[280px] max-h-[280px] md:w-[300px] md:h-[300px] bg-[#172033] rounded-2xl border-[3px] border-transparent flex flex-col items-center justify-center text-center transition-colors cursor-pointer"
           >
             <UserCircle className={`w-[clamp(30px,8vw,70px)] h-[clamp(30px,8vw,70px)] mb-2 md:mb-4 transition-colors ${activePanel === 'links' ? 'text-cyan-400' : 'text-cyan-500'}`} />
             <h2 className="text-[clamp(18px,4vw,24px)] font-bold mb-1">Socials</h2>
             <p className="text-slate-400 text-[clamp(10px,2vw,14px)] px-2">View all my links & contact info.</p>
           </motion.button>
-        </div>
+        </motion.div>
 
-        {/* Mobile & Tablet Drawer Modal (< 1280px width) */}
+        {/* Mobile & Tablet Drawer Modal (< 1024px width) */}
         {!isWideDesktop && (
           <AnimatePresence>
             {activePanel && (
@@ -191,20 +224,21 @@ export default function Home() {
         )}
       </div>
 
-      {/* Desktop Floating Sidebars (>= 1280px width) */}
+      {/* Desktop Floating Sidebars (>= 1024px width) */}
       {isWideDesktop && (
         <>
           {/* Stuff Sidebar */}
           <motion.div
             initial={{ left: '25%', x: '-50%', y: '-50%', scale: 0.95, opacity: 0 }}
             animate={{
-              left: activePanel === 'stuff' ? 'calc(50% - 325px - 225px - 3rem)' : '25%',
+              left: activePanel === 'stuff' ? `calc(50% - ${(buttonsWidth + gap) / 2}px)` : '25%',
               scale: activePanel === 'stuff' ? 1 : 0.95,
               opacity: activePanel === 'stuff' ? 1 : 0,
               pointerEvents: activePanel === 'stuff' ? 'auto' : 'none'
             }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed top-1/2 w-[450px] h-[85vh] bg-[#172033] rounded-2xl shadow-[0_15px_30px_rgba(0,0,0,0.6)] p-8 overflow-y-auto z-50 custom-scrollbar"
+            style={{ width: `${sidebarWidth}px` }}
+            className="fixed top-1/2 h-[85vh] bg-[#172033] rounded-2xl shadow-[0_15px_30px_rgba(0,0,0,0.6)] p-8 overflow-y-auto z-50 custom-scrollbar"
           >
             <h1 className="text-3xl font-extrabold text-cyan-400 mb-8 text-center tracking-tight">
               Stuff (Projects & Tools)
@@ -216,13 +250,14 @@ export default function Home() {
           <motion.div
             initial={{ left: '75%', x: '-50%', y: '-50%', scale: 0.95, opacity: 0 }}
             animate={{
-              left: activePanel === 'links' ? 'calc(50% + 325px + 225px + 3rem)' : '75%',
+              left: activePanel === 'links' ? `calc(50% + ${(buttonsWidth + gap) / 2}px)` : '75%',
               scale: activePanel === 'links' ? 1 : 0.95,
               opacity: activePanel === 'links' ? 1 : 0,
               pointerEvents: activePanel === 'links' ? 'auto' : 'none'
             }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed top-1/2 w-[450px] h-[85vh] bg-[#172033] rounded-2xl shadow-[0_15px_30px_rgba(0,0,0,0.6)] p-8 overflow-y-auto z-50 custom-scrollbar"
+            style={{ width: `${sidebarWidth}px` }}
+            className="fixed top-1/2 h-[85vh] bg-[#172033] rounded-2xl shadow-[0_15px_30px_rgba(0,0,0,0.6)] p-8 overflow-y-auto z-50 custom-scrollbar"
           >
             <h1 className="text-3xl font-extrabold text-cyan-400 mb-8 text-center tracking-tight">
               Links & Contact
