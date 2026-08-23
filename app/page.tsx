@@ -12,6 +12,7 @@ import {
 import Link from 'next/link';
 
 const STUFF_LINKS = [
+  { href: '/play', icon: Gamepad2, title: 'Arcade', desc: 'Mini Game Suite' },
   { href: '/uni', icon: GraduationCap, title: 'Uni Dash', desc: 'Helpful Shortcuts' },
   { href: '/quotes', icon: Quote, title: 'Fav Quotes', desc: 'Just the Hits' },
   { href: 'https://falixnodes.net/startserver', icon: Server, title: 'Minecraft Server', desc: 'ip=zfgaming', external: true },
@@ -51,24 +52,23 @@ const SOCIAL_LINKS = [
 
 export default function Home() {
   const [activePanel, setActivePanel] = useState<'stuff' | 'links' | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const [screenWidth, setScreenWidth] = useState(1280);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    const handleResize = () => setScreenWidth(window.innerWidth);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Use a mousemove listener on the document to track global mouse movement
-  // for the particle canvas, which is handled inside ParticleCanvas.tsx
+  const isWideDesktop = screenWidth >= 1280;
 
   const togglePanel = (panel: 'stuff' | 'links') => {
     setActivePanel(prev => prev === panel ? null : panel);
   };
 
   const renderLinks = (links: typeof STUFF_LINKS) => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {links.map((link, idx) => {
         const Icon = link.icon;
         const content = (
@@ -80,11 +80,11 @@ export default function Home() {
         );
 
         return link.external ? (
-          <a key={idx} href={link.href} target="_blank" rel="noopener noreferrer" className="block">
+          <a key={idx} href={link.href} target="_blank" rel="noopener noreferrer" className="block focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded-xl">
             {content}
           </a>
         ) : (
-          <Link key={idx} href={link.href} className="block">
+          <Link key={idx} href={link.href} className="block focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded-xl">
             {content}
           </Link>
         );
@@ -116,35 +116,37 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Desktop Layout Container */}
-        <div className="relative w-[90%] md:w-[650px] flex flex-row gap-2 md:gap-12 items-center justify-center mt-4 md:mt-0 z-50">
+        {/* Layout Container */}
+        <div className="relative w-[90%] md:w-[650px] flex flex-row gap-4 md:gap-12 items-center justify-center mt-4 md:mt-0 z-50">
           
           {/* Stuff Panel Button */}
           <motion.button
             onClick={() => togglePanel('stuff')}
+            aria-label="Toggle Stuff Projects Panel"
             animate={{
               scale: activePanel === 'stuff' ? 1.02 : 1,
               borderColor: activePanel === 'stuff' ? '#06b6d4' : 'transparent',
               boxShadow: activePanel === 'stuff' ? '0 0 25px rgba(6, 182, 212, 0.5)' : '0 15px 30px rgba(0, 0, 0, 0.4)'
             }}
             whileHover={{ scale: 1.02, borderColor: '#06b6d4', boxShadow: '0 0 25px rgba(6, 182, 212, 0.5)' }}
-            className="w-[44vw] h-[44vw] md:w-[300px] md:h-[300px] bg-[#172033] rounded-2xl border-[3px] border-transparent flex flex-col items-center justify-center text-center transition-colors"
+            className="w-[44vw] h-[44vw] max-w-[280px] max-h-[280px] md:w-[300px] md:h-[300px] bg-[#172033] rounded-2xl border-[3px] border-transparent flex flex-col items-center justify-center text-center transition-colors cursor-pointer"
           >
             <PackageOpen className={`w-[clamp(30px,8vw,70px)] h-[clamp(30px,8vw,70px)] mb-2 md:mb-4 transition-colors ${activePanel === 'stuff' ? 'text-cyan-400' : 'text-cyan-500'}`} />
             <h2 className="text-[clamp(18px,4vw,24px)] font-bold mb-1">Stuff</h2>
-            <p className="text-slate-400 text-[clamp(10px,2vw,14px)] px-2">Projects, Experiments & Code.</p>
+            <p className="text-slate-400 text-[clamp(10px,2vw,14px)] px-2">Projects, Experiments & Arcade.</p>
           </motion.button>
 
           {/* Links Panel Button */}
           <motion.button
             onClick={() => togglePanel('links')}
+            aria-label="Toggle Social Links Panel"
             animate={{
               scale: activePanel === 'links' ? 1.02 : 1,
               borderColor: activePanel === 'links' ? '#06b6d4' : 'transparent',
               boxShadow: activePanel === 'links' ? '0 0 25px rgba(6, 182, 212, 0.5)' : '0 15px 30px rgba(0, 0, 0, 0.4)'
             }}
             whileHover={{ scale: 1.02, borderColor: '#06b6d4', boxShadow: '0 0 25px rgba(6, 182, 212, 0.5)' }}
-            className="w-[44vw] h-[44vw] md:w-[300px] md:h-[300px] bg-[#172033] rounded-2xl border-[3px] border-transparent flex flex-col items-center justify-center text-center transition-colors"
+            className="w-[44vw] h-[44vw] max-w-[280px] max-h-[280px] md:w-[300px] md:h-[300px] bg-[#172033] rounded-2xl border-[3px] border-transparent flex flex-col items-center justify-center text-center transition-colors cursor-pointer"
           >
             <UserCircle className={`w-[clamp(30px,8vw,70px)] h-[clamp(30px,8vw,70px)] mb-2 md:mb-4 transition-colors ${activePanel === 'links' ? 'text-cyan-400' : 'text-cyan-500'}`} />
             <h2 className="text-[clamp(18px,4vw,24px)] font-bold mb-1">Socials</h2>
@@ -152,30 +154,45 @@ export default function Home() {
           </motion.button>
         </div>
 
-        {/* Mobile Content Pane */}
-        {isMobile && (
+        {/* Mobile & Tablet Drawer Modal (< 1280px width) */}
+        {!isWideDesktop && (
           <AnimatePresence>
             {activePanel && (
               <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="w-[90%] bg-[#172033] rounded-2xl shadow-[0_8px_15px_rgba(0,0,0,0.4)] mt-4 mb-8 overflow-hidden z-40"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
+                onClick={() => setActivePanel(null)}
               >
-                <div className="p-4">
-                  <h1 className="text-2xl font-extrabold text-cyan-400 mb-4 text-center">
-                    {activePanel === 'stuff' ? 'Stuff (Projects & Tools)' : 'Links & Contact'}
-                  </h1>
+                <motion.div
+                  initial={{ scale: 0.9, y: 20 }}
+                  animate={{ scale: 1, y: 0 }}
+                  exit={{ scale: 0.9, y: 20 }}
+                  onClick={e => e.stopPropagation()}
+                  className="relative w-full max-w-xl max-h-[85vh] bg-[#172033] rounded-3xl border-2 border-cyan-500/30 p-6 shadow-[0_0_40px_rgba(6,182,212,0.3)] overflow-y-auto custom-scrollbar"
+                >
+                  <div className="flex items-center justify-between mb-6 pb-2 border-b border-slate-700">
+                    <h1 className="text-2xl font-extrabold text-cyan-400">
+                      {activePanel === 'stuff' ? 'Stuff (Projects & Tools)' : 'Links & Contact'}
+                    </h1>
+                    <button
+                      onClick={() => setActivePanel(null)}
+                      className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-500 text-slate-300 hover:text-white transition-all text-xs font-bold"
+                    >
+                      Close
+                    </button>
+                  </div>
                   {activePanel === 'stuff' ? renderLinks(STUFF_LINKS) : renderLinks(SOCIAL_LINKS)}
-                </div>
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
         )}
       </div>
 
-      {/* Desktop Sidebars */}
-      {!isMobile && (
+      {/* Desktop Floating Sidebars (>= 1280px width) */}
+      {isWideDesktop && (
         <>
           {/* Stuff Sidebar */}
           <motion.div

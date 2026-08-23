@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Starfield } from '@/components/project-space/Starfield';
 import { CelestialBody } from '@/components/project-space/CelestialBody';
 import { SearchTelescope } from '@/components/project-space/SearchTelescope';
-import { TetrisGame } from '@/components/project-space/TetrisGame';
 import { Calculator } from '@/components/project-space/Calculator';
 import { stars } from '@/lib/project-space/stars-data';
 import { X, Tag, ArrowLeft, ExternalLink } from 'lucide-react';
@@ -116,11 +115,7 @@ export default function ProjectSpacePage() {
                   {selectedStar.description}
                 </p>
 
-                {selectedStar.id === 'tetris' ? (
-                  <div className="bg-black/40 rounded-2xl p-6 mb-8 border border-white/5">
-                    <TetrisGame />
-                  </div>
-                ) : selectedStar.id === 'calculator' ? (
+                {selectedStar.id === 'calculator' ? (
                   <div className="mb-8 flex justify-center">
                     <Calculator />
                   </div>
