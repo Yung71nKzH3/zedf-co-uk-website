@@ -1,0 +1,127 @@
+{
+  "file": "index.html",
+  "general": {
+    "properties": {
+      "text": {
+        "order": 1,
+        "text": "Display Custom Text",
+        "type": "textinput",
+        "value": "willow"
+      },
+      "shapestyle": {
+        "options": [
+          {
+            "label": "All Mixed Shapes",
+            "value": "all"
+          },
+          {
+            "label": "Circles Only",
+            "value": "circles"
+          },
+          {
+            "label": "Squares Only",
+            "value": "squares"
+          },
+          {
+            "label": "Polygons (Triangles & Diamonds)",
+            "value": "polygons"
+          }
+        ],
+        "order": 2,
+        "text": "Particle Shape Style",
+        "type": "combo",
+        "value": "all"
+      },
+      "formationmode": {
+        "options": [
+          {
+            "label": "Repel & Slow Return (Default)",
+            "value": "repel_return"
+          },
+          {
+            "label": "Assemble on Hover",
+            "value": "hover_gather"
+          },
+          {
+            "label": "Static Word",
+            "value": "static"
+          }
+        ],
+        "order": 3,
+        "text": "Formation Mode",
+        "type": "combo",
+        "value": "repel_return"
+      },
+      "primarycolor": {
+        "order": 4,
+        "text": "Particle Primary Color",
+        "type": "color",
+        "value": "0.0235 0.7137 0.8313"
+      },
+      "accentcolor": {
+        "order": 5,
+        "text": "Particle Accent Color",
+        "type": "color",
+        "value": "0.6588 0.3333 0.9686"
+      },
+      "showaura": {
+        "order": 6,
+        "text": "Core Energy Aura Glow",
+        "type": "bool",
+        "value": true
+      },
+      "particlesize": {
+        "fraction": true,
+        "max": 2.5,
+        "min": 0.4,
+        "order": 7,
+        "step": 0.1,
+        "text": "Particle Size",
+        "type": "slider",
+        "value": 0.9
+      },
+      "maxparticles": {
+        "fraction": false,
+        "max": 1800,
+        "min": 300,
+        "order": 8,
+        "step": 50,
+        "text": "Particle Count",
+        "type": "slider",
+        "value": 900
+      },
+      "repulsionradius": {
+        "fraction": false,
+        "max": 450,
+        "min": 50,
+        "order": 9,
+        "step": 10,
+        "text": "Interaction Radius",
+        "type": "slider",
+        "value": 220
+      },
+      "repulsionforce": {
+        "fraction": false,
+        "max": 60,
+        "min": 5,
+        "order": 10,
+        "step": 1,
+        "text": "Interaction Blast Force",
+        "type": "slider",
+        "value": 28
+      },
+      "audiosensitivity": {
+        "fraction": true,
+        "max": 3.0,
+        "min": 0.1,
+        "order": 11,
+        "step": 0.1,
+        "text": "Audio Sensitivity",
+        "type": "slider",
+        "value": 1.5
+      }
+    }
+  },
+  "title": "Willow Particle Core",
+  "type": "web"
+}

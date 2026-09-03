@@ -13,12 +13,12 @@ import Link from 'next/link';
 
 const STUFF_LINKS = [
   { href: '/play', icon: Gamepad2, title: 'Arcade', desc: 'Mini Game Suite' },
+  { href: '/showcase', icon: Gamepad2, title: 'Wallpaper Showcase', desc: 'Interactive Gallery' },
   { href: '/uni', icon: GraduationCap, title: 'Uni Dash', desc: 'Helpful Shortcuts' },
   { href: '/quotes', icon: Quote, title: 'Fav Quotes', desc: 'Just the Hits' },
   { href: 'https://falixnodes.net/startserver', icon: Server, title: 'Minecraft Server', desc: 'ip=zfgaming', external: true },
   { href: 'https://youtube.com/playlist?list=PLmDAk0SfywoVrnnN4JBR4tLcjPqfDA5N4&si=TBfZ-AnuuMInpFTM', icon: Calendar, title: 'College CS Project', desc: 'Timetable Scheduler', external: true },
   { href: 'https://docs.google.com/document/d/1hdCehlL4bRm4cgJa2KhzUSMKTOEiEcjmxxgih3togmM/edit?usp=sharing', icon: Brain, title: 'EPQ', desc: 'AI, Humans best friend?', external: true },
-  { href: 'https://steamcommunity.com/id/zfw1ll0w/myworkshopfiles/', icon: Gamepad2, title: 'Wallpaper Engine', desc: 'My work', external: true },
   { href: 'https://steamcommunity.com/groups/0fukkes', icon: Gamepad2, title: 'Steam Group', desc: 'Faze Up', external: true },
   { href: 'https://steamcommunity.com/sharedfiles/filedetails/?id=3323426346', icon: ImageIcon, title: 'Steam Artwork', desc: 'Like and Sub', external: true },
   { href: 'https://mynickname.com/gamingamer', icon: Gamepad, title: 'w1ll0w', desc: 'Peep it', external: true },
