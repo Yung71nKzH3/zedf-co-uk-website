@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyber Horizon | Interactive Wallpaper</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+    body {
+      background: #060913;
+      overflow: hidden;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      color: #e2e8f0;
+      height: 100vh;
+      width: 100vw;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .hud {
+      position: absolute;
+      top: 3rem;
+      left: 3.5rem;
+      z-index: 10;
+      pointer-events: none;
+      text-shadow: 0 0 20px rgba(6, 182, 212, 0.6);
+    }
+    .time {
+      font-size: 4.5rem;
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1;
+      background: linear-gradient(135deg, #ffffff 30%, #06b6d4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .date {
+      font-size: 1.1rem;
+      color: #94a3b8;
+      font-weight: 500;
+      margin-top: 0.5rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .status-badge {
+      position: absolute;
+      bottom: 2.5rem;
+      right: 3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: rgba(12, 20, 34, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      padding: 0.6rem 1.2rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      color: #38bdf8;
+      box-shadow: 0 0 25px rgba(6, 182, 212, 0.2);
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: #06b6d4;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #06b6d4;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    .hint {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 3.5rem;
+      font-size: 0.8rem;
+      color: rgba(148, 163, 184, 0.7);
+      background: rgba(6, 9, 19, 0.6);
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bgCanvas"></canvas>
+
+  <div class="hud">
+    <div class="time" id="clock">12:00</div>
+    <div class="date" id="date">MONDAY, SEPTEMBER 03</div>
+  </div>
+
+  <div class="hint">⚡ Interactive: Move mouse or click to generate cyber shockwaves</div>
+
+  <div class="status-badge">
+    <div class="pulse-dot"></div>
+    <span>LIVE WALLPAPER ENGINE SIMULATION</span>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    // Update Clock
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+      
+      const options = { weekday: 'long', month: 'long', day: 'numeric' };
+      document.getElementById('date').textContent = now.toLocaleDateString('en-US', options).toUpperCase();
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Particles System
+    const particles = [];
+    const particleCount = 75;
+    let mouse = { x: width / 2, y: height / 2, radius: 140, isDown: false };
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.vx = (Math.random() - 0.5) * 1.2;
+        this.vy = (Math.random() - 0.5) * 1.2;
+        this.radius = Math.random() * 2 + 1;
+        this.color = Math.random() > 0.4 ? '#06b6d4' : (Math.random() > 0.5 ? '#3b82f6' : '#a855f7');
+        this.alpha = Math.random() * 0.7 + 0.3;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x < 0 || this.x > width) this.vx *= -1;
+        if (this.y < 0 || this.y > height) this.vy *= -1;
+
+        // Mouse interaction
+        const dx = mouse.x - this.x;
+        const dy = mouse.y - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < mouse.radius) {
+          const force = (mouse.radius - dist) / mouse.radius;
+          const dirX = dx / dist;
+          const dirY = dy / dist;
+          this.x -= dirX * force * 4;
+          this.y -= dirY * force * 4;
+        }
+      }
+      draw() {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = this.color;
+        ctx.globalAlpha = this.alpha;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
+
+    // Shockwaves
+    const shockwaves = [];
+    function createShockwave(x, y) {
+      shockwaves.push({ x, y, radius: 5, maxRadius: 180, alpha: 0.9 });
+    }
+
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    window.addEventListener('click', (e) => {
+      createShockwave(e.clientX, e.clientY);
+    });
+
+    // Animation Loop
+    let time = 0;
+    function animate() {
+      time += 0.015;
+      ctx.fillStyle = 'rgba(6, 9, 19, 0.25)';
+      ctx.fillRect(0, 0, width, height);
+
+      // Cyber Grid at bottom
+      const gridHorizon = height * 0.65;
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.12)';
+      ctx.lineWidth = 1;
+
+      // Perspective lines
+      for (let x = -width * 0.5; x < width * 1.5; x += 90) {
+        ctx.beginPath();
+        ctx.moveTo(width / 2, gridHorizon);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+
+      // Horizontal lines
+      for (let y = gridHorizon; y < height; y += (height - gridHorizon) / 10) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+
+      // Draw Shockwaves
+      for (let i = shockwaves.length - 1; i >= 0; i--) {
+        const sw = shockwaves[i];
+        sw.radius += 4;
+        sw.alpha -= 0.02;
+        if (sw.alpha <= 0 || sw.radius >= sw.maxRadius) {
+          shockwaves.splice(i, 1);
+          continue;
+        }
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(6, 182, 212, ${sw.alpha})`;
+        ctx.lineWidth = 3;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#06b6d4';
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Draw connections
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 110) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(6, 182, 212, ${(1 - dist / 110) * 0.25})`;
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Update & draw particles
+      particles.forEach((p) => {
+        p.update();
+        p.draw();
+      });
+
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>
