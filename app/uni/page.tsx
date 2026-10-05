@@ -2,10 +2,11 @@ import Link from 'next/link';
 import { 
   GraduationCap, Mail, BookOpen, UserCircle, CheckSquare, 
   Printer, Monitor, MonitorPlay, HardDrive, CalendarCheck, 
-  Calendar, Users, Server, Building, Compass, Globe, Bus
+  Calendar, Users, Server, Building, Compass, Globe, Bus, MapPin
 } from 'lucide-react';
 
 const CORE_SHORTCUTS = [
+  { href: '/uni/map', icon: MapPin, title: 'Campus Map & Finder', desc: 'Interactive search for UoP buildings & Google Maps.' },
   { href: 'https://myport.port.ac.uk/', icon: Compass, title: 'MyPort', desc: 'Student Portal & Information.' },
   { href: 'https://timetabling.port.ac.uk/CMISGo/Web/Timetable', icon: Calendar, title: 'Timetable', desc: 'View class schedule.' },
   { href: 'https://outlook.office.com/mail/', icon: Mail, title: 'Uni Mail', desc: 'Access student Outlook Mail.' },
@@ -71,19 +72,36 @@ export default function UniDash() {
         <section className="mb-12">
           <h2 className="text-2xl font-extrabold text-cyan-500 border-b-2 border-white/10 pb-2 mb-6">Core Shortcuts</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {CORE_SHORTCUTS.map((item, idx) => (
-              <a 
-                key={idx} 
-                href={item.href} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="bg-[#172033] p-6 rounded-xl shadow-md hover:shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-1 transition-all flex flex-col min-h-[120px]"
-              >
-                <item.icon className="w-6 h-6 text-cyan-500 mb-2" />
-                <h3 className="text-lg font-bold text-slate-100">{item.title}</h3>
-                <p className="text-sm text-slate-400 mt-1">{item.desc}</p>
-              </a>
-            ))}
+            {CORE_SHORTCUTS.map((item, idx) => {
+              const isInternal = item.href.startsWith('/');
+              const cardContent = (
+                <>
+                  <item.icon className="w-6 h-6 text-cyan-500 mb-2" />
+                  <h3 className="text-lg font-bold text-slate-100">{item.title}</h3>
+                  <p className="text-sm text-slate-400 mt-1">{item.desc}</p>
+                </>
+              );
+
+              return isInternal ? (
+                <Link
+                  key={idx}
+                  href={item.href}
+                  className="bg-[#172033] p-6 rounded-xl shadow-md hover:shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-1 transition-all flex flex-col min-h-[120px] border border-cyan-500/20 hover:border-cyan-400"
+                >
+                  {cardContent}
+                </Link>
+              ) : (
+                <a 
+                  key={idx} 
+                  href={item.href} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-[#172033] p-6 rounded-xl shadow-md hover:shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-1 transition-all flex flex-col min-h-[120px]"
+                >
+                  {cardContent}
+                </a>
+              );
+            })}
           </div>
         </section>
 
