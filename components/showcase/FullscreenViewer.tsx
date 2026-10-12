@@ -39,6 +39,17 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
 
   if (!wallpaper) return null;
 
+  const getYouTubeId = (item: WallpaperItem) => {
+    if (item.youtubeId) return item.youtubeId;
+    if (item.src) {
+      const match = item.src.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+      if (match) return match[1];
+    }
+    return null;
+  };
+
+  const ytId = getYouTubeId(wallpaper);
+
   return (
     <AnimatePresence>
       <motion.div
@@ -49,7 +60,14 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
       >
         {/* Fullscreen Wallpaper Viewport */}
         <div className="absolute inset-0 w-full h-full">
-          {wallpaper.type === 'html' ? (
+          {ytId ? (
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1`}
+              title={wallpaper.title}
+              className="w-full h-full border-0 pointer-events-none scale-[1.05]"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            />
+          ) : wallpaper.type === 'html' ? (
             <iframe
               src={wallpaper.src}
               title={wallpaper.title}

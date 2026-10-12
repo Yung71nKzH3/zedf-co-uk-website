@@ -9,7 +9,8 @@ export interface WallpaperItem {
   steamWorkshopUrl?: string;
   resolution: string; // e.g. '4K (3840x2160)', 'Ultrawide (3440x1440)', '1080p (1920x1080)'
   aspectRatio: '16:9' | '21:9' | '16:10' | '32:9';
-  src: string; // Path to HTML folder index or video file (e.g. '/wallpapers/interactive-matrix/index.html' or video mp4/webm)
+  src: string; // Path to HTML folder index or video file (e.g. '/wallpapers/interactive-matrix/index.html' or video mp4/webm/youtube)
+  youtubeId?: string; // YouTube video ID (e.g. 'dQw4w9WgXcQ')
   posterUrl?: string; // Thumbnail preview image
   tags: string[];
   features?: string[]; // e.g. ['Interactive', 'Audio Reactive', 'Custom Clock', 'Mouse Parallax']

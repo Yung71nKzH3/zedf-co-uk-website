@@ -42,6 +42,17 @@ export const WallpaperCard: React.FC<WallpaperCardProps> = ({
     }
   };
 
+  const getYouTubeId = (item: WallpaperItem) => {
+    if (item.youtubeId) return item.youtubeId;
+    if (item.src) {
+      const match = item.src.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+      if (match) return match[1];
+    }
+    return null;
+  };
+
+  const ytId = getYouTubeId(wallpaper);
+
   return (
     <div 
       className="relative w-full max-w-[820px] transition-all duration-300"
@@ -55,7 +66,16 @@ export const WallpaperCard: React.FC<WallpaperCardProps> = ({
       >
         {/* Screen Content */}
         <div className="relative w-full h-full bg-slate-950 flex items-center justify-center overflow-hidden">
-          {wallpaper.type === 'html' && isActive ? (
+          {ytId && isActive ? (
+            /* Looping YouTube Embed */
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&playsinline=1`}
+              title={wallpaper.title}
+              className="w-full h-full border-0 pointer-events-none scale-[1.03]"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              loading="lazy"
+            />
+          ) : wallpaper.type === 'html' && isActive ? (
             /* Live Interactive HTML Wallpaper IFrame */
             <iframe
               src={wallpaper.src}
