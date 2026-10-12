@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Calc67 - Daily Calculator Puzzle',
+  title: 'Calc67',
   description: 'Reach 67 using daily numbers and operations in this daily math puzzle game with global leaderboards.',
   keywords: ['Calc67', 'Math Puzzle', 'Calculator Game', 'Daily Puzzle', 'Numbers Game', 'ZEDF'],
   alternates: {

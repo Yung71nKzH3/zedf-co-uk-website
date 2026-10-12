@@ -64,17 +64,25 @@ export const WallpaperCard: React.FC<WallpaperCardProps> = ({
               sandbox="allow-scripts allow-same-origin"
               loading="lazy"
             />
-          ) : wallpaper.type === 'video' && isActive && wallpaper.src.endsWith('.webm') || wallpaper.src.endsWith('.mp4') ? (
-            /* Looping Video Wallpaper */
-            <video
-              src={wallpaper.src}
-              poster={wallpaper.posterUrl}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover"
-            />
+          ) : (wallpaper.type === 'video' || wallpaper.src.endsWith('.webm') || wallpaper.src.endsWith('.mp4') || wallpaper.src.endsWith('.gif')) && isActive ? (
+            /* Looping Video / GIF Wallpaper */
+            wallpaper.src.endsWith('.gif') ? (
+              <img
+                src={wallpaper.src}
+                alt={wallpaper.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <video
+                src={wallpaper.src}
+                poster={wallpaper.posterUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+              />
+            )
           ) : (
             /* Scene / Inactive Preview Display */
             <div className="relative w-full h-full">

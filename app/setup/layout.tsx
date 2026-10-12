@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: '3D Cyber Desk Setup',
+  title: 'Setup',
   description: 'Interactive 3D WebGL cyber desk setup and battlestation showcase with dynamic lighting and themes.',
   keywords: ['Setup', 'Desk Setup', '3D WebGL', 'Three.js', 'Battlestation', 'Cyberpunk', 'ZEDF'],
   alternates: {

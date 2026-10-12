@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://www.zedf.co.uk'),
   title: {
     default: 'ZEDF | w1ll0w',
-    template: '%s | ZEDF',
+    template: 'ZEDF | %s',
   },
   description: 'UK-based Undergrad Data Science Student. Digital garden sharing Projects, Experiments, and personal links.',
   keywords: ['Data Science', 'Developer', 'Portfolio', 'Next.js', 'React', 'Tech', 'Student', 'ZEDF', 'w1ll0w'],

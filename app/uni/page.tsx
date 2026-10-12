@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Uni Dashboard',
+  title: 'Uni',
   description: 'Quick student portal links, timetables, Moodle, email shortcuts, and IT service resources for the University of Portsmouth.',
   keywords: ['University of Portsmouth', 'Student Portal', 'MyPort', 'Moodle', 'Uni Dashboard', 'ZEDF'],
   alternates: {

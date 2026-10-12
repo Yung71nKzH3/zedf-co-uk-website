@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Quotes & Wisdom',
+  title: 'Quotes',
   description: 'A curated collection of impactful quotes, cinema lines, thoughts, and philosophies that inspire w1ll0w.',
   keywords: ['Quotes', 'Wisdom', 'Philosophy', 'Inspiration', 'Cinema Quotes', 'ZEDF'],
   alternates: {

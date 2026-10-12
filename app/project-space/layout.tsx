@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Personal Space - Project Nebula',
+  title: 'Personal Space',
   description: 'An interactive nebula and constellation of creative projects, experiments, and developer tools.',
   keywords: ['Project Space', 'Portfolio', 'Interactive Starfield', 'Data Science', 'Projects', 'ZEDF'],
   alternates: {

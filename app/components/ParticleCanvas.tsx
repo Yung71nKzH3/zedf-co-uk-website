@@ -2,13 +2,21 @@
 
 import { useEffect, useRef } from 'react';
 
-const TARGET_TEXT = "w1ll0w";
-const PARTICLE_COLOR = '#06b6d4'; 
+const DEFAULT_TARGET_TEXT = "w1ll0w";
+const DEFAULT_PARTICLE_COLOR = '#06b6d4'; 
 const RESOLUTION = 4; 
 const HOVER_AREA_RADIUS = 200; 
 const FRICTION = 0.9;
 const SPRING = 0.08; 
 const DRIFT_SPEED = 0.005; 
+
+interface ParticleCanvasProps {
+  targetText?: string;
+  color?: string;
+  className?: string;
+  yFactorMobile?: number;
+  yFactorDesktop?: number;
+} 
 
 class Particle {
   targetX: number;
@@ -61,8 +69,8 @@ class Particle {
     this.y += this.vy;
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = PARTICLE_COLOR;
+  draw(ctx: CanvasRenderingContext2D, color: string = DEFAULT_PARTICLE_COLOR) {
+    ctx.fillStyle = color;
     const s = this.size;
 
     ctx.beginPath();
@@ -81,7 +89,13 @@ class Particle {
   }
 }
 
-export default function ParticleCanvas() {
+export default function ParticleCanvas({
+  targetText = DEFAULT_TARGET_TEXT,
+  color = DEFAULT_PARTICLE_COLOR,
+  className = "fixed top-0 left-0 w-full h-[300px] md:h-full z-0 pointer-events-none",
+  yFactorMobile,
+  yFactorDesktop,
+}: ParticleCanvasProps = {}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const isFormedRef = useRef(false);
@@ -100,9 +114,15 @@ export default function ParticleCanvas() {
 
     const getResponsiveConfig = () => {
       if (window.innerWidth <= 768) {
-        return { size: 80, yFactor: 0.45 };
+        return { 
+          size: targetText.length > 6 ? 64 : 80, 
+          yFactor: yFactorMobile ?? 0.45 
+        };
       } else {
-        return { size: 120, yFactor: 0.2 };
+        return { 
+          size: targetText.length > 6 ? 100 : 120, 
+          yFactor: yFactorDesktop ?? 0.2 
+        };
       }
     };
 
@@ -120,10 +140,10 @@ export default function ParticleCanvas() {
       tempCtx.textBaseline = 'middle';
       
       textMetricsRef.current.textX = tempCanvas.width / 2;
-      textMetricsRef.current.width = tempCtx.measureText(TARGET_TEXT).width;
+      textMetricsRef.current.width = tempCtx.measureText(targetText).width;
       
       tempCtx.fillStyle = 'white';
-      tempCtx.fillText(TARGET_TEXT, textMetricsRef.current.textX, textMetricsRef.current.textY);
+      tempCtx.fillText(targetText, textMetricsRef.current.textX, textMetricsRef.current.textY);
       
       const boxMargin = 100;
       boxRef.current.x = textMetricsRef.current.textX - textMetricsRef.current.width / 2 - boxMargin;
@@ -146,11 +166,12 @@ export default function ParticleCanvas() {
     };
 
     const resizeCanvas = () => {
-      if (window.innerWidth <= 768) {
-        canvas.width = window.innerWidth;
+      canvas.width = window.innerWidth;
+      if (className.includes('h-full') || className.includes('inset-0')) {
+        canvas.height = window.innerHeight;
+      } else if (window.innerWidth <= 768) {
         canvas.height = 300;
       } else {
-        canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
       }
       
@@ -167,7 +188,7 @@ export default function ParticleCanvas() {
       
       particlesRef.current.forEach(p => {
         p.update(isFormedRef.current, boxRef.current);
-        p.draw(ctx);
+        p.draw(ctx, color);
       });
 
       animationRef.current = requestAnimationFrame(animate);
@@ -211,12 +232,12 @@ export default function ParticleCanvas() {
       window.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(animationRef.current);
     };
-  }, []);
+  }, [targetText, color, className, yFactorMobile, yFactorDesktop]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed top-0 left-0 w-full h-[300px] md:h-full z-0 pointer-events-none"
+      className={className}
     />
   );
 }

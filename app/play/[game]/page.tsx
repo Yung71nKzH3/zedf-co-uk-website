@@ -81,7 +81,7 @@ export async function generateMetadata({
   };
 
   return {
-    title: `${game.title} - Play Online`,
+    title: game.title,
     description: game.description,
     alternates: {
       canonical: `/play/${resolvedParams.game}`,

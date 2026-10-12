@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Arcade Games Hub',
+  title: 'Arcade',
   description: 'A curated collection of 14 retro browser games, puzzles, and casino classics. Zero ads, instant play, and local high score tracking.',
   keywords: ['Arcade', 'Retro Games', 'Browser Games', 'Sudoku', 'Tetris', 'Snake', '2048', 'Minesweeper', 'ZEDF'],
   alternates: {

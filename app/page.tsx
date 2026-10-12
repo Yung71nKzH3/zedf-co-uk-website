@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import ParticleCanvas from './components/ParticleCanvas';
 import { 
-  PackageOpen, UserCircle, GraduationCap, Quote, Server, Calendar, Brain, 
+  PackageOpen, UserCircle, GraduationCap, Quote, Calendar, Brain, 
   Gamepad2, Image as ImageIcon, Gamepad, Gift, Video, Clipboard, Calculator, 
   ShoppingCart, MapPin, Youtube, Music, BarChart, Film, Mountain, Github, 
   Instagram, MessageCircle, Tv, MessageSquare, Keyboard, Laptop, Code, Rocket
@@ -16,7 +16,6 @@ const STUFF_LINKS = [
   { href: '/showcase', icon: Gamepad2, title: 'Wallpaper Showcase', desc: 'Interactive Gallery' },
   { href: '/uni', icon: GraduationCap, title: 'Uni Dash', desc: 'Helpful Shortcuts' },
   { href: '/quotes', icon: Quote, title: 'Fav Quotes', desc: 'Just the Hits' },
-  { href: 'https://falixnodes.net/startserver', icon: Server, title: 'Minecraft Server', desc: 'ip=zfgaming', external: true },
   { href: 'https://youtube.com/playlist?list=PLmDAk0SfywoVrnnN4JBR4tLcjPqfDA5N4&si=TBfZ-AnuuMInpFTM', icon: Calendar, title: 'College CS Project', desc: 'Timetable Scheduler', external: true },
   { href: 'https://docs.google.com/document/d/1hdCehlL4bRm4cgJa2KhzUSMKTOEiEcjmxxgih3togmM/edit?usp=sharing', icon: Brain, title: 'EPQ', desc: 'AI, Humans best friend?', external: true },
   { href: 'https://steamcommunity.com/groups/0fukkes', icon: Gamepad2, title: 'Steam Group', desc: 'Faze Up', external: true },

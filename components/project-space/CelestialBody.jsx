@@ -3,34 +3,47 @@
 import React from 'react';
 import { motion } from 'motion/react';
 
-export const CelestialBody = ({ star, onClick, index }) => {
+export const CelestialBody = ({ star, onClick, index, totalStars = 7 }) => {
   const [position, setPosition] = React.useState({ x: 0, y: 0 });
   const [isMounted, setIsMounted] = React.useState(false);
 
   React.useEffect(() => {
-    // Generate a consistent (static) random position based on the star's ID
-    const generatePosition = () => {
-      // Simple hash of the ID to get a seed (from 0 to 1)
-      const seed = star.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 100 / 100;
-      const angleSeed = star.id.split('').reduce((acc, char) => acc * (char.charCodeAt(0) + 1), 1) % 100 / 100;
+    const updatePosition = () => {
+      const width = typeof window !== 'undefined' ? window.innerWidth : 1200;
+      const height = typeof window !== 'undefined' ? window.innerHeight : 800;
 
-      const isMobile = window.innerWidth < 768;
-      const minRadius = isMobile ? 100 : 150;
-      const maxRadius = isMobile ? 300 : 500;
+      // Safe boundaries reserving space for header search, dashboard back-button, and margins
+      const isMobile = width < 768;
+      const paddingX = isMobile ? 48 : 96;
+      const paddingY = isMobile ? 80 : 120;
+
+      const maxRx = Math.max(70, width / 2 - paddingX);
+      const maxRy = Math.max(70, height / 2 - paddingY);
+
+      // Consistent distributed angle per star based on index + unique hash jitter
+      const count = Math.max(totalStars, 1);
+      const baseAngle = (index / count) * Math.PI * 2 - Math.PI / 2;
       
-      // Use the seed instead of Math.random() for static positioning
-      const radius = minRadius + seed * (maxRadius - minRadius);
-      const angle = angleSeed * Math.PI * 2;
-      
+      const charHash = star.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const angleJitter = ((charHash % 20) - 10) / 100; // ±0.1 rad
+      const angle = baseAngle + angleJitter;
+
+      // Tiered orbit radii (alternating inner/outer rings) to avoid clumping
+      const ring = (index % 2 === 0) ? (isMobile ? 0.55 : 0.60) : (isMobile ? 0.88 : 0.90);
+      const radiusJitter = ((charHash % 10) - 5) / 100; // ±0.05
+      const factor = Math.min(0.95, Math.max(0.40, ring + radiusJitter));
+
       setPosition({
-        x: Math.cos(angle) * radius,
-        y: Math.sin(angle) * radius
+        x: Math.cos(angle) * (maxRx * factor),
+        y: Math.sin(angle) * (maxRy * factor)
       });
       setIsMounted(true);
     };
 
-    generatePosition();
-  }, [star.id]);
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    return () => window.removeEventListener('resize', updatePosition);
+  }, [star.id, index, totalStars]);
 
   return (
     <motion.div

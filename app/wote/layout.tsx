@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Wote - Minimalist Notes',
+  title: 'Wote',
   description: 'A distraction-free, privacy-focused note-taking workspace with markdown formatting, syntax highlighting, and local persistence.',
   keywords: ['Notes', 'Notepad', 'Markdown', 'Minimalist', 'Productivity', 'Wote', 'ZEDF'],
   alternates: {

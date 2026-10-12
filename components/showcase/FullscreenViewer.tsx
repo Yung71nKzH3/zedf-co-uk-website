@@ -56,7 +56,13 @@ export const FullscreenViewer: React.FC<FullscreenViewerProps> = ({
               className="w-full h-full border-0 pointer-events-auto"
               sandbox="allow-scripts allow-same-origin"
             />
-          ) : wallpaper.src.endsWith('.webm') || wallpaper.src.endsWith('.mp4') ? (
+          ) : wallpaper.src.endsWith('.gif') ? (
+            <img
+              src={wallpaper.src}
+              alt={wallpaper.title}
+              className="w-full h-full object-cover"
+            />
+          ) : wallpaper.src.endsWith('.webm') || wallpaper.src.endsWith('.mp4') || wallpaper.type === 'video' ? (
             <video
               src={wallpaper.src}
               poster={wallpaper.posterUrl}

@@ -87,41 +87,43 @@ export const ShowcaseCarousel: React.FC<ShowcaseCarouselProps> = ({
         style={{ perspective: '1400px' }}
       >
         {/* LEFT CARD (Previous) */}
-        <motion.div
-          key={`prev-${prevItem.id}`}
-          onClick={handlePrev}
-          initial={{ opacity: 0, x: '-35%', scale: 0.8 }}
-          animate={{ 
-            opacity: 0.72, 
-            x: '-46%', 
-            scale: 0.85, 
-            rotateY: 14, 
-            zIndex: 15 
-          }}
-          whileHover={{ 
-            opacity: 0.95, 
-            scale: 0.88, 
-            rotateY: 8,
-            transition: { duration: 0.2 } 
-          }}
-          transition={{ type: 'spring', stiffness: 280, damping: 30 }}
-          className="absolute cursor-pointer hidden md:block max-w-[560px] w-[50%] pointer-events-auto group"
-        >
-          <div className="relative">
-            <WallpaperCard
-              wallpaper={prevItem}
-              isActive={false}
-              onOpenFullscreen={() => {}}
-            />
-            {/* Click to Switch pill badge */}
-            <div className="absolute inset-0 bg-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-950/80 border border-cyan-500/50 text-cyan-300 text-xs font-mono backdrop-blur-md shadow-2xl">
-                <Eye className="w-3.5 h-3.5" />
-                <span>Switch to this</span>
-              </span>
+        {total > 1 && (
+          <motion.div
+            key={`prev-${prevItem.id}`}
+            onClick={handlePrev}
+            initial={{ opacity: 0, x: '-35%', scale: 0.8 }}
+            animate={{ 
+              opacity: 0.72, 
+              x: '-46%', 
+              scale: 0.85, 
+              rotateY: 14, 
+              zIndex: 15 
+            }}
+            whileHover={{ 
+              opacity: 0.95, 
+              scale: 0.88, 
+              rotateY: 8,
+              transition: { duration: 0.2 } 
+            }}
+            transition={{ type: 'spring', stiffness: 280, damping: 30 }}
+            className="absolute cursor-pointer hidden md:block max-w-[560px] w-[50%] pointer-events-auto group"
+          >
+            <div className="relative">
+              <WallpaperCard
+                wallpaper={prevItem}
+                isActive={false}
+                onOpenFullscreen={() => {}}
+              />
+              {/* Click to Switch pill badge */}
+              <div className="absolute inset-0 bg-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-950/80 border border-cyan-500/50 text-cyan-300 text-xs font-mono backdrop-blur-md shadow-2xl">
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Switch to this</span>
+                </span>
+              </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
 
         {/* ACTIVE CENTER CARD */}
         <motion.div
@@ -140,41 +142,43 @@ export const ShowcaseCarousel: React.FC<ShowcaseCarouselProps> = ({
         </motion.div>
 
         {/* RIGHT CARD (Next) */}
-        <motion.div
-          key={`next-${nextItem.id}`}
-          onClick={handleNext}
-          initial={{ opacity: 0, x: '35%', scale: 0.8 }}
-          animate={{ 
-            opacity: 0.72, 
-            x: '46%', 
-            scale: 0.85, 
-            rotateY: -14, 
-            zIndex: 15 
-          }}
-          whileHover={{ 
-            opacity: 0.95, 
-            scale: 0.88, 
-            rotateY: -8,
-            transition: { duration: 0.2 } 
-          }}
-          transition={{ type: 'spring', stiffness: 280, damping: 30 }}
-          className="absolute cursor-pointer hidden md:block max-w-[560px] w-[50%] pointer-events-auto group"
-        >
-          <div className="relative">
-            <WallpaperCard
-              wallpaper={nextItem}
-              isActive={false}
-              onOpenFullscreen={() => {}}
-            />
-            {/* Click to Switch pill badge */}
-            <div className="absolute inset-0 bg-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-950/80 border border-cyan-500/50 text-cyan-300 text-xs font-mono backdrop-blur-md shadow-2xl">
-                <Eye className="w-3.5 h-3.5" />
-                <span>Switch to this</span>
-              </span>
+        {total > 1 && (
+          <motion.div
+            key={`next-${nextItem.id}`}
+            onClick={handleNext}
+            initial={{ opacity: 0, x: '35%', scale: 0.8 }}
+            animate={{ 
+              opacity: 0.72, 
+              x: '46%', 
+              scale: 0.85, 
+              rotateY: -14, 
+              zIndex: 15 
+            }}
+            whileHover={{ 
+              opacity: 0.95, 
+              scale: 0.88, 
+              rotateY: -8,
+              transition: { duration: 0.2 } 
+            }}
+            transition={{ type: 'spring', stiffness: 280, damping: 30 }}
+            className="absolute cursor-pointer hidden md:block max-w-[560px] w-[50%] pointer-events-auto group"
+          >
+            <div className="relative">
+              <WallpaperCard
+                wallpaper={nextItem}
+                isActive={false}
+                onOpenFullscreen={() => {}}
+              />
+              {/* Click to Switch pill badge */}
+              <div className="absolute inset-0 bg-transparent flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-950/80 border border-cyan-500/50 text-cyan-300 text-xs font-mono backdrop-blur-md shadow-2xl">
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Switch to this</span>
+                </span>
+              </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
       </div>
 
       {/* Navigation Controls Bar */}
