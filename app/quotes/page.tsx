@@ -1,4 +1,25 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Quotes & Wisdom',
+  description: 'A curated collection of impactful quotes, cinema lines, thoughts, and philosophies that inspire w1ll0w.',
+  keywords: ['Quotes', 'Wisdom', 'Philosophy', 'Inspiration', 'Cinema Quotes', 'ZEDF'],
+  alternates: {
+    canonical: '/quotes',
+  },
+  openGraph: {
+    title: 'Quotes & Wisdom | ZEDF',
+    description: 'A curated collection of impactful quotes, cinema lines, thoughts, and philosophies.',
+    url: 'https://www.zedf.co.uk/quotes',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Quotes & Wisdom | ZEDF',
+    description: 'A curated collection of impactful quotes, cinema lines, and thoughts.',
+  },
+};
 
 const QUOTES = [
   {

@@ -9,6 +9,21 @@ import { WALLPAPERS_DATA } from '@/lib/showcase/wallpapers-data';
 export const metadata: Metadata = {
   title: 'Wallpaper Engine Showcase',
   description: 'A curated gallery of live interactive HTML5, Scene, and Video wallpapers by w1ll0w on Wallpaper Engine.',
+  keywords: ['Wallpaper Engine', 'Interactive Wallpaper', 'Steam Workshop', 'Showcase', 'WebGL', 'ZEDF'],
+  alternates: {
+    canonical: '/showcase',
+  },
+  openGraph: {
+    title: 'Wallpaper Engine Showcase | ZEDF',
+    description: 'A curated gallery of live interactive HTML5, Scene, and Video wallpapers by w1ll0w on Wallpaper Engine.',
+    url: 'https://www.zedf.co.uk/showcase',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Wallpaper Engine Showcase | ZEDF',
+    description: 'A curated gallery of live interactive HTML5, Scene, and Video wallpapers by w1ll0w on Wallpaper Engine.',
+  },
 };
 
 export default function ShowcasePage() {

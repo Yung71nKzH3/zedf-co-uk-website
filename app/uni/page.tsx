@@ -1,9 +1,30 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { 
   GraduationCap, Mail, BookOpen, UserCircle, CheckSquare, 
   Printer, Monitor, MonitorPlay, HardDrive, CalendarCheck, 
   Calendar, Users, Server, Building, Compass, Globe, Bus, MapPin
 } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Uni Dashboard',
+  description: 'Quick student portal links, timetables, Moodle, email shortcuts, and IT service resources for the University of Portsmouth.',
+  keywords: ['University of Portsmouth', 'Student Portal', 'MyPort', 'Moodle', 'Uni Dashboard', 'ZEDF'],
+  alternates: {
+    canonical: '/uni',
+  },
+  openGraph: {
+    title: 'Uni Dashboard | ZEDF',
+    description: 'Quick student portal links, timetables, Moodle, email shortcuts, and IT service resources for the University of Portsmouth.',
+    url: 'https://www.zedf.co.uk/uni',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Uni Dashboard | ZEDF',
+    description: 'Quick student portal links and academic shortcuts for the University of Portsmouth.',
+  },
+};
 
 const CORE_SHORTCUTS = [
   { href: '/uni/map', icon: MapPin, title: 'Campus Map & Finder', desc: 'Interactive search for UoP buildings & Google Maps.' },
