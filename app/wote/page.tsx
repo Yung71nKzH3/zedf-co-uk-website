@@ -110,22 +110,33 @@ interface NodeActions {
 // Extract NodeItem to top level so React doesn't unmount it
 const NodeItem = memo(({ node, depth, actions }: { node: NoteNode; depth: number, actions: NodeActions }) => {
   const contentRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lastContent = useRef(node.content);
   const { c, theme, bodyBorder } = actions;
 
-  useEffect(() => {
-    if (contentRef.current) {
-      contentRef.current.innerText = node.content;
-      lastContent.current = node.content;
-    }
-  }, []); // Set initial content
-
+  // Initialize and synchronize text content for contentEditable
   useEffect(() => {
     if (contentRef.current && lastContent.current !== node.content) {
       contentRef.current.innerText = node.content;
       lastContent.current = node.content;
     }
   }, [node.content]);
+
+  useEffect(() => {
+    if (contentRef.current && contentRef.current.innerText !== node.content) {
+      contentRef.current.innerText = node.content;
+      lastContent.current = node.content;
+    }
+  }, []);
+
+  // When node enters editing mode (markdown/code), auto-focus the textarea
+  useEffect(() => {
+    if (node.isEditing && textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.setSelectionRange(textareaRef.current.value.length, textareaRef.current.value.length);
+    }
+  }, [node.isEditing]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -141,7 +152,11 @@ const NodeItem = memo(({ node, depth, actions }: { node: NoteNode; depth: number
     } else if (e.key === 't' && e.altKey) {
       e.preventDefault();
       actions.cycleType(node.id);
-    } else if (e.key === 'Backspace' && e.shiftKey && (e.ctrlKey || e.metaKey)) {
+    } else if (
+      (e.key === 'Backspace' && e.shiftKey && (e.ctrlKey || e.metaKey)) ||
+      (e.key === 'Backspace' && node.content === '' && (node.children?.length === 0 || !node.children))
+    ) {
+      e.preventDefault();
       actions.deleteNode(node.id);
     } else if (e.key === 'ArrowUp' && e.altKey) {
       e.preventDefault();
@@ -152,20 +167,58 @@ const NodeItem = memo(({ node, depth, actions }: { node: NoteNode; depth: number
     }
   };
 
+  const handleTextareaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Escape' || (e.key === 'Enter' && (e.ctrlKey || e.metaKey))) {
+      e.preventDefault();
+      actions.updateNode(node.id, { isEditing: false });
+      return;
+    }
+    if (e.key === 't' && e.altKey) {
+      e.preventDefault();
+      actions.cycleType(node.id);
+      return;
+    }
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      if (e.shiftKey) actions.outdentNode(node.id);
+      else actions.indentNode(node.id);
+      return;
+    }
+    if (e.key === 'ArrowUp' && e.altKey) {
+      e.preventDefault();
+      actions.focusRelativeNode(node.id, 'up');
+      return;
+    }
+    if (e.key === 'ArrowDown' && e.altKey) {
+      e.preventDefault();
+      actions.focusRelativeNode(node.id, 'down');
+      return;
+    }
+  };
+
   const renderContent = () => {
     if (node.type === 'image') {
       return (
-        <div className="space-y-2">
+        <div className="space-y-2 w-full">
           <input 
+            ref={inputRef}
             type="text" 
             placeholder="Paste Image URL..." 
             value={node.imageUrl || ''}
             onChange={(e) => actions.updateNode(node.id, { imageUrl: e.target.value })}
-            className={`w-full ${c.mutedBg} border ${c.mutedBorder} rounded px-2 py-1 text-xs focus:outline-none focus:border-cyan-500/50`}
+            onKeyDown={handleKeyDown}
+            className={`w-full ${c.mutedBg} border ${c.mutedBorder} rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-cyan-500/50 transition-colors`}
           />
           {node.imageUrl && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={node.imageUrl} className={`max-h-64 rounded-lg border ${bodyBorder} shadow-lg`} alt="node content" />
+            <img 
+              src={node.imageUrl} 
+              className={`max-h-64 max-w-full rounded-lg border ${bodyBorder} shadow-lg object-contain`} 
+              alt="node content" 
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = 'none';
+              }}
+            />
           )}
         </div>
       );
@@ -173,12 +226,14 @@ const NodeItem = memo(({ node, depth, actions }: { node: NoteNode; depth: number
 
     if (node.type === 'code' && !node.isEditing) {
       return (
-        <pre 
+        <div 
           onClick={() => actions.updateNode(node.id, { isEditing: true })}
-          className={`p-4 bg-black/40 rounded-xl border ${bodyBorder} font-mono text-sm overflow-x-auto cursor-text hover:border-cyan-500/30 transition-colors`}
+          className={`p-3 bg-black/40 rounded-xl border ${bodyBorder} font-mono text-sm overflow-x-auto cursor-text hover:border-cyan-500/30 transition-colors group/code relative`}
+          title="Click to edit code (Ctrl+Enter or Esc to view rendered)"
         >
-          <code dangerouslySetInnerHTML={{ __html: hljs.highlightAuto(node.content).value || ' ' }} />
-        </pre>
+          <code dangerouslySetInnerHTML={{ __html: hljs.highlightAuto(node.content || '').value || '<span class="opacity-30">// Empty code block (click to edit)</span>' }} />
+          <span className="absolute top-2 right-2 text-[9px] uppercase tracking-wider font-sans font-bold text-white/30 group-hover/code:text-white/60">code</span>
+        </div>
       );
     }
 
@@ -186,9 +241,45 @@ const NodeItem = memo(({ node, depth, actions }: { node: NoteNode; depth: number
       return (
         <div 
           onClick={() => actions.updateNode(node.id, { isEditing: true })}
-          className="prose prose-invert prose-sm max-w-none cursor-text p-1"
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(node.content || '...') as string) }}
-        />
+          className="prose prose-invert prose-sm max-w-none cursor-text p-1 min-h-[1.5em] hover:bg-white/[0.02] rounded-lg transition-colors group/md relative"
+          title="Click to edit markdown (Ctrl+Enter or Esc to view rendered)"
+        >
+          {node.content ? (
+            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(node.content) as string) }} />
+          ) : (
+            <span className="italic opacity-30 text-xs">Empty markdown block (click to edit)</span>
+          )}
+        </div>
+      );
+    }
+
+    if (node.isEditing && (node.type === 'code' || node.type === 'markdown')) {
+      return (
+        <div className="w-full space-y-1">
+          <textarea
+            ref={textareaRef}
+            value={node.content}
+            onChange={(e) => actions.updateNode(node.id, { content: e.target.value })}
+            onKeyDown={handleTextareaKeyDown}
+            onBlur={() => actions.updateNode(node.id, { isEditing: false })}
+            placeholder={node.type === 'code' ? 'Write code here...' : 'Write markdown here...'}
+            rows={Math.max(2, (node.content || '').split('\n').length)}
+            className={`w-full p-2 rounded-lg bg-black/30 border ${bodyBorder} focus:outline-none focus:border-cyan-500/50 resize-y text-sm ${
+              node.type === 'code' ? 'font-mono text-cyan-300' : 'font-sans'
+            }`}
+          />
+          <div className="flex items-center justify-between px-1 text-[10px] text-white/30 font-mono">
+            <span>Press <kbd className="text-cyan-400">Ctrl+Enter</kbd> or <kbd className="text-cyan-400">Esc</kbd> to render</span>
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => actions.updateNode(node.id, { isEditing: false })}
+              className="text-cyan-400 hover:underline"
+            >
+              Done editing
+            </button>
+          </div>
+        </div>
       );
     }
 
@@ -199,12 +290,11 @@ const NodeItem = memo(({ node, depth, actions }: { node: NoteNode; depth: number
         suppressContentEditableWarning
         onKeyDown={handleKeyDown}
         onInput={(e) => {
-          lastContent.current = e.currentTarget.innerText;
-          actions.updateNode(node.id, { content: e.currentTarget.innerText });
+          const text = e.currentTarget.innerText;
+          lastContent.current = text;
+          actions.updateNode(node.id, { content: text });
         }}
-        onBlur={() => (node.type === 'code' || node.type === 'markdown') && actions.updateNode(node.id, { isEditing: false })}
         className={`outline-none min-h-[1.5em] w-full p-1 selection:bg-cyan-500/30 font-medium ${
-          node.type === 'code' ? 'font-mono text-cyan-300' : 
           theme === 'willow' ? 'font-serif' : 'font-sans'
         } ${node.checked ? 'line-through opacity-40' : ''}`}
       />
@@ -226,6 +316,9 @@ const NodeItem = memo(({ node, depth, actions }: { node: NoteNode; depth: number
       <div className="flex items-start gap-2 py-1">
         <div className="flex items-center gap-1 opacity-0 group-hover/node:opacity-100 transition-opacity translate-y-1">
           <button 
+            type="button"
+            tabIndex={-1}
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => actions.updateNode(node.id, { collapsed: !node.collapsed })}
             className={`p-0.5 rounded ${c.mutedHoverBg} transition-colors ${node.children.length === 0 ? 'invisible' : ''}`}
           >
@@ -236,6 +329,9 @@ const NodeItem = memo(({ node, depth, actions }: { node: NoteNode; depth: number
         <div className={`flex-grow flex items-start gap-3 rounded-xl p-1.5 transition-all duration-300 border border-transparent ${node.isEditing ? `${c.editorBg} ring-1` : actions.nodeBgStyle}`}>
           {node.type === 'todo' && (
             <button 
+              type="button"
+              tabIndex={-1}
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => actions.updateNode(node.id, { checked: !node.checked })}
               className={`mt-1.5 w-4 h-4 rounded border flex items-center justify-center transition-colors ${node.checked ? 'bg-cyan-500 border-cyan-500' : c.todoBorder}`}
             >
@@ -248,17 +344,24 @@ const NodeItem = memo(({ node, depth, actions }: { node: NoteNode; depth: number
           </div>
 
           <div className="flex items-center gap-2 opacity-0 group-hover/node:opacity-100 transition-opacity px-2 pt-1 h-full">
-            <div 
+            <button 
+               type="button"
+               tabIndex={-1}
+               onMouseDown={(e) => e.preventDefault()}
                onClick={() => actions.cycleType(node.id)}
-               className={`${c.mutedBg} p-1 rounded-lg flex items-center gap-1.5 cursor-pointer ${c.mutedHoverBg} transition-colors`}
-               title="Click to change node type"
+               className={`${c.mutedBg} p-1 rounded-lg flex items-center gap-1.5 cursor-pointer ${c.mutedHoverBg} transition-colors border border-transparent`}
+               title="Click to cycle node type (Alt+T)"
             >
                {renderIcon()}
                <span className={`text-[9px] font-bold uppercase tracking-widest ${c.muted}`}>{node.type}</span>
-            </div>
+            </button>
             <button 
+              type="button"
+              tabIndex={-1}
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => actions.deleteNode(node.id)}
               className={`p-1.5 ${c.muted} hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all`}
+              title="Delete node (Ctrl+Shift+Backspace or Backspace if empty)"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -331,10 +434,19 @@ export default function WotePage() {
     if (id === 'help') {
       loadHelp();
     } else if (savedBackup) {
-      setHasBackup(true);
-      setShowBackupPrompt(true);
+      try {
+        const parsed = JSON.parse(savedBackup);
+        if (parsed.nodes && parsed.nodes.length > 0) {
+          setNodes(parsed.nodes);
+          if (parsed.title) setTitle(parsed.title);
+          setHasBackup(true);
+        } else {
+          setNodes([{ id: generateId(), type: 'text', content: '', children: [] }]);
+        }
+      } catch {
+        setNodes([{ id: generateId(), type: 'text', content: '', children: [] }]);
+      }
       setIsLoaded(true);
-      setNodes([{ id: generateId(), type: 'text', content: '', children: [] }]);
     } else {
       setIsLoaded(true);
       setNodes([{ id: generateId(), type: 'text', content: '', children: [] }]);
@@ -404,17 +516,31 @@ export default function WotePage() {
 
   const focusNode = useCallback((id: string) => {
     setTimeout(() => {
-      const el = document.querySelector(`[data-id="${id}"] [contenteditable]`) as HTMLElement;
-      if (el) {
-        el.focus();
-        const range = document.createRange();
-        range.selectNodeContents(el);
-        range.collapse(false);
-        const sel = window.getSelection();
-        sel?.removeAllRanges();
-        sel?.addRange(range);
+      const container = document.querySelector(`[data-id="${id}"]`);
+      if (!container) return;
+
+      const editable = container.querySelector('[contenteditable]') as HTMLElement | null;
+      const textarea = container.querySelector('textarea') as HTMLTextAreaElement | null;
+      const input = container.querySelector('input[type="text"]') as HTMLInputElement | null;
+
+      if (editable) {
+        editable.focus();
+        try {
+          const range = document.createRange();
+          range.selectNodeContents(editable);
+          range.collapse(false);
+          const sel = window.getSelection();
+          sel?.removeAllRanges();
+          sel?.addRange(range);
+        } catch {}
+      } else if (textarea) {
+        textarea.focus();
+        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+      } else if (input) {
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
       }
-    }, 10);
+    }, 20);
   }, []);
 
   const updateNode = useCallback((id: string, updates: Partial<NoteNode>) => {
@@ -446,6 +572,21 @@ export default function WotePage() {
 
   const deleteNode = useCallback((id: string) => {
     setNodes(prev => {
+      const getFlatVisibleNodes = (arr: NoteNode[]): string[] => {
+        let flat: string[] = [];
+        for (const node of arr) {
+          flat.push(node.id);
+          if (!node.collapsed && node.children.length > 0) {
+            flat = [...flat, ...getFlatVisibleNodes(node.children)];
+          }
+        }
+        return flat;
+      };
+
+      const flat = getFlatVisibleNodes(prev);
+      const curIndex = flat.indexOf(id);
+      const nextFocusId = curIndex > 0 ? flat[curIndex - 1] : flat[curIndex + 1];
+
       const newNodes = JSON.parse(JSON.stringify(prev));
       const target = findNoteById(id, newNodes);
       if (target) {
@@ -456,13 +597,19 @@ export default function WotePage() {
           target.parent.splice(idx, 0, ...children);
         }
         if (newNodes.length === 0) {
-          newNodes.push({ id: generateId(), type: 'text', content: '', children: [] });
+          const freshId = generateId();
+          newNodes.push({ id: freshId, type: 'text', content: '', children: [] });
+          focusNode(freshId);
+        } else if (nextFocusId) {
+          focusNode(nextFocusId);
+        } else if (newNodes[0]) {
+          focusNode(newNodes[0].id);
         }
         return newNodes;
       }
       return prev;
     });
-  }, []);
+  }, [focusNode]);
 
   const indentNode = useCallback((id: string) => {
     setNodes(prev => {
@@ -542,11 +689,15 @@ export default function WotePage() {
       if (target) {
         const next = types[(types.indexOf(target.note.type) + 1) % types.length];
         target.note.type = next;
+        if (next === 'code' || next === 'markdown') {
+          target.note.isEditing = true;
+        }
+        focusNode(id);
         return newNodes;
       }
       return prev;
     });
-  }, []);
+  }, [focusNode]);
 
   const serializeNode = (node: NoteNode): SerializedNode => ({
     i: node.id, t: node.type, c: node.content,
@@ -788,7 +939,9 @@ export default function WotePage() {
                    ['Ctrl + /', 'Toggle Collapse'],
                    ['Alt + T', 'Cycle Node Type'],
                    ['Alt + Up / Down', 'Move Focus'],
-                   ['Ctrl + Shift + Backspace', 'Delete Node'],
+                   ['Ctrl+Enter / Esc', 'Render Code / Markdown'],
+                   ['Backspace (when empty)', 'Delete Node'],
+                   ['Ctrl + Shift + Backspace', 'Force Delete Node'],
                  ].map(([keys, desc]) => (
                    <div key={keys} className={`flex items-center justify-between p-3 ${c.mutedBg} rounded-xl border ${c.mutedBorder}`}>
                       <span className={`text-xs font-bold ${c.muted} uppercase tracking-tight`}>{desc}</span>
