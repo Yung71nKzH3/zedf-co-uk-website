@@ -603,7 +603,8 @@ export default function ElectioPage() {
         </Link>
         <Link href="/project-space" className={styles.backBtn}>
           <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Nebula Space</span>
+          <span className="hidden sm:inline">Nebula Space</span>
+          <span className="sm:hidden">Space</span>
         </Link>
       </div>
 

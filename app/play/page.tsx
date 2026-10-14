@@ -201,28 +201,31 @@ export default function PlayPage() {
       <div className="relative z-10 max-w-6xl mx-auto flex flex-col items-center">
 
         {/* Navigation Bar */}
-        <div className="w-full flex items-center justify-between py-4 mb-8">
-          <div className="flex items-center gap-3">
+        <div className="w-full flex items-center justify-between gap-2 py-4 mb-8">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/"
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#111927] hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-cyan-400 transition-all text-sm font-display tracking-wide shadow-md"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl bg-[#111927] hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-cyan-400 transition-all text-xs sm:text-sm font-display tracking-wide shadow-md shrink-0"
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Dashboard</span>
+              <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+              <span className="hidden sm:inline">Dashboard</span>
+              <span className="sm:hidden">Home</span>
             </Link>
 
             <Link
               href="/project-space"
-              className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-[#111927] hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-cyan-400 transition-all text-sm font-display tracking-wide shadow-md"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl bg-[#111927] hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-cyan-400 transition-all text-xs sm:text-sm font-display tracking-wide shadow-md shrink-0"
+              title="Personal Space - Nebula"
             >
-              <Sparkles className="w-4 h-4 text-pink-400" />
-              <span>Project Space</span>
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-pink-400 shrink-0" />
+              <span className="hidden sm:inline">Project Space</span>
+              <span className="sm:hidden">Space</span>
             </Link>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold flex items-center gap-1.5">
-              <Gamepad2 className="w-4 h-4" /> {GAMES_LIST.length} RETRO GAMES
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="px-2.5 sm:px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-[11px] sm:text-xs font-bold flex items-center gap-1.5">
+              <Gamepad2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> <span>{GAMES_LIST.length} GAMES</span>
             </span>
           </div>
         </div>

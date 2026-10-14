@@ -38,22 +38,24 @@ export default function ShowcasePage() {
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[600px] h-[220px] bg-gradient-to-b from-cyan-500/15 via-blue-600/5 to-transparent blur-[90px] pointer-events-none z-0" />
 
       {/* Sleek Top Navbar */}
-      <header className="relative w-full max-w-7xl mx-auto px-6 pt-5 pb-2 flex items-center justify-between z-40">
+      <header className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 pt-4 sm:pt-5 pb-2 flex items-center justify-between gap-2 z-40">
         {/* Back to Dashboard Link */}
         <Link
           href="/"
-          className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-md text-slate-300 hover:text-white transition-all text-xs font-display uppercase tracking-widest cursor-pointer shadow-md group"
+          className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-md text-slate-300 hover:text-white transition-all text-xs font-display uppercase tracking-widest cursor-pointer shadow-md group shrink-0"
         >
           <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-          <span>Dashboard</span>
+          <span className="hidden sm:inline">Dashboard</span>
+          <span className="sm:hidden">Home</span>
         </Link>
 
         {/* Center Page Title */}
         <div className="flex flex-col items-center">
-          <div className="flex items-center gap-2 px-4 py-1 rounded-full bg-cyan-950/50 border border-cyan-500/30 backdrop-blur-md shadow-inner">
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1 rounded-full bg-cyan-950/50 border border-cyan-500/30 backdrop-blur-md shadow-inner">
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
             <span className="text-xs font-mono text-cyan-300 font-semibold tracking-wider uppercase">
-              Wallpaper Engine Showcase
+              <span className="hidden sm:inline">Wallpaper Engine Showcase</span>
+              <span className="sm:hidden">Showcase</span>
             </span>
           </div>
         </div>
@@ -63,11 +65,12 @@ export default function ShowcasePage() {
           href="https://steamcommunity.com/id/zfw1ll0w/myworkshopfiles/"
           target="_blank"
           rel="noopener noreferrer"
-          className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/80 hover:bg-[#1b2838] border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300 transition-all text-xs font-mono shadow-md"
+          className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-full bg-slate-900/80 hover:bg-[#1b2838] border border-white/10 hover:border-cyan-500/40 text-slate-300 hover:text-cyan-300 transition-all text-xs font-mono shadow-md shrink-0"
+          title="Steam Workshop"
         >
           <Gamepad2 className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Steam Workshop</span>
-          <ExternalLink className="w-3 h-3 opacity-60" />
+          <span className="hidden sm:inline">Steam Workshop</span>
+          <ExternalLink className="w-3 h-3 opacity-60 hidden sm:inline" />
         </a>
       </header>
 

@@ -27,25 +27,30 @@ export default function ProjectSpacePage() {
     <main className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-black">
       <Starfield />
 
-      {/* Back to Dashboard Link */}
-      <div className="fixed top-6 left-6 z-[60]">
-        <Link 
-          href="/" 
-          className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all text-sm font-display uppercase tracking-widest"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Dashboard</span>
-        </Link>
-      </div>
+      {/* Top Navigation & Search Header */}
+      <header className="fixed top-4 sm:top-6 inset-x-0 z-50 px-4 sm:px-6 flex items-center justify-between gap-2 pointer-events-none">
+        <div className="pointer-events-auto shrink-0">
+          <Link 
+            href="/" 
+            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all text-xs sm:text-sm font-display uppercase tracking-widest shadow-lg"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Dashboard</span>
+            <span className="sm:hidden">Home</span>
+          </Link>
+        </div>
 
-      {/* Header / Search Area */}
-      <div className="fixed top-12 z-50 flex flex-col items-center gap-4">
-        <SearchTelescope 
-          onSearch={setSearchQuery} 
-          stars={stars}
-          onSelectStar={setSelectedStar}
-        />
-      </div>
+        <div className="pointer-events-auto flex justify-center">
+          <SearchTelescope 
+            onSearch={setSearchQuery} 
+            stars={stars}
+            onSelectStar={setSelectedStar}
+          />
+        </div>
+
+        {/* Balance spacer to keep search bar optically centered */}
+        <div className="shrink-0 w-14 sm:w-28 pointer-events-none" aria-hidden="true" />
+      </header>
 
       {/* The Nebula (Star Field) */}
       <div 
@@ -76,7 +81,7 @@ export default function ProjectSpacePage() {
       {/* Star Detail Modal */}
       <AnimatePresence>
         {selectedStar && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -89,7 +94,7 @@ export default function ProjectSpacePage() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-lg bg-zinc-900/90 border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+              className="relative w-full max-w-lg max-h-[90vh] bg-zinc-900/90 border border-white/10 rounded-3xl overflow-y-auto shadow-2xl"
             >
               {/* Modal Header Decor */}
               <div 
@@ -97,13 +102,13 @@ export default function ProjectSpacePage() {
                 style={{ backgroundColor: selectedStar.color }} 
               />
               
-              <div className="p-8">
+              <div className="p-5 sm:p-8">
                 <div className="flex justify-between items-start mb-6">
                   <div>
                     <span className="text-[10px] font-display uppercase tracking-widest text-white/40 mb-1 block">
                       {selectedStar.category}
                     </span>
-                    <h2 className="text-3xl font-display font-bold text-white tracking-tight">
+                    <h2 className="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight">
                       {selectedStar.title}
                     </h2>
                   </div>

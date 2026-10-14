@@ -50,23 +50,25 @@ export const OverlayUI: React.FC = () => {
   ];
 
   return (
-    <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-4 sm:p-6 z-10 select-none">
+    <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-3 sm:p-6 z-10 select-none">
       {/* TOP HUD BAR */}
-      <header className="flex items-center justify-between pointer-events-auto">
-        <div className="flex items-center gap-3">
+      <header className="flex items-center justify-between gap-2 pointer-events-auto">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <Link
             href="/project-space"
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 text-white/70 hover:text-white hover:border-white/30 transition-all duration-200 text-xs font-mono uppercase tracking-wider"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 text-white/70 hover:text-white hover:border-white/30 transition-all duration-200 text-xs font-mono uppercase tracking-wider shrink-0"
+            title="Return to Project Space"
           >
-            <ArrowLeft className="w-4 h-4 text-cyan-400" />
-            <span>Project Space</span>
+            <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400 shrink-0" />
+            <span className="hidden sm:inline">Project Space</span>
+            <span className="sm:hidden">Space</span>
           </Link>
           <div
-            className="w-3 h-3 rounded-full animate-ping"
+            className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full animate-ping shrink-0"
             style={{ backgroundColor: theme.accentColor }}
           />
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-wider uppercase text-white font-mono flex items-center gap-2">
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-2xl font-bold tracking-wider uppercase text-white font-mono flex items-center gap-1.5 sm:gap-2 whitespace-nowrap">
               MY <span style={{ color: theme.accentColor }}>SETUP</span>
             </h1>
             <p className="text-xs text-gray-400 font-mono tracking-wide hidden sm:block">
@@ -76,36 +78,37 @@ export const OverlayUI: React.FC = () => {
         </div>
 
         {/* CONTROLS RIGHT */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           {/* RESET ZOOM BUTTON */}
           <button
             onClick={resetView}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-mono tracking-wider transition-all duration-200 border border-white/10 hover:border-white/30 text-gray-200 hover:text-white bg-black/60 backdrop-blur-md hover:bg-black/80 active:scale-95"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs font-mono tracking-wider transition-all duration-200 border border-white/10 hover:border-white/30 text-gray-200 hover:text-white bg-black/60 backdrop-blur-md hover:bg-black/80 active:scale-95 shrink-0"
             title="Reset View"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
             <span className="hidden sm:inline">RESET VIEW</span>
           </button>
 
           {/* THEME ENGINE TOGGLE */}
           <button
             onClick={() => setThemeMode(themeMode === 'neon-noir' ? 'gamer-rgb' : 'neon-noir')}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-mono tracking-wider transition-all duration-200 border bg-black/60 backdrop-blur-md active:scale-95"
+            className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs font-mono tracking-wider transition-all duration-200 border bg-black/60 backdrop-blur-md active:scale-95 shrink-0"
             style={{
               borderColor: `${theme.accentColor}55`,
               color: '#ffffff',
               boxShadow: `0 0 15px ${theme.accentColor}33`,
             }}
+            title={themeMode === 'neon-noir' ? 'Switch to ROYGBIV' : 'Switch to Neon Night'}
           >
             {themeMode === 'neon-noir' ? (
               <>
-                <Moon className="w-4 h-4 text-red-500" />
-                <span className="font-bold">NEON NIGHT</span>
+                <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500 shrink-0" />
+                <span className="font-bold hidden sm:inline">NEON NIGHT</span>
               </>
             ) : (
               <>
-                <Sun className="w-4 h-4 text-cyan-400" />
-                <span className="font-bold">ROYGBIV</span>
+                <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400 shrink-0" />
+                <span className="font-bold hidden sm:inline">ROYGBIV</span>
               </>
             )}
           </button>
@@ -143,12 +146,16 @@ export const OverlayUI: React.FC = () => {
       {/* BOTTOM HUD / HARDWARE SPEC INSPECTOR & 3D CONTROLS GUIDE */}
       <footer className="pointer-events-auto flex flex-col sm:flex-row items-end justify-between gap-4">
         {/* 3D CONTROLS USER GUIDE */}
-        <div className="flex flex-col gap-2 bg-black/60 backdrop-blur-md p-3.5 rounded-xl border border-white/10 font-mono text-xs text-gray-300 w-full sm:w-auto shadow-xl">
-          <div className="flex items-center gap-2 border-b border-white/10 pb-1.5 font-bold text-white uppercase tracking-wider text-[11px]">
-            <Navigation className="w-3.5 h-3.5 text-cyan-400" />
-            <span>3D Controls Guide</span>
+        <div className="flex flex-col gap-2 bg-black/60 backdrop-blur-md p-2.5 sm:p-3.5 rounded-xl border border-white/10 font-mono text-xs text-gray-300 w-full sm:w-auto shadow-xl">
+          <div className="flex items-center justify-between border-b border-white/10 pb-1.5 font-bold text-white uppercase tracking-wider text-[11px]">
+            <div className="flex items-center gap-2">
+              <Navigation className="w-3.5 h-3.5 text-cyan-400" />
+              <span>3D Controls Guide</span>
+            </div>
+            <span className="sm:hidden text-[10px] text-cyan-400 font-normal">Touch Enabled</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px]">
+          {/* Desktop Controls */}
+          <div className="hidden sm:grid grid-cols-3 gap-3 text-[11px]">
             <div className="flex items-center gap-2">
               <span className="px-1.5 py-0.5 rounded bg-white/10 font-bold text-cyan-400">Left Click</span>
               <span className="text-gray-400">Rotate View / Focus</span>
@@ -161,6 +168,14 @@ export const OverlayUI: React.FC = () => {
               <span className="px-1.5 py-0.5 rounded bg-white/10 font-bold text-green-400">Scroll Wheel</span>
               <span className="text-gray-400">Zoom In / Out</span>
             </div>
+          </div>
+          {/* Mobile Touch Controls */}
+          <div className="flex sm:hidden items-center justify-around gap-2 text-[10px] text-gray-400 pt-0.5">
+            <span><strong className="text-cyan-400 font-bold">Drag</strong> to Rotate</span>
+            <span>•</span>
+            <span><strong className="text-pink-400 font-bold">Pinch</strong> to Zoom</span>
+            <span>•</span>
+            <span><strong className="text-green-400 font-bold">Tap</strong> Spec</span>
           </div>
         </div>
 

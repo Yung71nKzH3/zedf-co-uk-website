@@ -74,43 +74,41 @@ export const SearchTelescope: React.FC<SearchTelescopeProps> = ({
 
   return (
     <div ref={containerRef} className="relative z-50 flex flex-col items-center">
-      <motion.div 
-        animate={{ 
-          width: isOpen ? 320 : 220,
-          scale: isOpen ? 1.02 : 1
-        }}
-        className="relative group"
+      <div 
+        className={`relative group transition-all duration-200 ${
+          isOpen ? 'w-[210px] xs:w-[240px] sm:w-[320px]' : 'w-[170px] xs:w-[190px] sm:w-[220px]'
+        }`}
       >
         <div className="absolute inset-0 bg-indigo-500/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         
         <div 
           onClick={() => setIsOpen(true)}
-          className="relative flex items-center bg-zinc-900/80 backdrop-blur-md border border-white/10 rounded-full px-4 py-2 transition-all hover:border-white/20 shadow-lg cursor-pointer"
+          className="relative flex items-center bg-zinc-900/80 backdrop-blur-md border border-white/10 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 transition-all hover:border-white/20 shadow-lg cursor-pointer"
         >
-          <Search className="w-4 h-4 text-white/40 mr-2 shrink-0" />
+          <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/40 mr-1.5 sm:mr-2 shrink-0" />
           <input
             type="text"
             value={query}
             onChange={handleChange}
             onFocus={() => setIsOpen(true)}
-            placeholder="Search the nebula..."
-            className="bg-transparent border-none outline-none text-sm w-full placeholder:text-white/30 text-white"
+            placeholder="Search nebula..."
+            className="bg-transparent border-none outline-none text-xs sm:text-sm w-full placeholder:text-white/30 text-white min-w-0"
           />
           {query ? (
             <button 
               type="button" 
               onClick={(e) => { e.stopPropagation(); handleClear(); }} 
-              className="p-1 hover:text-white text-white/40 transition-colors cursor-pointer"
+              className="p-1 hover:text-white text-white/40 transition-colors cursor-pointer shrink-0"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           ) : (
-            <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest pl-1">
+            <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest pl-1 shrink-0">
               {allStars.length}★
             </span>
           )}
         </div>
-      </motion.div>
+      </div>
 
       {/* Scrollable Drop-down of all possible stars */}
       <AnimatePresence>
@@ -120,7 +118,7 @@ export const SearchTelescope: React.FC<SearchTelescopeProps> = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-full mt-2 w-[320px] max-w-[90vw] bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col z-50"
+            className="absolute top-full mt-2 w-[300px] sm:w-[320px] max-w-[calc(100vw-32px)] left-1/2 -translate-x-1/2 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col z-50"
           >
             <div className="px-3.5 py-2 border-b border-white/5 flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-white/40">
               <span className="flex items-center gap-1.5">

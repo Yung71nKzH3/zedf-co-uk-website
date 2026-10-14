@@ -608,38 +608,45 @@ export default function WotePage() {
     <div className={`min-h-screen transition-colors duration-500 font-sans selection:bg-cyan-500/30 ${THEME_STYLES[theme].bg} ${THEME_STYLES[theme].text}`}>
       <div className="fixed inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
-      <header className="fixed top-0 inset-x-0 z-50 p-6 flex items-center justify-between pointer-events-none">
+      <header className="fixed top-0 inset-x-0 z-50 p-3 sm:p-6 flex items-center justify-between gap-2 pointer-events-none">
          <Link 
           href="/" 
-          className={`${c.mutedBg} ${c.mutedHoverBg} p-3 rounded-2xl border ${c.mutedBorder} backdrop-blur-md transition-all active:scale-95 group pointer-events-auto`}
+          className={`${c.mutedBg} ${c.mutedHoverBg} p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border ${c.mutedBorder} backdrop-blur-md transition-all active:scale-95 group pointer-events-auto shrink-0`}
+          title="Back to Dashboard"
          >
-            <ArrowLeft className="w-5 h-5 text-cyan-400 group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 group-hover:-translate-x-1 transition-transform" />
          </Link>
 
-         <div className="flex items-center gap-3 pointer-events-auto">
+         <div className="flex items-center gap-1.5 sm:gap-3 pointer-events-auto shrink-0">
             <button 
                 onClick={handleExport}
-                className="bg-cyan-500 hover:bg-cyan-400 text-black p-3 px-5 rounded-2xl transition-all flex items-center gap-2 shadow-lg shadow-cyan-500/20 active:scale-95"
+                className="bg-cyan-500 hover:bg-cyan-400 text-black p-2.5 sm:p-3 px-3 sm:px-5 rounded-xl sm:rounded-2xl transition-all flex items-center gap-1.5 sm:gap-2 shadow-lg shadow-cyan-500/20 active:scale-95 shrink-0"
+                title="Export .wote file"
             >
-                <Download className="w-5 h-5" />
+                <Download className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span className="text-xs font-black uppercase tracking-widest hidden md:block">Save .wote</span>
             </button>
-            <label className={`${c.mutedBg} ${c.mutedHoverBg} p-3 px-5 rounded-2xl border ${c.mutedBorder} backdrop-blur-md transition-all flex items-center gap-2 cursor-pointer active:scale-95`}>
-                <Upload className={`w-5 h-5 ${c.muted}`} />
+            <label 
+                className={`${c.mutedBg} ${c.mutedHoverBg} p-2.5 sm:p-3 px-3 sm:px-5 rounded-xl sm:rounded-2xl border ${c.mutedBorder} backdrop-blur-md transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer active:scale-95 shrink-0`}
+                title="Import .wote file"
+            >
+                <Upload className={`w-4 h-4 sm:w-5 sm:h-5 ${c.muted}`} />
                 <span className={`text-xs font-bold uppercase tracking-widest ${c.muted} hidden md:block`}>Load</span>
                 <input type="file" className="hidden" onChange={handleImport} accept=".wote" />
             </label>
             <button 
               onClick={() => setShowShortcuts(true)}
-              className={`${c.mutedBg} ${c.mutedHoverBg} p-3 rounded-2xl border ${c.mutedBorder} backdrop-blur-md transition-all flex items-center gap-3 px-4`}
+              className={`hidden sm:flex ${c.mutedBg} ${c.mutedHoverBg} p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border ${c.mutedBorder} backdrop-blur-md transition-all items-center gap-3 px-4 shrink-0`}
+              title="Keyboard Shortcuts"
             >
-              <Keyboard className={`w-5 h-5 ${c.muted}`} />
+              <Keyboard className={`w-4 h-4 sm:w-5 sm:h-5 ${c.muted}`} />
             </button>
             <button 
               onClick={() => setShowSettings(true)}
-              className={`${c.mutedBg} ${c.mutedHoverBg} p-3 rounded-2xl border ${c.mutedBorder} backdrop-blur-md transition-all`}
+              className={`${c.mutedBg} ${c.mutedHoverBg} p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border ${c.mutedBorder} backdrop-blur-md transition-all shrink-0`}
+              title="Settings & Themes"
             >
-              <Settings className={`w-5 h-5 ${c.muted}`} />
+              <Settings className={`w-4 h-4 sm:w-5 sm:h-5 ${c.muted}`} />
             </button>
          </div>
       </header>
