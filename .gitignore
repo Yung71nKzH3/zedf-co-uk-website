@@ -1,7 +1,34 @@
-node_modules/
-.next/
-coverage/
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Next.js build output & static export
+/.next/
+/out/
+/build
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Misc
 .DS_Store
+*.pem
 *.log
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local environment files
 .env*
 !.env.example
+
+# Vercel / Turbopack
+.vercel
+.turbo
