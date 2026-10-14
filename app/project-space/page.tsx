@@ -40,7 +40,11 @@ export default function ProjectSpacePage() {
 
       {/* Header / Search Area */}
       <div className="fixed top-12 z-50 flex flex-col items-center gap-4">
-        <SearchTelescope onSearch={setSearchQuery} />
+        <SearchTelescope 
+          onSearch={setSearchQuery} 
+          stars={stars}
+          onSelectStar={setSelectedStar}
+        />
       </div>
 
       {/* The Nebula (Star Field) */}
