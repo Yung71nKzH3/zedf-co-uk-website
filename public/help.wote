@@ -1,42 +1,67 @@
 {
   "v": 1,
-  "title": "Wote Help Manual",
+  "title": "Wote 3.0 Help Manual",
   "nodes": [
     {
       "i": "h1",
-      "t": "markdown",
-      "c": "# Welcome to Wote!\n\nA beautifully minimalist tree-based note-taking app.",
+      "t": "heading1",
+      "c": "Welcome to Wote 3.0 Web Edition",
       "cl": false,
       "ch": [
         {
+          "i": "h1-callout",
+          "t": "callout",
+          "co": "tip",
+          "c": "Wote is a minimalist, tree-based outliner note workspace optimized for the web.",
+          "ch": []
+        },
+        {
           "i": "h2",
-          "t": "text",
-          "c": "Keyboard Shortcuts:",
+          "t": "heading2",
+          "c": "Mouse Affordances & Controls",
           "ch": [
-            { "i": "s1", "t": "todo", "c": "Enter: Create new node below", "ck": true, "ch": [] },
-            { "i": "s2", "t": "todo", "c": "Tab: Indent node", "ck": true, "ch": [] },
-            { "i": "s3", "t": "todo", "c": "Shift+Tab: Outdent node", "ck": true, "ch": [] },
-            { "i": "s4", "t": "todo", "c": "Alt+Up/Down: Navigate to previous/next node", "ck": true, "ch": [] },
-            { "i": "s5", "t": "todo", "c": "Ctrl+/: Toggle Collapse", "ck": true, "ch": [] },
-            { "i": "s6", "t": "todo", "c": "Alt+T: Cycle Node Type", "ck": true, "ch": [] }
+            { "i": "s1", "t": "todo", "c": "Bullet Zoom: Click on any bullet dot to zoom into that branch with breadcrumbs at the top!", "ck": true, "ch": [] },
+            { "i": "s2", "t": "todo", "c": "Drag Handle: Grab the 6-dot grip on hover to reorder, nest, or move notes visually.", "ck": true, "ch": [] },
+            { "i": "s3", "t": "todo", "c": "Hover Action Bar: Quick buttons to add a child (+), switch block type, or delete.", "ck": true, "ch": [] },
+            { "i": "s4", "t": "todo", "c": "Notes Drawer: Click 'Notes' at the top left to manage your library of documents.", "ck": true, "ch": [] }
           ]
         },
         {
           "i": "h3",
-          "t": "text",
-          "c": "Advanced Types",
+          "t": "heading2",
+          "c": "Keyboard Synergy & Shortcuts",
+          "ch": [
+            { "i": "k1", "t": "text", "c": "Enter: Creates a new sibling node below", "ch": [] },
+            { "i": "k2", "t": "text", "c": "Tab / Shift+Tab: Indents or outdents the current line", "ch": [] },
+            { "i": "k3", "t": "text", "c": "Type / to trigger the Slash Command Palette", "ch": [] },
+            { "i": "k4", "t": "text", "c": "Ctrl+K: Search across all bullets in the current document", "ch": [] },
+            { "i": "k5", "t": "text", "c": "Ctrl+Z & Ctrl+Y: Full undo and redo history stack", "ch": [] }
+          ]
+        },
+        {
+          "i": "h4",
+          "t": "heading2",
+          "c": "Code Syntax Highlighting",
           "ch": [
             {
-              "i": "h4",
+              "i": "c1",
               "t": "code",
-              "c": "// Type javascript or python directly\nconsole.log(\"Wote has syntax highlighting!\");",
+              "l": "typescript",
+              "c": "interface WoteDocument {\n  version: 3;\n  title: string;\n  nodes: NoteNode[];\n}\n\nconsole.log('Distraction-free outliner ready!');",
               "ch": []
-            },
+            }
+          ]
+        },
+        {
+          "i": "h5",
+          "t": "heading2",
+          "c": "Rich Images & Clipboard Paste",
+          "ch": [
             {
-               "i": "h5",
-               "t": "text",
-               "c": "You can insert images by setting the node type (Alt+T) to Image and pasting a URL!",
-               "ch": []
+              "i": "im1",
+              "t": "text",
+              "c": "You can paste any screenshot or image directly using Ctrl+V on a node, or choose Image from the / menu!",
+              "ch": []
             }
           ]
         }
