@@ -40,11 +40,7 @@ export default function ProjectSpacePage() {
 
       {/* Header / Search Area */}
       <div className="fixed top-12 z-50 flex flex-col items-center gap-4">
-        <SearchTelescope 
-          onSearch={setSearchQuery} 
-          stars={stars} 
-          onSelectStar={setSelectedStar} 
-        />
+        <SearchTelescope onSearch={setSearchQuery} />
       </div>
 
       {/* The Nebula (Star Field) */}
@@ -57,7 +53,6 @@ export default function ProjectSpacePage() {
               key={star.id} 
               star={star} 
               index={index} 
-              totalStars={filteredStars.length}
               onClick={setSelectedStar} 
             />
           ))}
@@ -131,12 +126,12 @@ export default function ProjectSpacePage() {
                     </span>
                     {selectedStar.links?.map((link: any) => {
                       const isExternal = link.url.startsWith('http');
-                      return (
+                      return isExternal ? (
                         <a
                           key={link.name}
                           href={link.url}
-                          target={isExternal ? '_blank' : undefined}
-                          rel={isExternal ? 'noopener noreferrer' : undefined}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="group flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-all duration-300"
                         >
                           <div className="flex flex-col">
@@ -158,6 +153,31 @@ export default function ProjectSpacePage() {
                             <ExternalLink className="w-4 h-4" />
                           </div>
                         </a>
+                      ) : (
+                        <Link
+                          key={link.name}
+                          href={link.url}
+                          className="group flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-all duration-300"
+                        >
+                          <div className="flex flex-col">
+                            <div className="flex items-center gap-2">
+                              <span className="font-display font-bold text-white group-hover:text-cyan-300 transition-colors">
+                                {link.name}
+                              </span>
+                              {link.tag && (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                                  {link.tag}
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-xs text-zinc-400 mt-1">
+                              {link.description}
+                            </span>
+                          </div>
+                          <div className="p-2.5 rounded-lg bg-white/5 text-white/40 group-hover:text-cyan-300 group-hover:bg-cyan-500/20 transition-all">
+                            <ExternalLink className="w-4 h-4" />
+                          </div>
+                        </Link>
                       );
                     })}
                   </div>

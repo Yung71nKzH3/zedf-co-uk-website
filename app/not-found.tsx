@@ -1,61 +1,82 @@
 'use client';
 
-import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Home, Compass } from 'lucide-react';
+import { Home, Compass, ArrowLeft } from 'lucide-react';
 import ParticleCanvas from './components/ParticleCanvas';
 
 export default function NotFound() {
   return (
-    <main className="relative min-h-screen w-full flex flex-col items-center justify-center bg-[#0c1422] text-slate-100 overflow-hidden select-none">
-      {/* Background Gradient Mesh */}
+    <main className="min-h-screen bg-[#0c1422] text-slate-100 overflow-x-hidden relative font-sans flex flex-col items-center justify-center px-4">
+      {/* Animated Background Gradient matching homepage */}
       <div 
-        className="fixed inset-0 pointer-events-none z-0 opacity-80"
+        className="fixed inset-0 z-0 opacity-50 pointer-events-none"
         style={{
-          background: 'linear-gradient(135deg, #0c1422 0%, #152033 45%, #0d1a2d 75%, #0c1422 100%)',
+          background: 'linear-gradient(120deg, #0c1422 0%, #152033 50%, #0c1422 100%)',
           backgroundSize: '200% 200%',
+          animation: 'moveGradient 15s ease infinite alternate'
         }}
+        aria-hidden="true"
       />
 
-      {/* Responsive Geometric Particle Canvas forming "404" */}
+      {/* Interactive geometric particle canvas assembled to form '404' on hover */}
       <ParticleCanvas 
-        targetText="404" 
-        color="#06b6d4"
-        className="fixed inset-0 w-full h-full z-10 pointer-events-auto cursor-crosshair"
-        yFactorMobile={0.32}
-        yFactorDesktop={0.34}
+        text="404" 
+        textSizeDesktop={140}
+        textSizeMobile={90}
+        yFactorDesktop={0.32}
+        yFactorMobile={0.28}
       />
 
-      {/* Content overlay */}
-      <div className="relative z-30 flex flex-col items-center text-center px-6 max-w-lg mt-32 md:mt-48 pointer-events-auto">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono uppercase tracking-widest mb-4 backdrop-blur-md">
-          <Compass className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '6s' }} />
-          <span>Sector Not Found</span>
+      {/* Content Container */}
+      <div className="relative z-20 flex flex-col items-center text-center max-w-lg mt-[180px] md:mt-[220px]">
+        {/* Screen-reader accessible heading */}
+        <h1 className="sr-only">404 - Page Not Found</h1>
+
+        {/* Visual status badge */}
+        <div 
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 text-xs font-mono uppercase tracking-widest shadow-[0_0_12px_rgba(6,182,212,0.2)] mb-4"
+          aria-hidden="true"
+        >
+          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+          HTTP 404 / Lost In Space
         </div>
 
-        <h1 className="text-2xl md:text-3xl font-display font-bold text-white tracking-tight mb-2">
-          Lost in the Digital Void
-        </h1>
+        {/* Clear, accessible text explaining the situation */}
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-100 font-display">
+          Resource Not Found
+        </h2>
 
-        <p className="text-slate-400 text-sm md:text-base leading-relaxed mb-8 max-w-md">
-          It looks like this URL doesn&apos;t exist or has drifted away into deep space. Hover or drag across the particles above to disperse the coordinates!
+        <p className="mt-3 text-sm md:text-base text-slate-400 leading-relaxed">
+          The link you followed may be broken, or the page may have been moved or removed. 
+          Hover around above to assemble the particles, or head back to safety!
         </p>
 
-        {/* Back to Dashboard Button */}
-        <Link 
-          href="/"
-          className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-[#172033] hover:bg-[#1f2b45] border border-cyan-500/30 hover:border-cyan-400 text-slate-100 hover:text-white shadow-[0_4px_20px_rgba(0,0,0,0.5),0_0_15px_rgba(6,182,212,0.25)] hover:shadow-[0_4px_25px_rgba(0,0,0,0.6),0_0_25px_rgba(6,182,212,0.5)] transition-all duration-300 font-semibold text-sm active:scale-95"
-        >
-          <ArrowLeft className="w-4 h-4 text-cyan-400 group-hover:-translate-x-1 transition-transform" />
-          <span>Back to Dashboard</span>
-          <Home className="w-4 h-4 text-cyan-400/60 group-hover:text-cyan-300 transition-colors ml-1" />
-        </Link>
+        {/* Navigation Action Buttons */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-medium text-sm transition-all duration-200 shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_25px_rgba(6,182,212,0.5)] hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-cyan-300"
+          >
+            <Home className="w-4 h-4" />
+            Back to Home
+          </Link>
+
+          <Link
+            href="/project-space"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#172033]/80 hover:bg-[#1f2b45] text-slate-200 border border-slate-700/60 hover:border-cyan-500/50 font-medium text-sm transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-cyan-400 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+          >
+            <Compass className="w-4 h-4 text-cyan-400" />
+            Explore Projects
+          </Link>
+        </div>
       </div>
 
-      {/* Footer subtle tag */}
-      <div className="fixed bottom-6 z-30 text-[11px] font-mono text-slate-500 tracking-widest uppercase pointer-events-none">
-        ZEDF • ERROR 404
-      </div>
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes moveGradient {
+          0% { background-position: 0% 50%; }
+          100% { background-position: 100% 50%; }
+        }
+      `}} />
     </main>
   );
 }

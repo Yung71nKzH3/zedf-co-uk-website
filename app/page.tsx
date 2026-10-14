@@ -7,11 +7,12 @@ import {
   PackageOpen, UserCircle, GraduationCap, Quote, Calendar, Brain, 
   Gamepad2, Image as ImageIcon, Gamepad, Gift, Video, Clipboard, Calculator, 
   ShoppingCart, MapPin, Youtube, Music, BarChart, Film, Mountain, Github, 
-  Instagram, MessageCircle, Tv, MessageSquare, Keyboard, Laptop, Code, Rocket
+  Instagram, MessageCircle, Tv, MessageSquare, Keyboard, Laptop, Code, Rocket, Dices
 } from 'lucide-react';
 import Link from 'next/link';
 
 const STUFF_LINKS = [
+  { href: '/electio', icon: Dices, title: 'Electio', desc: 'Decision Roulette' },
   { href: '/play', icon: Gamepad2, title: 'Arcade', desc: 'Mini Game Suite' },
   { href: '/showcase', icon: Gamepad2, title: 'Wallpaper Showcase', desc: 'Interactive Gallery' },
   { href: '/uni', icon: GraduationCap, title: 'Uni Dash', desc: 'Helpful Shortcuts' },
