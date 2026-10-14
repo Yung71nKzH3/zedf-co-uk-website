@@ -13,10 +13,10 @@ export const metadata: Metadata = {
     url: 'https://www.zedf.co.uk/calc67',
     type: 'website',
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Calc67 - Daily Math Puzzle | ZEDF',
-    description: 'Reach 67 using daily numbers and operations in this daily math puzzle game.',
+  manifest: '/manifests/calc67.webmanifest',
+  icons: {
+    icon: '/icons/calc67.svg',
+    apple: '/icons/calc67-192.png',
   },
 };
 

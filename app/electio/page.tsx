@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { ArrowLeft, Volume2, VolumeX, Users, Share2, Sparkles, Copy, Check, Radio } from 'lucide-react';
+import { InstallPwaButton } from '@/components/InstallPwaButton';
 import styles from './electio.module.css';
 
 interface OptionItem {
@@ -597,15 +598,18 @@ export default function ElectioPage() {
     <div className={styles.electioContainer}>
       {/* Top Navigation */}
       <div className={styles.backBar}>
-        <Link href="/" className={styles.backBtn}>
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Dashboard</span>
-        </Link>
-        <Link href="/project-space" className={styles.backBtn}>
-          <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="hidden sm:inline">Nebula Space</span>
-          <span className="sm:hidden">Space</span>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/" className={styles.backBtn}>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Dashboard</span>
+          </Link>
+          <Link href="/project-space" className={styles.backBtn}>
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="hidden sm:inline">Nebula Space</span>
+            <span className="sm:hidden">Space</span>
+          </Link>
+        </div>
+        <InstallPwaButton appName="Electio" className="text-xs py-1 px-2.5" />
       </div>
 
       <main className={styles.electioMain}>

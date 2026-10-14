@@ -1,0 +1,33 @@
+{
+  "name": "Electio - Decision Roulette",
+  "short_name": "Electio",
+  "description": "High-tech interactive multiplayer decision roulette wheel with synchronized live spinning and risk factors.",
+  "start_url": "/electio",
+  "id": "/electio",
+  "scope": "/electio",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "categories": ["utilities", "games", "entertainment"],
+  "icons": [
+    {
+      "src": "/icons/electio-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/electio-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/electio.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    }
+  ]
+}

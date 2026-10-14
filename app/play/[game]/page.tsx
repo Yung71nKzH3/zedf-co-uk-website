@@ -2,9 +2,13 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { GameContainer } from '@/components/games/GameContainer';
 
-const GAMES = ['sudoku', 'wordle', 'slide', 'maze', 'blackjack', 'craps', 'snake', 'tetris', 'pong', '2048', 'minesweeper', 'asteroids', 'memory', 'typer'];
+const GAMES = ['target24', 'sudoku', 'wordle', 'slide', 'maze', 'blackjack', 'craps', 'snake', 'tetris', 'pong', '2048', 'minesweeper', 'asteroids', 'memory', 'typer'];
 
 const GAME_METADATA: Record<string, { title: string; description: string }> = {
+  target24: {
+    title: 'Target 24',
+    description: 'Use 4 numbers and basic operations (+, -, ×, ÷) to calculate exactly 24 in this fast-paced math puzzle.',
+  },
   sudoku: {
     title: 'Sudoku',
     description: 'Play 9x9 Sudoku logic puzzle with Easy, Medium, and Hard difficulty modes in your browser.',

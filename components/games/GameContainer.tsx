@@ -17,8 +17,10 @@ import { SudokuGame } from '@/components/games/SudokuGame';
 import { WordleGame } from '@/components/games/WordleGame';
 import { SlidePuzzleGame } from '@/components/games/SlidePuzzleGame';
 import { MazeGame } from '@/components/games/MazeGame';
+import { Target24Game } from '@/components/games/Target24Game';
 
 const GAME_MAP: Record<string, React.ComponentType> = {
+  target24: Target24Game,
   sudoku: SudokuGame,
   wordle: WordleGame,
   slide: SlidePuzzleGame,

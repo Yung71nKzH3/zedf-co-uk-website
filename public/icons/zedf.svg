@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0c1422"/>
+    </radialGradient>
+    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect x="20" y="20" width="472" height="472" rx="92" fill="none" stroke="#38bdf8" stroke-opacity="0.2" stroke-width="4"/>
+  <circle cx="256" cy="256" r="160" fill="none" stroke="url(#cyanGrad)" stroke-width="12" stroke-dasharray="8 12" filter="url(#glow)"/>
+  <!-- Geometric Z -->
+  <path d="M 160 160 L 352 160 L 210 320 L 352 320 L 352 352 L 160 352 L 302 192 L 160 192 Z" fill="#ffffff" filter="url(#glow)"/>
+  <circle cx="352" cy="160" r="14" fill="#38bdf8"/>
+  <circle cx="160" cy="352" r="14" fill="#06b6d4"/>
+</svg>

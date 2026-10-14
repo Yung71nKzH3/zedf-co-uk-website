@@ -1,0 +1,63 @@
+{
+  "name": "ZEDF | w1ll0w",
+  "short_name": "ZEDF",
+  "description": "Digital garden of creative web experiments, games, student portals, and developer tools.",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0c1422",
+  "theme_color": "#06b6d4",
+  "categories": ["utilities", "games", "education", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/zedf-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/zedf-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/zedf.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Calc67 Math Puzzle",
+      "short_name": "Calc67",
+      "description": "Play the daily target 67 puzzle challenge.",
+      "url": "/calc67",
+      "icons": [{ "src": "/icons/calc67-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Electio Decision Roulette",
+      "short_name": "Electio",
+      "description": "Spin the multiplayer high-tech roulette wheel.",
+      "url": "/electio",
+      "icons": [{ "src": "/icons/electio-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Portsmouth Uni Dashboard",
+      "short_name": "Uni Dash",
+      "description": "Access campus map, student portal, and timetables.",
+      "url": "/uni",
+      "icons": [{ "src": "/icons/uni-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Arcade Games Hub",
+      "short_name": "Arcade",
+      "description": "Play 14+ retro arcade and puzzle games.",
+      "url": "/play",
+      "icons": [{ "src": "/icons/zedf-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

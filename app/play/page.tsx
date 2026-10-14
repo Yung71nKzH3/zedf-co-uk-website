@@ -21,6 +21,7 @@ import { SudokuGame } from '@/components/games/SudokuGame';
 import { WordleGame } from '@/components/games/WordleGame';
 import { SlidePuzzleGame } from '@/components/games/SlidePuzzleGame';
 import { MazeGame } from '@/components/games/MazeGame';
+import { Target24Game } from '@/components/games/Target24Game';
 import { getHighScore } from '@/lib/games/scores';
 
 interface GameInfo {
@@ -30,10 +31,32 @@ interface GameInfo {
   description: string;
   color: string;
   icon: string;
-  component: React.ComponentType;
+  component?: React.ComponentType;
+  href?: string;
+  badge?: string;
 }
 
 const GAMES_LIST: GameInfo[] = [
+  {
+    id: 'calc67',
+    title: 'Calc67',
+    category: 'Puzzle',
+    description: 'The daily target math puzzle. Reach 67 starting from today’s random seed in as few operations as possible.',
+    color: '#06b6d4',
+    icon: '🔢',
+    badge: 'DAILY PUZZLE',
+    href: '/calc67',
+  },
+  {
+    id: 'target24',
+    title: 'Target 24',
+    category: 'Puzzle',
+    description: 'Combine all 4 numbers using (+, -, ×, ÷) to reach exactly 24. How high can your streak go?',
+    color: '#38bdf8',
+    icon: '🎯',
+    badge: 'NEW',
+    component: Target24Game,
+  },
   {
     id: 'sudoku',
     title: 'Sudoku',
@@ -297,16 +320,23 @@ export default function PlayPage() {
                     <span className="text-3xl p-3 bg-slate-900/80 rounded-2xl border border-slate-800 group-hover:scale-110 transition-transform">
                       {game.icon}
                     </span>
-                    <span
-                      className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border"
-                      style={{
-                        color: game.color,
-                        borderColor: `${game.color}40`,
-                        backgroundColor: `${game.color}15`
-                      }}
-                    >
-                      {game.category}
-                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                      {game.badge && (
+                        <span className="px-2 py-0.5 rounded-md text-[9px] font-extrabold uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                          {game.badge}
+                        </span>
+                      )}
+                      <span
+                        className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border"
+                        style={{
+                          color: game.color,
+                          borderColor: `${game.color}40`,
+                          backgroundColor: `${game.color}15`
+                        }}
+                      >
+                        {game.category}
+                      </span>
+                    </div>
                   </div>
 
                   <h3 className="text-lg font-bold font-display text-slate-100 mb-1 group-hover:text-cyan-400 transition-colors">
@@ -327,12 +357,21 @@ export default function PlayPage() {
                     </span>
                   </div>
 
-                  <button
-                    onClick={() => setActiveGameId(game.id)}
-                    className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-cyan-500 hover:text-slate-950 text-cyan-400 font-bold text-xs flex items-center justify-center gap-2 border border-slate-700 hover:border-cyan-400 transition-all shadow-sm"
-                  >
-                    <Play className="w-4 h-4 fill-current" /> PLAY NOW
-                  </button>
+                  {game.href ? (
+                    <Link
+                      href={game.href}
+                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 border border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.25)] transition-all"
+                    >
+                      <Play className="w-4 h-4 fill-current" /> PLAY DAILY PUZZLE
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => setActiveGameId(game.id)}
+                      className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-cyan-500 hover:text-slate-950 text-cyan-400 font-bold text-xs flex items-center justify-center gap-2 border border-slate-700 hover:border-cyan-400 transition-all shadow-sm"
+                    >
+                      <Play className="w-4 h-4 fill-current" /> PLAY NOW
+                    </button>
+                  )}
                 </div>
               </motion.div>
             );

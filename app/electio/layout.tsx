@@ -13,10 +13,10 @@ export const metadata: Metadata = {
     url: 'https://www.zedf.co.uk/electio',
     type: 'website',
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Electio - High-Tech Decision Roulette | ZEDF',
-    description: 'A stylish, interactive multiplayer decision roulette with synchronized live spinning, risk chips, and sound synthesizers.',
+  manifest: '/manifests/electio.webmanifest',
+  icons: {
+    icon: '/icons/electio.svg',
+    apple: '/icons/electio-192.png',
   },
 };
 

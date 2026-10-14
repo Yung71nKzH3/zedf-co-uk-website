@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from "@/lib/supabase";
+import { InstallPwaButton } from "@/components/InstallPwaButton";
 
 // Constants
 const TARGET_NUMBER = 67;
@@ -446,12 +447,15 @@ export default function Calc67Page() {
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
           <span className="font-medium">Dashboard</span>
         </Link>
-        <div 
-          onClick={() => !isTagLocked && setShowTagModal(true)}
-          className={`bg-white/5 px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2 transition-all active:scale-95 ${isTagLocked ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/10 cursor-pointer'}`}
-        >
-          <span className="text-xs text-white/40 uppercase tracking-widest font-bold">Tag</span>
-          <span className="text-cyan-400 font-mono font-bold">{userDisplayName || '??'}</span>
+        <div className="flex items-center gap-2">
+          <InstallPwaButton appName="Calc67" />
+          <div 
+            onClick={() => !isTagLocked && setShowTagModal(true)}
+            className={`bg-white/5 px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2 transition-all active:scale-95 ${isTagLocked ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/10 cursor-pointer'}`}
+          >
+            <span className="text-xs text-white/40 uppercase tracking-widest font-bold">Tag</span>
+            <span className="text-cyan-400 font-mono font-bold">{userDisplayName || '??'}</span>
+          </div>
         </div>
       </nav>
 

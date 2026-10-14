@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Space_Grotesk } from 'next/font/google';
 import './globals.css';
+import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -57,8 +58,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
   },
+  manifest: '/manifest.webmanifest',
   icons: {
     icon: '/images/favicon.png',
+    apple: '/icons/zedf-192.png',
   },
 };
 
@@ -70,6 +73,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
       <body className="font-sans antialiased bg-[#0c1422] text-slate-100" suppressHydrationWarning>
+        <ServiceWorkerRegister />
         {children}
       </body>
     </html>
