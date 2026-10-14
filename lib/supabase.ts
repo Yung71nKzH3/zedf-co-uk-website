@@ -1,17 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-let supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-let supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-
-// Developer helper: Fallback to localStorage for easy local testing from browser inspect console
-if (typeof window !== 'undefined') {
-  if (!supabaseUrl) {
-    supabaseUrl = localStorage.getItem('NEXT_PUBLIC_SUPABASE_URL') || '';
-  }
-  if (!supabaseAnonKey) {
-    supabaseAnonKey = localStorage.getItem('NEXT_PUBLIC_SUPABASE_ANON_KEY') || '';
-  }
-}
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 if (!supabaseUrl || !supabaseAnonKey) {
   if (typeof window !== 'undefined') {
@@ -24,3 +14,4 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = (supabaseUrl && supabaseAnonKey) 
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
+

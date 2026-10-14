@@ -21,24 +21,16 @@ const PRESETS: Record<string, string[]> = {
   activities: ['Movie Night 🍿', 'Gym Session 🏋️', 'Gaming 🎮', 'Read Book 📚', 'Walk in Park 🌳'],
 };
 
-// Generate high-entropy, variable-length, unguessable room code (16-24 chars, mixed alphanumeric)
+// Generate fixed, cryptographically secure UUID room code (fails closed if unavailable)
 const generateSecureRoomCode = () => {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-  const length = Math.floor(Math.random() * 9) + 16; // Random length between 16 and 24
-  let result = '';
-  if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
-    const array = new Uint32Array(length);
-    window.crypto.getRandomValues(array);
-    for (let i = 0; i < length; i++) {
-      result += chars[array[i] % chars.length];
-    }
-  } else {
-    for (let i = 0; i < length; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
+  if (typeof window === 'undefined' || !window.crypto?.randomUUID) {
+    throw new Error('Secure room ID generation is unavailable.');
   }
-  return result;
+  return window.crypto.randomUUID();
 };
+
+const isValidRoomCode = (code: string) =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(code);
 
 // Web Audio API Synthesizers
 const playTickSound = (audioCtx: AudioContext | null) => {
@@ -242,6 +234,16 @@ export default function ElectioPage() {
 
   // Supabase Realtime Room Setup
   const setupSupabaseRoom = useCallback((code: string, isHost: boolean) => {
+    if (!isValidRoomCode(code)) {
+      alert('Invalid room invite link.');
+      return;
+    }
+
+    if (typeof window === 'undefined' || !window.crypto?.randomUUID) {
+      alert('Secure random UUID generation is not supported in this browser.');
+      return;
+    }
+
     if (!supabase) {
       alert('Supabase is not configured yet. Make sure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set.');
       return;
@@ -251,26 +253,105 @@ export default function ElectioPage() {
 
     if (supabaseChannelRef.current) {
       supabase.removeChannel(supabaseChannelRef.current);
+      supabaseChannelRef.current = null;
     }
+
+    const presenceKey = window.crypto.randomUUID();
 
     const channel = supabase.channel(`electio-room-${code}`, {
       config: {
         broadcast: { ack: false, self: false },
-        presence: { key: Math.random().toString(36).substring(7) },
+        presence: { key: presenceKey },
       },
     });
 
+    supabaseChannelRef.current = channel;
+
     channel
       .on('broadcast', { event: 'ROOM_STATE_SYNC' }, ({ payload }) => {
-        if (payload?.options) setOptions(payload.options);
-        if (payload?.chips) setChips(payload.chips);
+        // Guard against callbacks from stale or replaced channels
+        if (supabaseChannelRef.current !== channel) return;
+
+        // Exhaustive payload validation for options
+        if (payload && Array.isArray(payload.options) && payload.options.length <= 100) {
+          const ids = new Set<number>();
+          const validOptions = payload.options.every((o: unknown): o is OptionItem => {
+            if (typeof o !== 'object' || o === null) return false;
+            const item = o as OptionItem;
+            if (typeof item.id !== 'number' || !Number.isSafeInteger(item.id)) return false;
+            if (typeof item.text !== 'string' || item.text.trim().length === 0 || item.text.length > 200) return false;
+            if (item.weight !== undefined && (typeof item.weight !== 'number' || item.weight <= 0 || !Number.isFinite(item.weight))) return false;
+            if (item.isRiskApplied !== undefined && typeof item.isRiskApplied !== 'boolean') return false;
+            if (ids.has(item.id)) return false; // Must be unique
+            ids.add(item.id);
+            return true;
+          });
+
+          if (validOptions) {
+            setOptions(payload.options);
+          }
+        }
+
+        // Exhaustive payload validation for chips
+        if (
+          payload &&
+          typeof payload.chips === 'object' &&
+          payload.chips !== null &&
+          !Array.isArray(payload.chips)
+        ) {
+          const validChips = Object.entries(payload.chips).every(([key, value]) => {
+            const numKey = Number(key);
+            return Number.isSafeInteger(numKey) && typeof value === 'boolean';
+          });
+
+          if (validChips) {
+            setChips(payload.chips as Record<number, boolean>);
+          }
+        }
       })
       .on('broadcast', { event: 'SPIN_EVENT' }, ({ payload }) => {
-        if (payload) {
-          executeSpinAnimationRef.current(payload.selectedWinner, payload.winnerIndex, payload.weightedOptions);
+        // Guard against callbacks from stale or replaced channels
+        if (supabaseChannelRef.current !== channel) return;
+
+        // Exhaustive payload validation for spin events
+        if (
+          payload &&
+          typeof payload.winnerIndex === 'number' &&
+          Number.isSafeInteger(payload.winnerIndex) &&
+          Array.isArray(payload.weightedOptions) &&
+          payload.weightedOptions.length <= 100 &&
+          payload.winnerIndex >= 0 &&
+          payload.winnerIndex < payload.weightedOptions.length &&
+          typeof payload.selectedWinner === 'object' &&
+          payload.selectedWinner !== null &&
+          typeof payload.selectedWinner.id === 'number' &&
+          Number.isSafeInteger(payload.selectedWinner.id)
+        ) {
+          // Validate every item in weightedOptions (strictly require positive finite weights)
+          const validWeighted = payload.weightedOptions.every(
+            (item: unknown): item is OptionItem =>
+              typeof item === 'object' &&
+              item !== null &&
+              typeof (item as OptionItem).id === 'number' &&
+              Number.isSafeInteger((item as OptionItem).id) &&
+              typeof (item as OptionItem).text === 'string' &&
+              (item as OptionItem).text.length <= 200 &&
+              typeof (item as OptionItem).weight === 'number' &&
+              (item as OptionItem).weight! > 0 &&
+              Number.isFinite((item as OptionItem).weight)
+          );
+
+          // Ensure selectedWinner matches the item at winnerIndex, and use validated itemAtIndex
+          const itemAtIndex = payload.weightedOptions[payload.winnerIndex];
+          if (validWeighted && itemAtIndex && itemAtIndex.id === payload.selectedWinner.id) {
+            executeSpinAnimationRef.current(itemAtIndex, payload.winnerIndex, payload.weightedOptions);
+          }
         }
       })
       .on('broadcast', { event: 'REQUEST_ROOM_SYNC' }, () => {
+        // Guard against callbacks from stale or replaced channels
+        if (supabaseChannelRef.current !== channel) return;
+
         // Any peer currently having options sends their state back
         channel.send({
           type: 'broadcast',
@@ -279,25 +360,31 @@ export default function ElectioPage() {
         });
       })
       .on('presence', { event: 'sync' }, () => {
+        if (supabaseChannelRef.current !== channel) return;
         const state = channel.presenceState();
         const count = Object.keys(state).length;
         setPeerCount(count || 1);
       })
-      .subscribe((status) => {
+      .subscribe((status, err) => {
+        // Ignore status events from stale/replaced channels
+        if (supabaseChannelRef.current !== channel) return;
+
         if (status === 'SUBSCRIBED') {
           channel.track({ online_at: new Date().toISOString() });
           setRoomCode(code);
           setIsConnected(true);
           setIsConnecting(false);
 
-          // Update URL in place without refreshing
+          // Preserve Next.js router state when updating URL
           if (typeof window !== 'undefined') {
             const url = new URL(window.location.href);
             url.searchParams.set('room', code);
-            window.history.replaceState({}, '', url.toString());
+            window.history.replaceState(window.history.state, '', url.toString());
           }
 
-          if (!isHost) {
+          if (isHost) {
+            setShowRoomModal(true);
+          } else {
             // Request existing wheel state from room peers
             channel.send({
               type: 'broadcast',
@@ -305,25 +392,50 @@ export default function ElectioPage() {
               payload: {},
             });
           }
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          console.error(`Supabase channel error: ${status}`, err);
+          
+          // Terminal cleanup: null the ref before removing the failed channel
+          if (supabaseChannelRef.current === channel) {
+            supabaseChannelRef.current = null;
+            void supabase?.removeChannel(channel);
+          }
+
+          setIsConnecting(false);
+          setIsConnected(false);
+          setRoomCode('');
+          setPeerCount(1);
+
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+            alert(`Connection failed (${status}). Please check your connection or try again.`);
+          }
         }
       });
-
-    supabaseChannelRef.current = channel;
   }, []);
 
   // Read URL query parameter for auto-join via invite link
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const param = new URLSearchParams(window.location.search).get('room');
-    if (param && param.trim().length >= 8) {
+    if (param && isValidRoomCode(param.trim())) {
       setupSupabaseRoom(param.trim(), false);
     }
   }, [setupSupabaseRoom]);
 
+  // Clean up Supabase channel on unmount
+  useEffect(() => {
+    return () => {
+      if (supabaseChannelRef.current) {
+        supabase?.removeChannel(supabaseChannelRef.current);
+        supabaseChannelRef.current = null;
+      }
+    };
+  }, []);
+
   const createAndShareRoom = () => {
+    if (isConnecting) return;
     const code = generateSecureRoomCode();
     setupSupabaseRoom(code, true);
-    setShowRoomModal(true);
   };
 
   const leaveRoom = () => {
@@ -332,15 +444,16 @@ export default function ElectioPage() {
       supabaseChannelRef.current = null;
     }
     setIsConnected(false);
+    setIsConnecting(false);
     setRoomCode('');
     setPeerCount(1);
     setShowRoomModal(false);
 
-    // Clean query param from URL
+    // Delete just the room parameter and keep the rest of the URL & router state
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href);
       url.searchParams.delete('room');
-      window.history.replaceState({}, '', url.pathname);
+      window.history.replaceState(window.history.state, '', url.toString());
     }
   };
 
@@ -501,6 +614,7 @@ export default function ElectioPage() {
             <div className={styles.topRightBtns}>
               <button 
                 className={styles.roomBadgeBtn} 
+                disabled={isConnecting}
                 onClick={() => {
                   if (!isConnected) {
                     createAndShareRoom();
