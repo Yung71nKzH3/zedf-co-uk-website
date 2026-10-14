@@ -81,7 +81,21 @@ class Particle {
   }
 }
 
-export default function ParticleCanvas() {
+interface ParticleCanvasProps {
+  text?: string;
+  yFactorDesktop?: number;
+  yFactorMobile?: number;
+  textSizeDesktop?: number;
+  textSizeMobile?: number;
+}
+
+export default function ParticleCanvas({
+  text = 'w1ll0w',
+  yFactorDesktop = 0.2,
+  yFactorMobile = 0.45,
+  textSizeDesktop = 120,
+  textSizeMobile = 80,
+}: ParticleCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const isFormedRef = useRef(false);
@@ -96,13 +110,13 @@ export default function ParticleCanvas() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let textSize = 120;
+    let textSize = textSizeDesktop;
 
     const getResponsiveConfig = () => {
       if (window.innerWidth <= 768) {
-        return { size: 80, yFactor: 0.45 };
+        return { size: textSizeMobile, yFactor: yFactorMobile };
       } else {
-        return { size: 120, yFactor: 0.2 };
+        return { size: textSizeDesktop, yFactor: yFactorDesktop };
       }
     };
 
@@ -120,10 +134,10 @@ export default function ParticleCanvas() {
       tempCtx.textBaseline = 'middle';
       
       textMetricsRef.current.textX = tempCanvas.width / 2;
-      textMetricsRef.current.width = tempCtx.measureText(TARGET_TEXT).width;
+      textMetricsRef.current.width = tempCtx.measureText(text).width;
       
       tempCtx.fillStyle = 'white';
-      tempCtx.fillText(TARGET_TEXT, textMetricsRef.current.textX, textMetricsRef.current.textY);
+      tempCtx.fillText(text, textMetricsRef.current.textX, textMetricsRef.current.textY);
       
       const boxMargin = 100;
       boxRef.current.x = textMetricsRef.current.textX - textMetricsRef.current.width / 2 - boxMargin;
@@ -211,7 +225,7 @@ export default function ParticleCanvas() {
       window.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(animationRef.current);
     };
-  }, []);
+  }, [text, textSizeDesktop, textSizeMobile, yFactorDesktop, yFactorMobile]);
 
   return (
     <canvas

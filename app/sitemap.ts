@@ -2,21 +2,12 @@ import { MetadataRoute } from 'next';
 
 export const dynamic = 'force-static';
 
+const GAMES = ['sudoku', 'wordle', 'slide', 'maze', 'blackjack', 'craps', 'snake', 'tetris', 'pong', '2048', 'minesweeper', 'asteroids', 'memory', 'typer'];
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://www.zedf.co.uk';
   const lastModified = new Date();
 
-<<<<<<< Updated upstream
-  const staticRoutes = [
-    '',
-    '/uni',
-    '/quotes',
-    '/wote',
-    '/calc67',
-    '/project-space',
-  ].map((route) => ({
-    url: `${baseUrl}${route}`,
-=======
   const coreRoutes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -73,12 +64,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/uni/map`,
-      lastModified,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
       url: `${baseUrl}/quotes`,
       lastModified,
       changeFrequency: 'monthly',
@@ -88,11 +73,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const gameRoutes: MetadataRoute.Sitemap = GAMES.map((game) => ({
     url: `${baseUrl}/play/${game}`,
->>>>>>> Stashed changes
     lastModified,
-    changeFrequency: 'weekly' as const,
-    priority: route === '' ? 1 : 0.8,
+    changeFrequency: 'weekly',
+    priority: 0.8,
   }));
 
-  return [...staticRoutes];
+  return [...coreRoutes, ...gameRoutes];
 }
