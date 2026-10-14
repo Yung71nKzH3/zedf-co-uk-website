@@ -2,11 +2,10 @@
 
 import React, { useState, useEffect, useRef, useCallback, useSyncExternalStore } from 'react';
 import confetti from 'canvas-confetti';
-import { io, Socket } from 'socket.io-client';
 import { supabase } from '@/lib/supabase';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import Link from 'next/link';
-import { ArrowLeft, Volume2, VolumeX, Users, Share2, Sparkles } from 'lucide-react';
+import { ArrowLeft, Volume2, VolumeX, Users, Share2, Sparkles, Copy, Check, Radio } from 'lucide-react';
 import styles from './electio.module.css';
 
 interface OptionItem {
@@ -22,8 +21,24 @@ const PRESETS: Record<string, string[]> = {
   activities: ['Movie Night 🍿', 'Gym Session 🏋️', 'Gaming 🎮', 'Read Book 📚', 'Walk in Park 🌳'],
 };
 
-// Generate 4-digit numeric room code
-const generateRoomCode = () => Math.floor(1000 + Math.random() * 9000).toString();
+// Generate high-entropy, variable-length, unguessable room code (16-24 chars, mixed alphanumeric)
+const generateSecureRoomCode = () => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  const length = Math.floor(Math.random() * 9) + 16; // Random length between 16 and 24
+  let result = '';
+  if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+    const array = new Uint32Array(length);
+    window.crypto.getRandomValues(array);
+    for (let i = 0; i < length; i++) {
+      result += chars[array[i] % chars.length];
+    }
+  } else {
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+  }
+  return result;
+};
 
 // Web Audio API Synthesizers
 const playTickSound = (audioCtx: AudioContext | null) => {
@@ -89,19 +104,15 @@ export default function ElectioPage() {
   const [highlightedId, setHighlightedId] = useState<number | null>(null);
   const [rotationDegrees, setRotationDegrees] = useState(0);
 
-  // Connection & Room States
+  // Connection & Room States (Invite Link + Supabase Realtime Relay)
   const [roomCode, setRoomCode] = useState('');
-  const [joinInputCode, setJoinInputCode] = useState('');
-  const [roomNameInput, setRoomNameInput] = useState('');
   const [isConnected, setIsConnected] = useState(false);
-  const [connectionType, setConnectionType] = useState<'supabase' | 'socket'>('supabase');
-  const [customSocketUrl, setCustomSocketUrl] = useState('');
+  const [isConnecting, setIsConnecting] = useState(false);
   const [peerCount, setPeerCount] = useState(1);
   const [showRoomModal, setShowRoomModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
-  const socketRef = useRef<Socket | null>(null);
   const supabaseChannelRef = useRef<RealtimeChannel | null>(null);
 
   // Live mutable refs to eliminate stale closure bugs
@@ -134,16 +145,6 @@ export default function ElectioPage() {
   useEffect(() => {
     isConnectedRef.current = isConnected;
   }, [isConnected]);
-
-  // Read URL query parameter for auto-join
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const param = new URLSearchParams(window.location.search).get('room');
-    if (param && /^\d{4}$/.test(param)) {
-      setJoinInputCode(param);
-      setShowRoomModal(true);
-    }
-  }, []);
 
   const getAudioContext = useCallback(() => {
     if (!soundEnabledRef.current) return null;
@@ -228,31 +229,25 @@ export default function ElectioPage() {
     localStorage.setItem('electio-chips', JSON.stringify(chips));
   }, [options, chips, isMounted, isConnected]);
 
-  // Broadcast state updates over active channel
+  // Broadcast state updates over Supabase channel
   const broadcastState = useCallback((newOpts: OptionItem[], newChips: Record<number, boolean>) => {
-    if (!roomCodeRef.current) return;
+    if (!roomCodeRef.current || !supabaseChannelRef.current) return;
 
-    if (supabaseChannelRef.current) {
-      supabaseChannelRef.current.send({
-        type: 'broadcast',
-        event: 'ROOM_STATE_SYNC',
-        payload: { options: newOpts, chips: newChips },
-      });
-    } else if (socketRef.current) {
-      socketRef.current.emit('UPDATE_ROOM_STATE', {
-        roomCode: roomCodeRef.current,
-        options: newOpts,
-        chips: newChips,
-      });
-    }
+    supabaseChannelRef.current.send({
+      type: 'broadcast',
+      event: 'ROOM_STATE_SYNC',
+      payload: { options: newOpts, chips: newChips },
+    });
   }, []);
 
   // Supabase Realtime Room Setup
   const setupSupabaseRoom = useCallback((code: string, isHost: boolean) => {
     if (!supabase) {
-      alert('Supabase client is not configured. Switching to offline or custom Socket.io mode.');
+      alert('Supabase is not configured yet. Make sure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set.');
       return;
     }
+
+    setIsConnecting(true);
 
     if (supabaseChannelRef.current) {
       supabase.removeChannel(supabaseChannelRef.current);
@@ -276,14 +271,12 @@ export default function ElectioPage() {
         }
       })
       .on('broadcast', { event: 'REQUEST_ROOM_SYNC' }, () => {
-        // Only host sends back current state
-        if (isHost) {
-          channel.send({
-            type: 'broadcast',
-            event: 'ROOM_STATE_SYNC',
-            payload: { options: optionsRef.current, chips: chipsRef.current },
-          });
-        }
+        // Any peer currently having options sends their state back
+        channel.send({
+          type: 'broadcast',
+          event: 'ROOM_STATE_SYNC',
+          payload: { options: optionsRef.current, chips: chipsRef.current },
+        });
       })
       .on('presence', { event: 'sync' }, () => {
         const state = channel.presenceState();
@@ -295,10 +288,17 @@ export default function ElectioPage() {
           channel.track({ online_at: new Date().toISOString() });
           setRoomCode(code);
           setIsConnected(true);
-          setShowRoomModal(false);
+          setIsConnecting(false);
+
+          // Update URL in place without refreshing
+          if (typeof window !== 'undefined') {
+            const url = new URL(window.location.href);
+            url.searchParams.set('room', code);
+            window.history.replaceState({}, '', url.toString());
+          }
 
           if (!isHost) {
-            // Ask host for current state
+            // Request existing wheel state from room peers
             channel.send({
               type: 'broadcast',
               event: 'REQUEST_ROOM_SYNC',
@@ -311,84 +311,19 @@ export default function ElectioPage() {
     supabaseChannelRef.current = channel;
   }, []);
 
-  // Socket.io Room Setup
-  const setupSocketRoom = useCallback((url: string, code: string, isHost: boolean) => {
-    if (socketRef.current) {
-      socketRef.current.disconnect();
+  // Read URL query parameter for auto-join via invite link
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const param = new URLSearchParams(window.location.search).get('room');
+    if (param && param.trim().length >= 8) {
+      setupSupabaseRoom(param.trim(), false);
     }
+  }, [setupSupabaseRoom]);
 
-    const socket = io(url || undefined);
-    socketRef.current = socket;
-
-    socket.on('connect', () => {
-      if (isHost) {
-        socket.emit(
-          'CREATE_ROOM',
-          { roomCode: code, name: roomNameInput.trim() || `Group Room #${code}`, options: optionsRef.current, chips: chipsRef.current },
-          (res: { success: boolean; roomCode?: string }) => {
-            if (res?.success) {
-              setRoomCode(res.roomCode || code);
-              setIsConnected(true);
-              setPeerCount(1);
-              setShowRoomModal(false);
-            }
-          }
-        );
-      } else {
-        socket.emit('JOIN_ROOM', { roomCode: code }, (res: { success: boolean; options?: OptionItem[]; chips?: Record<number, boolean>; isSpinning?: boolean; error?: string }) => {
-          if (res?.success) {
-            setRoomCode(code);
-            setIsConnected(true);
-            if (res.options) setOptions(res.options);
-            if (res.chips) setChips(res.chips);
-            if (res.isSpinning) setIsSpinning(true);
-            setShowRoomModal(false);
-          } else {
-            alert(res?.error || `Could not find room with code #${code}`);
-          }
-        });
-      }
-    });
-
-    socket.on('ROOM_STATE_SYNC', ({ options: newOpts, chips: newChips }) => {
-      if (newOpts) setOptions(newOpts);
-      if (newChips) setChips(newChips);
-    });
-
-    socket.on('PLAYER_COUNT_UPDATE', (count: number) => {
-      setPeerCount(count);
-    });
-
-    socket.on('SPIN_EVENT', ({ selectedWinner, winnerIndex, weightedOptions }) => {
-      executeSpinAnimationRef.current(selectedWinner, winnerIndex, weightedOptions);
-    });
-
-    socket.on('SPIN_FINISHED', () => {
-      setIsSpinning(false);
-      isSpinningRef.current = false;
-    });
-  }, [roomNameInput]);
-
-  const hostRoom = () => {
-    const code = generateRoomCode();
-    if (connectionType === 'supabase') {
-      setupSupabaseRoom(code, true);
-    } else {
-      setupSocketRoom(customSocketUrl.trim(), code, true);
-    }
-  };
-
-  const joinRoom = (codeToJoin?: string) => {
-    const code = codeToJoin || joinInputCode.trim();
-    if (!code || code.length !== 4) {
-      alert('Please enter a valid 4-digit room code.');
-      return;
-    }
-    if (connectionType === 'supabase') {
-      setupSupabaseRoom(code, false);
-    } else {
-      setupSocketRoom(customSocketUrl.trim(), code, false);
-    }
+  const createAndShareRoom = () => {
+    const code = generateSecureRoomCode();
+    setupSupabaseRoom(code, true);
+    setShowRoomModal(true);
   };
 
   const leaveRoom = () => {
@@ -396,16 +331,17 @@ export default function ElectioPage() {
       supabase?.removeChannel(supabaseChannelRef.current);
       supabaseChannelRef.current = null;
     }
-    if (socketRef.current) {
-      if (roomCode) {
-        socketRef.current.emit('LEAVE_ROOM', { roomCode });
-      }
-      socketRef.current.disconnect();
-      socketRef.current = null;
-    }
     setIsConnected(false);
     setRoomCode('');
     setPeerCount(1);
+    setShowRoomModal(false);
+
+    // Clean query param from URL
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('room');
+      window.history.replaceState({}, '', url.pathname);
+    }
   };
 
   const copyInviteLink = () => {
@@ -414,7 +350,7 @@ export default function ElectioPage() {
     if (navigator?.clipboard?.writeText) {
       navigator.clipboard.writeText(shareUrl).then(() => {
         setCopiedLink(true);
-        setTimeout(() => setCopiedLink(false), 2000);
+        setTimeout(() => setCopiedLink(false), 2500);
       });
     }
   };
@@ -520,15 +456,8 @@ export default function ElectioPage() {
           event: 'SPIN_EVENT',
           payload: { selectedWinner, winnerIndex, weightedOptions },
         });
-      } else if (socketRef.current) {
-        socketRef.current.emit('TRIGGER_SPIN', {
-          roomCode,
-          selectedWinner,
-          winnerIndex,
-          weightedOptions,
-        });
       }
-      // Also execute locally for host
+      // Also execute locally for the person who clicked Spin
       executeSpinAnimation(selectedWinner, winnerIndex, weightedOptions);
     } else {
       executeSpinAnimation(selectedWinner, winnerIndex, weightedOptions);
@@ -570,10 +499,23 @@ export default function ElectioPage() {
           <div className={styles.headerTop}>
             <h1 className={styles.title}>ELECTIO</h1>
             <div className={styles.topRightBtns}>
-              <button className={styles.roomBadgeBtn} onClick={() => setShowRoomModal(true)}>
+              <button 
+                className={styles.roomBadgeBtn} 
+                onClick={() => {
+                  if (!isConnected) {
+                    createAndShareRoom();
+                  } else {
+                    setShowRoomModal(true);
+                  }
+                }}
+              >
                 <span className="flex items-center gap-1.5">
                   <Users className="w-3.5 h-3.5" />
-                  {isConnected ? `Room #${roomCode} (${peerCount})` : 'Host / Join'}
+                  {isConnecting 
+                    ? 'Connecting...' 
+                    : isConnected 
+                    ? `Live (${peerCount} online)` 
+                    : 'Invite Friends'}
                 </span>
               </button>
               <button
@@ -589,7 +531,15 @@ export default function ElectioPage() {
 
           {isConnected && (
             <div className={styles.networkBanner}>
-              🔒 Active Confidential Session &bull; Room <strong>#{roomCode}</strong> &bull; {peerCount} connected
+              <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse mr-1.5" />
+              Live Relay Active &bull; {peerCount} {peerCount === 1 ? 'player' : 'players'} connected &bull; 
+              <button 
+                type="button" 
+                onClick={copyInviteLink} 
+                className="ml-2 underline text-yellow-300 hover:text-white cursor-pointer font-semibold"
+              >
+                {copiedLink ? 'Copied link!' : 'Copy invite link'}
+              </button>
             </div>
           )}
         </header>
@@ -736,99 +686,60 @@ export default function ElectioPage() {
         )}
       </main>
 
-      {/* MULTIPLAYER LOBBY MODAL */}
+      {/* MULTIPLAYER INVITE / ROOM MODAL */}
       {showRoomModal && (
         <div className={styles.modalOverlay} onClick={() => setShowRoomModal(false)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <button className={styles.closeModalBtn} onClick={() => setShowRoomModal(false)}>
               &times;
             </button>
-            <h2>Multiplayer Lobby</h2>
-            <p className={styles.modalSub}>Confidential, in-memory live room synchronization</p>
+            
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <Radio className="w-5 h-5 text-yellow-400 animate-pulse" />
+              <h2 style={{ margin: 0 }}>Multiplayer Session</h2>
+            </div>
+            <p className={styles.modalSub}>
+              Realtime broadcast relay. Anyone with your invite link can collaborate live!
+            </p>
 
-            {/* Protocol selector */}
-            <div className={styles.modeToggle}>
-              <button
-                type="button"
-                className={`${styles.modeBtn} ${connectionType === 'supabase' ? styles.modeBtnActive : ''}`}
-                onClick={() => setConnectionType('supabase')}
+            <div className={styles.roomActiveInfo}>
+              <div className={styles.codeDisplay}>
+                Invite Link:
+                <span className="truncate block mt-1 text-xs md:text-sm select-all">
+                  {typeof window !== 'undefined' ? `${window.location.origin}/electio?room=${roomCode}` : roomCode}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between w-full px-2 py-1 text-xs text-slate-300">
+                <span>Peers Connected:</span>
+                <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  {peerCount} Online
+                </span>
+              </div>
+
+              <button 
+                type="button" 
+                className={`${styles.copyLinkBtn} ${copiedLink ? styles.copyLinkBtnCopied : ''}`} 
+                onClick={copyInviteLink}
               >
-                Supabase Edge Broadcast
+                {copiedLink ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Invite Link Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    Copy Invite Link
+                  </>
+                )}
               </button>
-              <button
-                type="button"
-                className={`${styles.modeBtn} ${connectionType === 'socket' ? styles.modeBtnActive : ''}`}
-                onClick={() => setConnectionType('socket')}
-              >
-                Custom Socket.io (IONOS / LAN)
+
+              <button type="button" className={styles.leaveBtn} onClick={leaveRoom}>
+                Leave Room & Go Solo
               </button>
             </div>
-
-            {connectionType === 'socket' && (
-              <input
-                type="text"
-                placeholder="Socket Server URL (e.g. http://192.168.1.50:3000)"
-                value={customSocketUrl}
-                onChange={(e) => setCustomSocketUrl(e.target.value)}
-                className={styles.socketUrlInput}
-              />
-            )}
-
-            {isConnected ? (
-              <div className={styles.roomActiveInfo}>
-                <div className={styles.codeDisplay}>
-                  PIN / Passcode: <span>{roomCode}</span>
-                </div>
-                <p>
-                  Players Connected: <strong>{peerCount}</strong>
-                </p>
-
-                <button type="button" className={styles.copyLinkBtn} onClick={copyInviteLink}>
-                  <span className="flex items-center gap-1.5 justify-center">
-                    <Share2 className="w-4 h-4" />
-                    {copiedLink ? '✓ Invite Link Copied!' : 'Copy Invite Link'}
-                  </span>
-                </button>
-
-                <button type="button" className={styles.leaveBtn} onClick={leaveRoom}>
-                  Leave Room (Solo Mode)
-                </button>
-              </div>
-            ) : (
-              <div className={styles.modalActions}>
-                <div className={styles.createBox}>
-                  <input
-                    type="text"
-                    placeholder="Room Name (e.g. Lunch Squad)"
-                    value={roomNameInput}
-                    onChange={(e) => setRoomNameInput(e.target.value)}
-                  />
-                  <button type="button" className={styles.hostActionBtn} onClick={hostRoom}>
-                    🎲 Create Room
-                  </button>
-                </div>
-
-                <div className={styles.divider}>OR ENTER 4-DIGIT PIN DIRECTLY</div>
-
-                <div className={styles.joinBox}>
-                  <input
-                    type="text"
-                    placeholder="1234"
-                    maxLength={4}
-                    value={joinInputCode}
-                    onChange={(e) => setJoinInputCode(e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    className={styles.joinActionBtn}
-                    onClick={() => joinRoom()}
-                    disabled={joinInputCode.length !== 4}
-                  >
-                    Join
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}

@@ -619,50 +619,78 @@
 }
 
 .codeDisplay {
-  font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  width: 100%;
+  word-break: break-all;
 }
 
 .codeDisplay span {
-  font-size: 2.2rem;
-  font-weight: 900;
+  font-size: 1rem;
+  font-family: monospace;
+  font-weight: 700;
   color: var(--primary);
-  letter-spacing: 4px;
   display: block;
   margin-top: 0.25rem;
+  letter-spacing: 1px;
 }
 
 .copyLinkBtn {
-  background: rgba(255, 215, 0, 0.15);
-  color: var(--primary);
-  border: 1px solid var(--primary);
-  padding: 0.6rem 1.2rem;
+  background: var(--primary);
+  color: #000;
+  border: none;
+  padding: 0.8rem 1.4rem;
   border-radius: 99px;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
 }
 
 .copyLinkBtn:hover {
-  background: var(--primary);
-  color: #000;
+  filter: brightness(1.1);
   transform: scale(1.02);
 }
 
+.copyLinkBtnCopied {
+  background: #10b981;
+  color: #fff;
+}
+
 .leaveBtn {
-  background: rgba(212, 0, 0, 0.2);
-  color: #ff6b6b;
-  border: 1px solid rgba(212, 0, 0, 0.4);
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
   padding: 0.6rem 1.2rem;
   border-radius: 99px;
   font-weight: 600;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  width: 100%;
 }
 
 .leaveBtn:hover {
-  background: rgba(212, 0, 0, 0.35);
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.roomActiveInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  width: 100%;
 }
 
 .closeModalBtn {
