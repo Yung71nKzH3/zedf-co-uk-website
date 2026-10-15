@@ -23,10 +23,9 @@ const ITEMS: SlashItem[] = [
   { type: 'heading2', label: 'Heading 2', desc: 'Medium section heading', icon: Heading2, shortcut: '##' },
   { type: 'heading3', label: 'Heading 3', desc: 'Small section heading', icon: Heading3, shortcut: '###' },
   { type: 'todo', label: 'To-Do Task', desc: 'Interactive checkbox item', icon: CheckSquare, shortcut: '[]' },
-  { type: 'code', label: 'Code Block', desc: 'Syntax highlighted code', icon: Code2, shortcut: '```' },
-  { type: 'markdown', label: 'Markdown', desc: 'Formatted markdown block', icon: FileText },
+  { type: 'code', label: 'Code Block', desc: 'Syntax highlighted code block', icon: Code2, shortcut: '```' },
   { type: 'quote', label: 'Quote', desc: 'Capture a quote or excerpt', icon: Quote, shortcut: '>' },
-  { type: 'callout', label: 'Callout', desc: 'Highlighted alert box', icon: AlertCircle, calloutType: 'info' },
+  { type: 'callout', label: 'Callout (Tip/Note)', desc: 'Highlighted callout banner', icon: AlertCircle, calloutType: 'info' },
   { type: 'image', label: 'Image', desc: 'Paste image or embed URL', icon: ImageIcon },
   { type: 'divider', label: 'Divider', desc: 'Horizontal separation line', icon: Minus, shortcut: '---' },
 ];

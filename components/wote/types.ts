@@ -5,11 +5,11 @@ export type NodeType =
   | 'heading3' 
   | 'todo' 
   | 'code' 
-  | 'markdown' 
   | 'quote' 
   | 'callout' 
   | 'image' 
-  | 'divider';
+  | 'divider'
+  | 'markdown'; // for backward-compatibility with older .wote files
 
 export type CalloutType = 'info' | 'warning' | 'tip' | 'success';
 

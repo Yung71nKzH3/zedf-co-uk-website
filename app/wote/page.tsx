@@ -438,7 +438,7 @@ export default function WotePage() {
   const handleCycleType = useCallback((id: string) => {
     const cycleList: NodeType[] = [
       'text', 'heading1', 'heading2', 'heading3', 
-      'todo', 'code', 'markdown', 'quote', 'callout'
+      'todo', 'code', 'quote', 'callout'
     ];
     setNodes(prev => {
       const tree = cloneTree(prev);

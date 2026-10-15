@@ -3,12 +3,10 @@
 import React, { memo, useState, useRef, useEffect, useCallback } from 'react';
 import { 
   ChevronRight, ChevronDown, GripVertical, Plus, Trash2, 
-  Copy, Check, ExternalLink, Info, AlertTriangle, Lightbulb, CheckCircle2,
-  Code2, FileText, CheckSquare, Type, Heading1, Heading2, Heading3, Quote, AlertCircle, ImageIcon, Minus
+  Copy, Check, Info, AlertTriangle, Lightbulb, CheckCircle2,
+  Code2, CheckSquare, Type, Heading1, Heading2, Heading3, Quote, AlertCircle, ImageIcon, Minus, Edit3
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-dark.css';
 
@@ -119,7 +117,7 @@ export const NodeItem = memo(({ node, depth, actions, isZoomedRoot }: NodeItemPr
       return;
     }
     if (text === '```') {
-      actions.updateNode(node.id, { type: 'code', content: '', language: 'javascript' });
+      actions.updateNode(node.id, { type: 'code', content: '', language: 'javascript', isEditing: true });
       if (contentRef.current) contentRef.current.innerText = '';
       return;
     }
@@ -238,10 +236,9 @@ export const NodeItem = memo(({ node, depth, actions, isZoomedRoot }: NodeItemPr
     switch (node.type) {
       case 'heading1': return <Heading1 className="w-3.5 h-3.5 text-cyan-400" />;
       case 'heading2': return <Heading2 className="w-3.5 h-3.5 text-cyan-400" />;
-      case 'heading3': return <Heading3 className="w-3.5 h-3.5 text-cyan-400" />;
+      case 'heading3': return <Heading3 className="w-3.5 h-3.5 text-emerald-400" />;
       case 'todo': return <CheckSquare className="w-3.5 h-3.5 text-emerald-400" />;
       case 'code': return <Code2 className="w-3.5 h-3.5 text-amber-400" />;
-      case 'markdown': return <FileText className="w-3.5 h-3.5 text-sky-400" />;
       case 'quote': return <Quote className="w-3.5 h-3.5 text-purple-400" />;
       case 'callout': return <AlertCircle className="w-3.5 h-3.5 text-pink-400" />;
       case 'image': return <ImageIcon className="w-3.5 h-3.5 text-indigo-400" />;
@@ -303,7 +300,9 @@ export const NodeItem = memo(({ node, depth, actions, isZoomedRoot }: NodeItemPr
       );
     }
 
-    if (node.type === 'code' && !node.isEditing) {
+    if (node.type === 'code') {
+      const isEditingCode = node.isEditing ?? false;
+
       let highlighted = node.content;
       try {
         if (node.language && hljs.getLanguage(node.language)) {
@@ -316,8 +315,9 @@ export const NodeItem = memo(({ node, depth, actions, isZoomedRoot }: NodeItemPr
       }
 
       return (
-        <div className="space-y-1.5 w-full my-1">
-          <div className="flex items-center justify-between text-[11px] px-2 opacity-60">
+        <div className="space-y-1.5 w-full my-1.5">
+          {/* Code Header Bar */}
+          <div className="flex items-center justify-between text-[11px] px-2 opacity-70">
             <select
               value={node.language || 'javascript'}
               onChange={(e) => actions.updateNode(node.id, { language: e.target.value })}
@@ -330,6 +330,16 @@ export const NodeItem = memo(({ node, depth, actions, isZoomedRoot }: NodeItemPr
             <div className="flex items-center gap-2">
               <button
                 type="button"
+                onClick={() => actions.updateNode(node.id, { isEditing: !isEditingCode })}
+                className="flex items-center gap-1 hover:text-cyan-400 transition-colors"
+                title={isEditingCode ? 'Preview code' : 'Edit code'}
+              >
+                <Edit3 className="w-3 h-3" />
+                <span>{isEditingCode ? 'Done' : 'Edit'}</span>
+              </button>
+              <span className="opacity-30">•</span>
+              <button
+                type="button"
                 onClick={handleCopyCode}
                 className="flex items-center gap-1 hover:text-cyan-400 transition-colors"
                 title="Copy code"
@@ -339,36 +349,63 @@ export const NodeItem = memo(({ node, depth, actions, isZoomedRoot }: NodeItemPr
               </button>
             </div>
           </div>
-          <pre 
-            onClick={() => actions.updateNode(node.id, { isEditing: true })}
-            className={`p-4 rounded-xl font-mono text-xs overflow-x-auto cursor-text border ${themeConfig.border} ${themeConfig.codeBg} hover:border-cyan-500/40 transition-colors leading-relaxed`}
-          >
-            <code dangerouslySetInnerHTML={{ __html: highlighted || ' ' }} />
-          </pre>
+
+          {/* Code Body */}
+          {isEditingCode ? (
+            <textarea
+              value={node.content}
+              onChange={(e) => actions.updateNode(node.id, { content: e.target.value })}
+              onKeyDown={(e) => {
+                if (e.key === 'Tab') {
+                  e.preventDefault();
+                  const target = e.currentTarget;
+                  const start = target.selectionStart;
+                  const end = target.selectionEnd;
+                  const val = target.value;
+                  const updated = val.substring(0, start) + '  ' + val.substring(end);
+                  actions.updateNode(node.id, { content: updated });
+                  setTimeout(() => {
+                    target.selectionStart = target.selectionEnd = start + 2;
+                  }, 0);
+                }
+              }}
+              rows={Math.max(3, (node.content || '').split('\n').length)}
+              placeholder="// Write code here..."
+              className={`w-full p-4 rounded-xl font-mono text-xs overflow-x-auto border ${themeConfig.border} ${themeConfig.codeBg} text-cyan-200 outline-none focus:ring-1 focus:ring-cyan-500 leading-relaxed resize-y`}
+            />
+          ) : (
+            <pre 
+              onClick={() => actions.updateNode(node.id, { isEditing: true })}
+              className={`p-4 rounded-xl font-mono text-xs overflow-x-auto cursor-text border ${themeConfig.border} ${themeConfig.codeBg} hover:border-cyan-500/40 transition-colors leading-relaxed`}
+            >
+              <code dangerouslySetInnerHTML={{ __html: highlighted || '<span class="opacity-30">// Empty code block (click to edit)</span>' }} />
+            </pre>
+          )}
         </div>
       );
     }
 
-    if (node.type === 'markdown' && !node.isEditing) {
-      return (
-        <div 
-          onClick={() => actions.updateNode(node.id, { isEditing: true })}
-          className="prose prose-invert prose-sm max-w-none cursor-text p-1 py-1.5 hover:opacity-90"
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(node.content || '*Empty markdown block (click to edit)*') as string) }}
-        />
-      );
-    }
-
-    // Editable block
+    // Direct in-place editing for text, headings, quotes, callouts, and tasks
     let fontStyle = 'font-sans text-sm';
+    let placeholderText = 'Type something or / for commands...';
+
     if (node.type === 'heading1') {
-      fontStyle = 'text-2xl sm:text-3xl font-black tracking-tight text-cyan-400';
+      fontStyle = 'text-2xl sm:text-3xl font-black tracking-tight text-cyan-400 font-sans';
+      placeholderText = 'Heading 1...';
     } else if (node.type === 'heading2') {
-      fontStyle = 'text-xl sm:text-2xl font-bold tracking-tight text-cyan-300';
+      fontStyle = 'text-xl sm:text-2xl font-bold tracking-tight text-cyan-300 font-sans';
+      placeholderText = 'Heading 2...';
     } else if (node.type === 'heading3') {
-      fontStyle = 'text-base sm:text-lg font-semibold tracking-tight';
-    } else if (node.type === 'code') {
-      fontStyle = 'font-mono text-xs text-amber-300';
+      fontStyle = 'text-base sm:text-lg font-semibold tracking-tight text-emerald-400 font-sans';
+      placeholderText = 'Heading 3...';
+    } else if (node.type === 'quote') {
+      fontStyle = 'font-serif text-sm italic opacity-90 pl-1';
+      placeholderText = 'Quote...';
+    } else if (node.type === 'callout') {
+      fontStyle = 'text-sm font-medium text-cyan-100';
+      placeholderText = 'Callout note...';
+    } else if (node.type === 'todo') {
+      placeholderText = 'To-do item...';
     } else if (theme === 'willow') {
       fontStyle = 'font-serif text-sm';
     }
@@ -382,15 +419,10 @@ export const NodeItem = memo(({ node, depth, actions, isZoomedRoot }: NodeItemPr
           onInput={handleInput}
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}
-          onBlur={() => {
-            if (node.type === 'code' || node.type === 'markdown') {
-              actions.updateNode(node.id, { isEditing: false });
-            }
-          }}
           className={`outline-none min-h-[1.5em] w-full p-1 selection:bg-cyan-500/30 ${fontStyle} ${
             node.checked ? 'line-through opacity-40' : ''
           }`}
-          data-placeholder={node.type === 'text' ? 'Type something or / for commands...' : ''}
+          data-placeholder={placeholderText}
         />
 
         {showSlash && (
@@ -399,7 +431,12 @@ export const NodeItem = memo(({ node, depth, actions, isZoomedRoot }: NodeItemPr
             themeConfig={themeConfig}
             onSelect={(type, calloutType) => {
               setShowSlash(false);
-              actions.updateNode(node.id, { type, calloutType, content: '' });
+              actions.updateNode(node.id, { 
+                type, 
+                calloutType, 
+                content: '',
+                isEditing: type === 'code' ? true : false 
+              });
               if (contentRef.current) {
                 contentRef.current.innerText = '';
                 contentRef.current.focus();
@@ -478,7 +515,9 @@ export const NodeItem = memo(({ node, depth, actions, isZoomedRoot }: NodeItemPr
 
         {/* Node Body Container */}
         <div className={`flex-grow flex items-start gap-2.5 rounded-xl p-1.5 transition-all duration-200 border border-transparent ${
-          node.isEditing ? `${themeConfig.mutedBg} ring-1 ring-cyan-500/30` : themeConfig.nodeHoverBg
+          node.type === 'callout' 
+            ? 'border border-cyan-500/20 bg-cyan-500/5 px-3 py-2' 
+            : themeConfig.nodeHoverBg
         }`}>
           {/* Type-specific prefix */}
           {node.type === 'todo' && (
@@ -497,7 +536,7 @@ export const NodeItem = memo(({ node, depth, actions, isZoomedRoot }: NodeItemPr
 
           {node.type === 'callout' && getCalloutIcon(node.calloutType)}
           {node.type === 'quote' && (
-            <div className="w-1 self-stretch bg-purple-500/60 rounded-full shrink-0 mr-1" />
+            <div className="w-1 self-stretch bg-purple-500/80 rounded-full shrink-0 mr-1" />
           )}
 
           {/* The Content */}

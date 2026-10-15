@@ -195,17 +195,23 @@ export const serializeNode = (node: NoteNode): SerializedNode => ({
   ch: (node.children || []).map(serializeNode),
 });
 
-export const deserializeNode = (s: SerializedNode): NoteNode => ({
-  id: s.i || generateId(),
-  type: s.t || 'text',
-  content: s.c || '',
-  collapsed: !!s.cl,
-  checked: !!s.ck,
-  imageUrl: s.u,
-  language: s.l,
-  calloutType: s.co,
-  children: (s.ch || []).map(deserializeNode),
-});
+export const deserializeNode = (s: SerializedNode): NoteNode => {
+  let nodeType = s.t || 'text';
+  if (nodeType === 'markdown') {
+    nodeType = 'text';
+  }
+  return {
+    id: s.i || generateId(),
+    type: nodeType,
+    content: s.c || '',
+    collapsed: !!s.cl,
+    checked: !!s.ck,
+    imageUrl: s.u,
+    language: s.l,
+    calloutType: s.co,
+    children: (s.ch || []).map(deserializeNode),
+  };
+};
 
 export const serializeWote = (title: string, nodes: NoteNode[]): string => {
   const file: SerializedWoteFile = {
