@@ -1,407 +1,334 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback, memo } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Link from 'next/link';
-import { 
-  ArrowLeft, Settings, Plus, ChevronRight, ChevronDown, Trash2, 
-  Code, Type, CheckSquare, Image as ImageIcon, FileText, Download,
-  Upload, Info, X, Keyboard, Moon, Sun, Monitor
-} from 'lucide-react';
+import { Plus, ArrowLeft, Home, ChevronRight, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
-import hljs from 'highlight.js';
-import 'highlight.js/styles/atom-one-dark.css';
 
-// Types
-type NodeType = 'text' | 'code' | 'markdown' | 'todo' | 'image';
+import { NoteNode, NodeType, ThemeType, SerializedNode, SerializedWoteFile } from '@/components/wote/types';
+import { THEMES } from '@/components/wote/theme';
+import { 
+  generateId, 
+  cloneTree, 
+  findNodeById, 
+  findPathToNode, 
+  getFlatVisibleNodeIds,
+  addSibling, 
+  addChild, 
+  deleteNode, 
+  indentNode, 
+  outdentNode, 
+  moveNode, 
+  serializeWote, 
+  deserializeNode, 
+  exportToMarkdown 
+} from '@/components/wote/utils/tree';
 
-interface NoteNode {
-  id: string;
-  type: NodeType;
-  content: string;
-  children: NoteNode[];
-  collapsed?: boolean;
-  checked?: boolean;
-  imageUrl?: string;
-  isEditing?: boolean;
-}
+import { NodeItem, NodeActions } from '@/components/wote/NodeItem';
+import { NoteDrawer, NoteSummary } from '@/components/wote/NoteDrawer';
+import { WoteHeader } from '@/components/wote/WoteHeader';
+import { SearchModal } from '@/components/wote/SearchModal';
+import { ShortcutsModal } from '@/components/wote/ShortcutsModal';
+import { SettingsModal } from '@/components/wote/SettingsModal';
 
-interface SerializedNode {
-  i: string;
-  t: NodeType;
-  c: string;
-  ch: SerializedNode[];
-  cl?: boolean;
-  ck?: boolean;
-  u?: string;
-}
-
-const THEME_STYLES = {
-  willow: {
-    bg: 'bg-[#1a1f16]',
-    text: 'text-[#e2e8e0]',
-    primary: 'text-[#95a38d]',
-    nodeBg: 'group-hover/node:bg-[#252c20]/50',
-    bodyBorder: 'border-white/10',
-    c: {
-      muted: 'text-white/40',
-      mutedBg: 'bg-white/5',
-      mutedHoverBg: 'hover:bg-white/10',
-      mutedBorder: 'border-white/5',
-      closeIcon: 'text-white/20 hover:text-white',
-      kbbBg: 'bg-black/40 border-white/10',
-      editorBg: 'bg-white/5 ring-cyan-500/20',
-      todoBorder: 'border-white/20 hover:border-cyan-500/50'
-    }
+const WOTE_3_HELP_MANUAL: NoteNode[] = [
+  {
+    id: 'h-intro',
+    type: 'heading1',
+    content: 'Welcome to Wote 3.0!',
+    children: [
+      {
+        id: 'h-tagline',
+        type: 'text',
+        content: 'A distraction-free, tree-structured outliner workspace designed for the web.',
+        children: []
+      },
+      {
+        id: 'h-callout-welcome',
+        type: 'callout',
+        calloutType: 'tip',
+        content: 'Interactive Guide: This manual is a real, live Wote document! Feel free to click, edit, expand, drag, and test everything right here.',
+        children: []
+      }
+    ]
   },
-  dark: {
-    bg: 'bg-[#0a0a0a]',
-    text: 'text-[#d4d4d4]',
-    primary: 'text-[#737373]',
-    nodeBg: 'group-hover/node:bg-[#171717]',
-    bodyBorder: 'border-white/10',
-    c: {
-      muted: 'text-white/40',
-      mutedBg: 'bg-white/5',
-      mutedHoverBg: 'hover:bg-white/10',
-      mutedBorder: 'border-white/5',
-      closeIcon: 'text-white/20 hover:text-white',
-      kbbBg: 'bg-black/40 border-white/10',
-      editorBg: 'bg-white/5 ring-cyan-500/20',
-      todoBorder: 'border-white/20 hover:border-cyan-500/50'
-    }
+  {
+    id: 'h-mouse',
+    type: 'heading2',
+    content: '1. Mouse Controls & Visual Superpowers',
+    children: [
+      {
+        id: 'h-zoom',
+        type: 'text',
+        content: 'Bullet Zoom (Focus Mode): Click the dot on the left of this bullet to zoom into this branch!',
+        children: [
+          {
+            id: 'h-zoom-sub1',
+            type: 'text',
+            content: 'Notice how the rest of the document fades away and breadcrumbs appear at the top?',
+            children: []
+          },
+          {
+            id: 'h-zoom-sub2',
+            type: 'text',
+            content: 'Click "Root" in the top bar or press Esc anytime to return to the full document.',
+            children: []
+          }
+        ]
+      },
+      {
+        id: 'h-drag',
+        type: 'text',
+        content: 'Drag-and-Drop: Hover over this line and grab the 6-dot grip handle to move or nest notes visually.',
+        children: []
+      },
+      {
+        id: 'h-collapse',
+        type: 'text',
+        content: 'Expand & Collapse: Click the chevron arrow to fold thoughts away.',
+        collapsed: true,
+        children: [
+          {
+            id: 'h-secret-1',
+            type: 'callout',
+            calloutType: 'success',
+            content: 'You found the collapsed note! Notice the counter badge (+2) when folded.',
+            children: []
+          },
+          {
+            id: 'h-secret-2',
+            type: 'text',
+            content: 'Collapsing keeps long outlines clean and focused.',
+            children: []
+          }
+        ]
+      },
+      {
+        id: 'h-hover-bar',
+        type: 'text',
+        content: 'Hover Quick Actions: Hover to the right of any line to quickly add a child (+), switch block type, or delete.',
+        children: []
+      }
+    ]
   },
-  light: {
-    bg: 'bg-[#fafafa]',
-    text: 'text-[#171717]',
-    primary: 'text-[#737373]',
-    nodeBg: 'group-hover/node:bg-[#f5f5f5]',
-    bodyBorder: 'border-black/10',
-    c: {
-      muted: 'text-black/40',
-      mutedBg: 'bg-black/5',
-      mutedHoverBg: 'hover:bg-black/10',
-      mutedBorder: 'border-black/5',
-      closeIcon: 'text-black/40 hover:text-black',
-      kbbBg: 'bg-black/5 border-black/10',
-      editorBg: 'bg-black/5 ring-cyan-500/30 border-black/10',
-      todoBorder: 'border-black/20 hover:border-cyan-500/50'
-    }
+  {
+    id: 'h-blocks',
+    type: 'heading2',
+    content: '2. Dedicated Block Types & The Slash Menu',
+    children: [
+      {
+        id: 'h-slash',
+        type: 'callout',
+        calloutType: 'info',
+        content: 'Type / on any empty line to summon the Command Menu and pick any block type.',
+        children: []
+      },
+      {
+        id: 'h-todo-example',
+        type: 'todo',
+        checked: true,
+        content: 'Interactive To-Dos: Click this checkbox to toggle complete with strikethrough!',
+        children: []
+      },
+      {
+        id: 'h-todo-2',
+        type: 'todo',
+        checked: false,
+        content: 'Press Enter from a to-do to create another task immediately.',
+        children: []
+      },
+      {
+        id: 'h-quote-example',
+        type: 'quote',
+        content: 'Simplicity is about subtracting the obvious and adding the meaningful. — John Maeda',
+        children: []
+      },
+      {
+        id: 'h-code-example',
+        type: 'code',
+        language: 'typescript',
+        content: '// Code blocks feature syntax highlighting and a 1-click Copy button!\ninterface WoteNote {\n  id: string;\n  type: "text" | "heading1" | "todo" | "code" | "quote" | "callout";\n  children: WoteNote[];\n}\n\nconsole.log("Distraction-free outliner ready!");',
+        children: []
+      },
+      {
+        id: 'h-div',
+        type: 'divider',
+        content: '',
+        children: []
+      },
+      {
+        id: 'h-img-tip',
+        type: 'text',
+        content: 'Clipboard Image Paste: Copy any image or screenshot to your clipboard and hit Ctrl+V right here!',
+        children: []
+      }
+    ]
+  },
+  {
+    id: 'h-keyboard',
+    type: 'heading2',
+    content: '3. Keyboard Shortcuts & Workflow',
+    children: [
+      {
+        id: 'k-enter',
+        type: 'todo',
+        checked: true,
+        content: 'Enter: Create a new sibling note below',
+        children: []
+      },
+      {
+        id: 'k-tab',
+        type: 'todo',
+        checked: true,
+        content: 'Tab: Indent / nest note under the previous item',
+        children: []
+      },
+      {
+        id: 'k-outdent',
+        type: 'todo',
+        checked: true,
+        content: 'Shift + Tab: Outdent note back up a level',
+        children: []
+      },
+      {
+        id: 'k-nav',
+        type: 'todo',
+        checked: true,
+        content: 'Alt + Up / Down: Move cursor focus smoothly between notes',
+        children: []
+      },
+      {
+        id: 'k-collapse',
+        type: 'todo',
+        checked: true,
+        content: 'Ctrl + /: Toggle collapse/expand on current branch',
+        children: []
+      },
+      {
+        id: 'k-search',
+        type: 'todo',
+        checked: true,
+        content: 'Ctrl + K: Quick Search across all bullets in the document',
+        children: []
+      },
+      {
+        id: 'k-history',
+        type: 'todo',
+        checked: true,
+        content: 'Ctrl + Z & Ctrl + Y: Full undo / redo history stack',
+        children: []
+      }
+    ]
+  },
+  {
+    id: 'h-library',
+    type: 'heading2',
+    content: '4. Document Library & Exporting',
+    children: [
+      {
+        id: 'lib-1',
+        type: 'text',
+        content: 'Notes Drawer: Click "Notes" at the top left to manage multiple saved documents, filter, or create new Wotes.',
+        children: []
+      },
+      {
+        id: 'lib-2',
+        type: 'text',
+        content: 'Exporting: Export your work anytime as a native .wote file or as standard clean Markdown (.md).',
+        children: []
+      },
+      {
+        id: 'lib-3',
+        type: 'callout',
+        calloutType: 'success',
+        content: 'All your documents are automatically saved in your browser storage locally with crash recovery.',
+        children: []
+      }
+    ]
   }
-};
-
-type ThemeType = 'willow' | 'dark' | 'light';
-
-interface NodeActions {
-  updateNode: (id: string, updates: Partial<NoteNode>) => void;
-  addSibling: (id: string) => void;
-  deleteNode: (id: string) => void;
-  indentNode: (id: string) => void;
-  outdentNode: (id: string) => void;
-  cycleType: (id: string) => void;
-  focusRelativeNode: (id: string, dir: 'up' | 'down') => void;
-  theme: ThemeType;
-  c: typeof THEME_STYLES['willow']['c'];
-  nodeBgStyle: string;
-  bodyBorder: string;
-}
-
-// Extract NodeItem to top level so React doesn't unmount it
-const NodeItem = memo(({ node, depth, actions }: { node: NoteNode; depth: number, actions: NodeActions }) => {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const lastContent = useRef(node.content);
-  const { c, theme, bodyBorder } = actions;
-
-  useEffect(() => {
-    if (contentRef.current) {
-      contentRef.current.innerText = node.content;
-      lastContent.current = node.content;
-    }
-  }, []); // Set initial content
-
-  useEffect(() => {
-    if (contentRef.current && lastContent.current !== node.content) {
-      contentRef.current.innerText = node.content;
-      lastContent.current = node.content;
-    }
-  }, [node.content]);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      actions.addSibling(node.id);
-    } else if (e.key === 'Tab') {
-      e.preventDefault();
-      if (e.shiftKey) actions.outdentNode(node.id);
-      else actions.indentNode(node.id);
-    } else if (e.key === '/' && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault();
-      actions.updateNode(node.id, { collapsed: !node.collapsed });
-    } else if (e.key === 't' && e.altKey) {
-      e.preventDefault();
-      actions.cycleType(node.id);
-    } else if (e.key === 'Backspace' && e.shiftKey && (e.ctrlKey || e.metaKey)) {
-      actions.deleteNode(node.id);
-    } else if (e.key === 'ArrowUp' && e.altKey) {
-      e.preventDefault();
-      actions.focusRelativeNode(node.id, 'up');
-    } else if (e.key === 'ArrowDown' && e.altKey) {
-      e.preventDefault();
-      actions.focusRelativeNode(node.id, 'down');
-    }
-  };
-
-  const renderContent = () => {
-    if (node.type === 'image') {
-      return (
-        <div className="space-y-2">
-          <input 
-            type="text" 
-            placeholder="Paste Image URL..." 
-            value={node.imageUrl || ''}
-            onChange={(e) => actions.updateNode(node.id, { imageUrl: e.target.value })}
-            className={`w-full ${c.mutedBg} border ${c.mutedBorder} rounded px-2 py-1 text-xs focus:outline-none focus:border-cyan-500/50`}
-          />
-          {node.imageUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={node.imageUrl} className={`max-h-64 rounded-lg border ${bodyBorder} shadow-lg`} alt="node content" />
-          )}
-        </div>
-      );
-    }
-
-    if (node.type === 'code' && !node.isEditing) {
-      return (
-        <pre 
-          onClick={() => actions.updateNode(node.id, { isEditing: true })}
-          className={`p-4 bg-black/40 rounded-xl border ${bodyBorder} font-mono text-sm overflow-x-auto cursor-text hover:border-cyan-500/30 transition-colors`}
-        >
-          <code dangerouslySetInnerHTML={{ __html: hljs.highlightAuto(node.content).value || ' ' }} />
-        </pre>
-      );
-    }
-
-    if (node.type === 'markdown' && !node.isEditing) {
-      return (
-        <div 
-          onClick={() => actions.updateNode(node.id, { isEditing: true })}
-          className="prose prose-invert prose-sm max-w-none cursor-text p-1"
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(node.content || '...') as string) }}
-        />
-      );
-    }
-
-    return (
-      <div
-        ref={contentRef}
-        contentEditable
-        suppressContentEditableWarning
-        onKeyDown={handleKeyDown}
-        onInput={(e) => {
-          lastContent.current = e.currentTarget.innerText;
-          actions.updateNode(node.id, { content: e.currentTarget.innerText });
-        }}
-        onBlur={() => (node.type === 'code' || node.type === 'markdown') && actions.updateNode(node.id, { isEditing: false })}
-        className={`outline-none min-h-[1.5em] w-full p-1 selection:bg-cyan-500/30 font-medium ${
-          node.type === 'code' ? 'font-mono text-cyan-300' : 
-          theme === 'willow' ? 'font-serif' : 'font-sans'
-        } ${node.checked ? 'line-through opacity-40' : ''}`}
-      />
-    );
-  };
-
-  const renderIcon = () => {
-    switch(node.type) {
-      case 'code': return <Code className="w-3.5 h-3.5 text-orange-400" />;
-      case 'markdown': return <FileText className="w-3.5 h-3.5 text-cyan-400" />;
-      case 'todo': return <CheckSquare className="w-3.5 h-3.5 text-green-400" />;
-      case 'image': return <ImageIcon className="w-3.5 h-3.5 text-purple-400" />;
-      default: return <Type className={`w-3.5 h-3.5 ${c.muted}`} />;
-    }
-  };
-
-  return (
-    <div className="group/node" data-id={node.id}>
-      <div className="flex items-start gap-2 py-1">
-        <div className="flex items-center gap-1 opacity-0 group-hover/node:opacity-100 transition-opacity translate-y-1">
-          <button 
-            onClick={() => actions.updateNode(node.id, { collapsed: !node.collapsed })}
-            className={`p-0.5 rounded ${c.mutedHoverBg} transition-colors ${node.children.length === 0 ? 'invisible' : ''}`}
-          >
-            {node.collapsed ? <ChevronRight className={`w-4 h-4 ${c.muted}`} /> : <ChevronDown className={`w-4 h-4 ${c.muted}`} />}
-          </button>
-        </div>
-
-        <div className={`flex-grow flex items-start gap-3 rounded-xl p-1.5 transition-all duration-300 border border-transparent ${node.isEditing ? `${c.editorBg} ring-1` : actions.nodeBgStyle}`}>
-          {node.type === 'todo' && (
-            <button 
-              onClick={() => actions.updateNode(node.id, { checked: !node.checked })}
-              className={`mt-1.5 w-4 h-4 rounded border flex items-center justify-center transition-colors ${node.checked ? 'bg-cyan-500 border-cyan-500' : c.todoBorder}`}
-            >
-              {node.checked && <X className="w-3 h-3 text-black font-bold" />}
-            </button>
-          )}
-          
-          <div className="flex-grow min-w-0">
-             {renderContent()}
-          </div>
-
-          <div className="flex items-center gap-2 opacity-0 group-hover/node:opacity-100 transition-opacity px-2 pt-1 h-full">
-            <div 
-               onClick={() => actions.cycleType(node.id)}
-               className={`${c.mutedBg} p-1 rounded-lg flex items-center gap-1.5 cursor-pointer ${c.mutedHoverBg} transition-colors`}
-               title="Click to change node type"
-            >
-               {renderIcon()}
-               <span className={`text-[9px] font-bold uppercase tracking-widest ${c.muted}`}>{node.type}</span>
-            </div>
-            <button 
-              onClick={() => actions.deleteNode(node.id)}
-              className={`p-1.5 ${c.muted} hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all`}
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <AnimatePresence initial={false}>
-        {!node.collapsed && node.children.length > 0 && (
-          <motion.div 
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className={`ml-6 border-l-2 ${c.mutedBorder} pl-4 overflow-hidden`}
-          >
-            {node.children.map(child => (
-              <NodeItem key={child.id} node={child} depth={depth + 1} actions={actions} />
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-});
-NodeItem.displayName = 'NodeItem';
+];
 
 export default function WotePage() {
+  const [docId, setDocId] = useState<string>('default');
+  const [title, setTitle] = useState<string>('Untitled Wote');
   const [nodes, setNodes] = useState<NoteNode[]>([]);
-  const [title, setTitle] = useState<string>('Your Wote');
-  const [noteId, setNoteId] = useState<string>('default');
+  const [zoomRootId, setZoomRootId] = useState<string | null>(null);
   const [theme, setTheme] = useState<ThemeType>('willow');
-  const [showSettings, setShowSettings] = useState(false);
-  const [showShortcuts, setShowShortcuts] = useState(false);
+  
+  // Library State
+  const [notesList, setNotesList] = useState<NoteSummary[]>([]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [hasBackup, setHasBackup] = useState(false);
-  const [showBackupPrompt, setShowBackupPrompt] = useState(false);
 
-  const generateId = () => Math.random().toString(36).substring(2, 11);
+  // Undo / Redo History Stack
+  const historyRef = useRef<{ title: string; nodes: NoteNode[] }[]>([]);
+  const historyIndexRef = useRef<number>(-1);
+  const [historyState, setHistoryState] = useState<{ canUndo: boolean; canRedo: boolean }>({
+    canUndo: false,
+    canRedo: false,
+  });
+
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // PWA Install & Offline Support
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [deferredInstallPrompt, setDeferredInstallPrompt] = useState<any>(null);
+  const [isAppInstalled, setIsAppInstalled] = useState(false);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    let id = params.get('id');
-    if (!id) {
-      id = generateId();
-      window.history.replaceState({}, '', `?id=${id}`);
+    // Register Service Worker for offline capability
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/wote-sw.js').catch((err) => {
+        console.info('Service Worker registration note:', err);
+      });
     }
-    setNoteId(id);
 
-    const backupKey = `wote-session-backup-${id}`;
-    const savedBackup = localStorage.getItem(backupKey);
-    const savedTheme = localStorage.getItem('wote-theme') as ThemeType;
-    if (savedTheme) setTheme(savedTheme);
-
-    const loadHelp = async () => {
-      try {
-        const res = await fetch('/help.wote');
-        if (res.ok) {
-           const parsed = await res.json();
-           setTitle(parsed.title || 'Help Manual');
-           setNodes(parsed.nodes.map(deserializeNode));
-        } else {
-           setTitle('Help Manual');
-           setNodes([{ id: generateId(), type: 'text', content: 'Missing help.wote in public folder', children: [] }]);
-        }
-      } catch (e) {
-         console.error(e);
-      } finally { setIsLoaded(true); }
+    // Capture install prompt event
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setDeferredInstallPrompt(e);
     };
 
-    if (id === 'help') {
-      loadHelp();
-    } else if (savedBackup) {
-      setHasBackup(true);
-      setShowBackupPrompt(true);
-      setIsLoaded(true);
-      setNodes([{ id: generateId(), type: 'text', content: '', children: [] }]);
-    } else {
-      setIsLoaded(true);
-      setNodes([{ id: generateId(), type: 'text', content: '', children: [] }]);
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+
+    if (typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches) {
+      setIsAppInstalled(true);
     }
+
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
   }, []);
 
-  // True Session Sync & Backup
-  useEffect(() => {
-    if (!isLoaded || noteId === 'help' || showBackupPrompt) return;
-    const backupKey = `wote-session-backup-${noteId}`;
-    
-    // Sync to localStorage for tabs
-    const timeout = setTimeout(() => {
-      const data = { title, nodes };
-      localStorage.setItem(backupKey, JSON.stringify(data));
-    }, 1000);
-
-    return () => clearTimeout(timeout);
-  }, [nodes, title, noteId, isLoaded, showBackupPrompt]);
-
-  // Handle cross-tab sync
-  useEffect(() => {
-    const handleStorage = (e: StorageEvent) => {
-       const backupKey = `wote-session-backup-${noteId}`;
-       if (e.key === backupKey && e.newValue) {
-          try {
-            const parsed = JSON.parse(e.newValue);
-            setNodes(parsed.nodes || []);
-            if (parsed.title) setTitle(parsed.title);
-          } catch {}
-       }
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, [noteId]);
-
-  const restoreSession = () => {
-    const backupKey = `wote-session-backup-${noteId}`;
-    const saved = localStorage.getItem(backupKey);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setNodes(parsed.nodes || []);
-        if (parsed.title) setTitle(parsed.title);
-        setShowBackupPrompt(false);
-      } catch {
-        alert("Backup corrupted");
+  const handleInstallApp = useCallback(async () => {
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice;
+      if (choice && choice.outcome === 'accepted') {
+        setIsAppInstalled(true);
+        setDeferredInstallPrompt(null);
       }
     }
-  };
+  }, [deferredInstallPrompt]);
 
-  useEffect(() => {
-    localStorage.setItem('wote-theme', theme);
-  }, [theme]);
+  const themeConfig = THEMES[theme] || THEMES.willow;
 
-  // Tree Utilities
-  const findNoteById = (id: string, currentNodes: NoteNode[]): { note: NoteNode; parent: NoteNode[] } | null => {
-    for (const node of currentNodes) {
-      if (node.id === id) return { note: node, parent: currentNodes };
-      if (node.children.length > 0) {
-        const result = findNoteById(id, node.children);
-        if (result) return result;
-      }
-    }
-    return null;
-  };
+  // Push to history stack
+  const recordHistory = useCallback((newTitle: string, newNodes: NoteNode[]) => {
+    const nextHistory = historyRef.current.slice(0, historyIndexRef.current + 1);
+    nextHistory.push({ title: newTitle, nodes: cloneTree(newNodes) });
+    if (nextHistory.length > 50) nextHistory.shift();
+    historyRef.current = nextHistory;
+    historyIndexRef.current = nextHistory.length - 1;
 
+    setHistoryState({
+      canUndo: historyIndexRef.current > 0,
+      canRedo: false,
+    });
+  }, []);
+
+  // Focus utility
   const focusNode = useCallback((id: string) => {
     setTimeout(() => {
       const el = document.querySelector(`[data-id="${id}"] [contenteditable]`) as HTMLElement;
@@ -414,431 +341,667 @@ export default function WotePage() {
         sel?.removeAllRanges();
         sel?.addRange(range);
       }
-    }, 10);
+    }, 20);
   }, []);
 
+  // Load Library Index & Current Note on mount
+  useEffect(() => {
+    const savedTheme = (localStorage.getItem('wote-theme') as ThemeType) || 'willow';
+    if (THEMES[savedTheme]) setTheme(savedTheme);
+
+    // Read library index
+    let library: NoteSummary[] = [];
+    try {
+      const rawLib = localStorage.getItem('wote-library-index');
+      if (rawLib) library = JSON.parse(rawLib);
+    } catch {}
+
+    // Check URL param ?id=...
+    const params = new URLSearchParams(window.location.search);
+    let id = params.get('id');
+
+    if (!id) {
+      if (library.length > 0) {
+        id = library[0].id;
+      } else {
+        id = generateId();
+      }
+      window.history.replaceState({}, '', `?id=${id}`);
+    }
+
+    setDocId(id);
+
+    // Load Document
+    if (id === 'help') {
+      setTitle('Wote 3.0 Guide & Manual');
+      setNodes(WOTE_3_HELP_MANUAL);
+      recordHistory('Wote 3.0 Guide & Manual', WOTE_3_HELP_MANUAL);
+      setIsLoaded(true);
+    } else {
+      const docKey = `wote-doc-${id}`;
+      const legacyKey = `wote-session-backup-${id}`;
+      let loadedTitle = 'My First Wote';
+      let loadedNodes: NoteNode[] = [
+        { id: generateId(), type: 'text', content: 'Welcome to Wote 3.0! Type something or press / for options.', children: [] }
+      ];
+
+      try {
+        const rawDoc = localStorage.getItem(docKey) || localStorage.getItem(legacyKey);
+        if (rawDoc) {
+          const parsed = JSON.parse(rawDoc);
+          if (parsed.title) loadedTitle = parsed.title;
+          if (parsed.nodes && Array.isArray(parsed.nodes)) {
+            loadedNodes = parsed.nodes.map(deserializeNode);
+          }
+        }
+      } catch (err) {
+        console.error('Error loading wote doc:', err);
+      }
+
+      setTitle(loadedTitle);
+      setNodes(loadedNodes);
+      recordHistory(loadedTitle, loadedNodes);
+
+      // Ensure library has this note registered
+      const exists = library.find(n => n.id === id);
+      if (!exists) {
+        library.unshift({
+          id,
+          title: loadedTitle,
+          updatedAt: Date.now(),
+          nodeCount: loadedNodes.length,
+        });
+        localStorage.setItem('wote-library-index', JSON.stringify(library));
+      }
+
+      setNotesList(library);
+      setIsLoaded(true);
+    }
+  }, [recordHistory]);
+
+  // Persist Theme
+  const handleSetTheme = (newTheme: ThemeType) => {
+    setTheme(newTheme);
+    localStorage.setItem('wote-theme', newTheme);
+  };
+
+  // Auto-save debounced to localStorage
+  useEffect(() => {
+    if (!isLoaded || docId === 'help') return;
+
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+
+    saveTimeoutRef.current = setTimeout(() => {
+      try {
+        const docKey = `wote-doc-${docId}`;
+        const data = serializeWote(title, nodes);
+        localStorage.setItem(docKey, data);
+
+        // Update library index
+        setNotesList(prev => {
+          const updated = [...prev];
+          const idx = updated.findIndex(n => n.id === docId);
+          const count = nodes.reduce((acc, curr) => acc + 1 + (curr.children?.length || 0), 0);
+          const summary: NoteSummary = {
+            id: docId,
+            title: title || 'Untitled Wote',
+            updatedAt: Date.now(),
+            nodeCount: count,
+          };
+          if (idx !== -1) {
+            updated[idx] = summary;
+          } else {
+            updated.unshift(summary);
+          }
+          localStorage.setItem('wote-library-index', JSON.stringify(updated));
+          return updated;
+        });
+      } catch (err) {
+        console.error('Auto-save error:', err);
+      }
+    }, 600);
+
+    return () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    };
+  }, [nodes, title, docId, isLoaded]);
+
+  // Undo / Redo Actions
+  const handleUndo = useCallback(() => {
+    if (historyIndexRef.current > 0) {
+      historyIndexRef.current -= 1;
+      const prev = historyRef.current[historyIndexRef.current];
+      setTitle(prev.title);
+      setNodes(cloneTree(prev.nodes));
+      setHistoryState({
+        canUndo: historyIndexRef.current > 0,
+        canRedo: true,
+      });
+    }
+  }, []);
+
+  const handleRedo = useCallback(() => {
+    if (historyIndexRef.current < historyRef.current.length - 1) {
+      historyIndexRef.current += 1;
+      const next = historyRef.current[historyIndexRef.current];
+      setTitle(next.title);
+      setNodes(cloneTree(next.nodes));
+      setHistoryState({
+        canUndo: true,
+        canRedo: historyIndexRef.current < historyRef.current.length - 1,
+      });
+    }
+  }, []);
+
+  // Global Keyboard Shortcuts (Ctrl+Z, Ctrl+Y, Ctrl+K)
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        if (e.shiftKey) {
+          e.preventDefault();
+          handleRedo();
+        } else {
+          e.preventDefault();
+          handleUndo();
+        }
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+        e.preventDefault();
+        handleRedo();
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(prev => !prev);
+      } else if (e.key === 'Escape' && zoomRootId) {
+        setZoomRootId(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [handleUndo, handleRedo, zoomRootId]);
+
+  // Node Mutation Actions
   const updateNode = useCallback((id: string, updates: Partial<NoteNode>) => {
     setNodes(prev => {
-      const newNodes = JSON.parse(JSON.stringify(prev));
-      const target = findNoteById(id, newNodes);
+      const tree = cloneTree(prev);
+      const target = findNodeById(tree, id);
       if (target) {
-        Object.assign(target.note, updates);
-        return newNodes;
+        Object.assign(target, updates);
+        return tree;
       }
       return prev;
     });
   }, []);
 
-  const addSibling = useCallback((id: string) => {
+  const handleAddSibling = useCallback((id: string) => {
     setNodes(prev => {
-      const newNodes = JSON.parse(JSON.stringify(prev));
-      const target = findNoteById(id, newNodes);
+      const target = findNodeById(prev, id);
+      const newNode: NoteNode = {
+        id: generateId(),
+        type: target?.type === 'todo' ? 'todo' : 'text',
+        content: '',
+        children: [],
+      };
+      const updated = addSibling(prev, id, newNode);
+      recordHistory(title, updated);
+      focusNode(newNode.id);
+      return updated;
+    });
+  }, [focusNode, recordHistory, title]);
+
+  const handleAddChild = useCallback((id: string) => {
+    setNodes(prev => {
+      const newNode: NoteNode = {
+        id: generateId(),
+        type: 'text',
+        content: '',
+        children: [],
+      };
+      const updated = addChild(prev, id, newNode);
+      recordHistory(title, updated);
+      focusNode(newNode.id);
+      return updated;
+    });
+  }, [focusNode, recordHistory, title]);
+
+  const handleDeleteNode = useCallback((id: string) => {
+    setNodes(prev => {
+      const updated = deleteNode(prev, id);
+      recordHistory(title, updated);
+      return updated;
+    });
+  }, [recordHistory, title]);
+
+  const handleIndentNode = useCallback((id: string) => {
+    setNodes(prev => {
+      const updated = indentNode(prev, id);
+      recordHistory(title, updated);
+      focusNode(id);
+      return updated;
+    });
+  }, [focusNode, recordHistory, title]);
+
+  const handleOutdentNode = useCallback((id: string) => {
+    setNodes(prev => {
+      const updated = outdentNode(prev, id);
+      recordHistory(title, updated);
+      focusNode(id);
+      return updated;
+    });
+  }, [focusNode, recordHistory, title]);
+
+  const handleCycleType = useCallback((id: string) => {
+    const cycleList: NodeType[] = [
+      'text', 'heading1', 'heading2', 'heading3', 
+      'todo', 'code', 'quote', 'callout'
+    ];
+    setNodes(prev => {
+      const tree = cloneTree(prev);
+      const target = findNodeById(tree, id);
       if (target) {
-        const idx = target.parent.findIndex(n => n.id === id);
-        const newNode: NoteNode = { id: generateId(), type: target.note.type, content: '', children: [] };
-        target.parent.splice(idx + 1, 0, newNode);
-        focusNode(newNode.id);
-        return newNodes;
+        const nextIdx = (cycleList.indexOf(target.type) + 1) % cycleList.length;
+        target.type = cycleList[nextIdx];
+        recordHistory(title, tree);
+        return tree;
       }
       return prev;
     });
-  }, [focusNode]);
+  }, [recordHistory, title]);
 
-  const deleteNode = useCallback((id: string) => {
+  const handleMoveNode = useCallback((sourceId: string, targetId: string, position: 'before' | 'after' | 'inside') => {
     setNodes(prev => {
-      const newNodes = JSON.parse(JSON.stringify(prev));
-      const target = findNoteById(id, newNodes);
-      if (target) {
-        const idx = target.parent.findIndex(n => n.id === id);
-        const children = target.note.children;
-        target.parent.splice(idx, 1);
-        if (children.length > 0) {
-          target.parent.splice(idx, 0, ...children);
-        }
-        if (newNodes.length === 0) {
-          newNodes.push({ id: generateId(), type: 'text', content: '', children: [] });
-        }
-        return newNodes;
-      }
-      return prev;
+      const updated = moveNode(prev, sourceId, targetId, position);
+      recordHistory(title, updated);
+      return updated;
     });
-  }, []);
+  }, [recordHistory, title]);
 
-  const indentNode = useCallback((id: string) => {
-    setNodes(prev => {
-      const newNodes = JSON.parse(JSON.stringify(prev));
-      const target = findNoteById(id, newNodes);
-      if (target && target.parent.findIndex(n => n.id === id) > 0) {
-        const idx = target.parent.findIndex(n => n.id === id);
-        const previous = target.parent[idx - 1];
-        target.parent.splice(idx, 1);
-        previous.children.push(target.note);
-        previous.collapsed = false;
-        focusNode(id);
-        return newNodes;
-      }
-      return prev;
-    });
-  }, [focusNode]);
+  const handleFocusRelative = useCallback((id: string, dir: 'up' | 'down') => {
+    const flat = getFlatVisibleNodeIds(nodes, zoomRootId);
+    const idx = flat.indexOf(id);
+    if (idx !== -1) {
+      if (dir === 'up' && idx > 0) focusNode(flat[idx - 1]);
+      else if (dir === 'down' && idx < flat.length - 1) focusNode(flat[idx + 1]);
+    }
+  }, [nodes, zoomRootId, focusNode]);
 
-  const outdentNode = useCallback((id: string) => {
-    setNodes(prev => {
-      const newNodes = JSON.parse(JSON.stringify(prev));
-      const findParentOfArray = (arr: NoteNode[], targetArr: NoteNode[]): NoteNode | null => {
-        for (const node of arr) {
-          if (node.children === targetArr) return node;
-          const result = findParentOfArray(node.children, targetArr);
-          if (result) return result;
+  // Zoom / Focus on sub-tree
+  const handleZoomInto = useCallback((id: string) => {
+    if (zoomRootId === id) {
+      setZoomRootId(null);
+    } else {
+      setZoomRootId(id);
+    }
+  }, [zoomRootId]);
+
+  const zoomPath = useMemo(() => {
+    if (!zoomRootId) return [];
+    return findPathToNode(nodes, zoomRootId);
+  }, [nodes, zoomRootId]);
+
+  const zoomedNode = useMemo(() => {
+    if (!zoomRootId) return null;
+    return findNodeById(nodes, zoomRootId);
+  }, [nodes, zoomRootId]);
+
+  // Library switching & creation
+  const handleSelectNote = (id: string) => {
+    setDocId(id);
+    setZoomRootId(null);
+    window.history.replaceState({}, '', `?id=${id}`);
+
+    if (id === 'help') {
+      setTitle('Wote 3.0 Guide & Manual');
+      setNodes(WOTE_3_HELP_MANUAL);
+      recordHistory('Wote 3.0 Guide & Manual', WOTE_3_HELP_MANUAL);
+      return;
+    }
+
+    const docKey = `wote-doc-${id}`;
+    const legacyKey = `wote-session-backup-${id}`;
+    let loadedTitle = 'Untitled Wote';
+    let loadedNodes: NoteNode[] = [{ id: generateId(), type: 'text', content: '', children: [] }];
+
+    try {
+      const rawDoc = localStorage.getItem(docKey) || localStorage.getItem(legacyKey);
+      if (rawDoc) {
+        const parsed = JSON.parse(rawDoc);
+        if (parsed.title) loadedTitle = parsed.title;
+        if (parsed.nodes && Array.isArray(parsed.nodes)) {
+          loadedNodes = parsed.nodes.map(deserializeNode);
         }
-        return null;
+      }
+    } catch {}
+
+    setTitle(loadedTitle);
+    setNodes(loadedNodes);
+    recordHistory(loadedTitle, loadedNodes);
+  };
+
+  const handleCreateNote = () => {
+    const newId = generateId();
+    const newTitle = 'Untitled Wote';
+    const newNodes: NoteNode[] = [
+      { id: generateId(), type: 'text', content: '', children: [] }
+    ];
+
+    const newSummary: NoteSummary = {
+      id: newId,
+      title: newTitle,
+      updatedAt: Date.now(),
+      nodeCount: 1,
+    };
+
+    const nextList = [newSummary, ...notesList];
+    setNotesList(nextList);
+    localStorage.setItem('wote-library-index', JSON.stringify(nextList));
+
+    setDocId(newId);
+    setTitle(newTitle);
+    setNodes(newNodes);
+    setZoomRootId(null);
+    window.history.replaceState({}, '', `?id=${newId}`);
+    recordHistory(newTitle, newNodes);
+    setIsDrawerOpen(false);
+  };
+
+  const handleDeleteNoteFromLib = (idToDelete: string) => {
+    const filtered = notesList.filter(n => n.id !== idToDelete);
+    setNotesList(filtered);
+    localStorage.setItem('wote-library-index', JSON.stringify(filtered));
+    localStorage.removeItem(`wote-doc-${idToDelete}`);
+
+    if (docId === idToDelete) {
+      if (filtered.length > 0) {
+        handleSelectNote(filtered[0].id);
+      } else {
+        handleCreateNote();
+      }
+    }
+  };
+
+  const handleDuplicateNote = (idToDup: string) => {
+    const rawDoc = localStorage.getItem(`wote-doc-${idToDup}`);
+    if (!rawDoc) return;
+    try {
+      const parsed = JSON.parse(rawDoc);
+      const newId = generateId();
+      const dupTitle = `${parsed.title || 'Note'} (Copy)`;
+      const dupNodes: NoteNode[] = (parsed.nodes || []).map(deserializeNode);
+
+      const newSummary: NoteSummary = {
+        id: newId,
+        title: dupTitle,
+        updatedAt: Date.now(),
+        nodeCount: dupNodes.length,
       };
 
-      const target = findNoteById(id, newNodes);
-      if (target) {
-        const parentNode = findParentOfArray(newNodes, target.parent);
-        if (parentNode) {
-          const grandTarget = findNoteById(parentNode.id, newNodes);
-          if (grandTarget) {
-            const idx = target.parent.findIndex(n => n.id === id);
-            target.parent.splice(idx, 1);
-            const pIdx = grandTarget.parent.findIndex(n => n.id === parentNode.id);
-            grandTarget.parent.splice(pIdx + 1, 0, target.note);
-            focusNode(id);
-            return newNodes;
-          }
-        }
-      }
-      return prev;
-    });
-  }, [focusNode]);
+      const nextList = [newSummary, ...notesList];
+      setNotesList(nextList);
+      localStorage.setItem('wote-library-index', JSON.stringify(nextList));
+      localStorage.setItem(`wote-doc-${newId}`, serializeWote(dupTitle, dupNodes));
+      handleSelectNote(newId);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-  const focusRelativeNode = useCallback((id: string, direction: 'up' | 'down') => {
-    setNodes(prev => {
-      const getFlatVisibleNodes = (arr: NoteNode[]): string[] => {
-        let flat: string[] = [];
-        for (const node of arr) {
-          flat.push(node.id);
-          if (!node.collapsed && node.children.length > 0) {
-            flat = [...flat, ...getFlatVisibleNodes(node.children)];
-          }
-        }
-        return flat;
-      };
-      const flat = getFlatVisibleNodes(prev);
-      const idx = flat.indexOf(id);
-      if (idx !== -1) {
-        if (direction === 'up' && idx > 0) focusNode(flat[idx - 1]);
-        else if (direction === 'down' && idx < flat.length - 1) focusNode(flat[idx + 1]);
-      }
-      return prev;
-    });
-  }, [focusNode]);
-
-  const cycleType = useCallback((id: string) => {
-    const types: NodeType[] = ['text', 'markdown', 'code', 'todo', 'image'];
-    setNodes(prev => {
-      const newNodes = JSON.parse(JSON.stringify(prev));
-      const target = findNoteById(id, newNodes);
-      if (target) {
-        const next = types[(types.indexOf(target.note.type) + 1) % types.length];
-        target.note.type = next;
-        return newNodes;
-      }
-      return prev;
-    });
-  }, []);
-
-  const serializeNode = (node: NoteNode): SerializedNode => ({
-    i: node.id, t: node.type, c: node.content,
-    cl: node.collapsed, ck: node.checked, u: node.imageUrl,
-    ch: node.children.map(serializeNode)
-  });
-
-  const deserializeNode = (s: SerializedNode): NoteNode => ({
-    id: s.i, type: s.t, content: s.c,
-    collapsed: s.cl, checked: s.ck, imageUrl: s.u,
-    children: (s.ch || []).map(deserializeNode)
-  });
-
-  const handleExport = () => {
-    const serialized = nodes.map(serializeNode);
-    const data = JSON.stringify({ v: 1, title, nodes: serialized });
-    const blob = new Blob([data], { type: 'application/wote' });
+  // Export & Import
+  const handleExportWote = () => {
+    const serialized = serializeWote(title, nodes);
+    const blob = new Blob([serialized], { type: 'application/wote' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'save'}.wote`;
+    a.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'note'}.wote`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleExportMarkdown = () => {
+    const md = exportToMarkdown(title, nodes);
+    const blob = new Blob([md], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'note'}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportAll = () => {
+    const backup: Record<string, unknown> = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('wote-doc-') || key === 'wote-library-index')) {
+        try {
+          backup[key] = JSON.parse(localStorage.getItem(key) || '{}');
+        } catch {
+          backup[key] = localStorage.getItem(key);
+        }
+      }
+    }
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `wote_backup_all_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const parsed = JSON.parse(event.target?.result as string);
-        if (Array.isArray(parsed)) {
-          setNodes(parsed.map(deserializeNode));
-          setTitle('Imported Wote');
-        } else if (parsed.v === 1) {
-          setTitle(parsed.title || 'Untitled');
-          setNodes((parsed.nodes || []).map(deserializeNode));
+        const text = event.target?.result as string;
+        const parsed = JSON.parse(text);
+
+        if (parsed.v === 1 && parsed.nodes) {
+          // Native .wote format
+          const importedNodes = parsed.nodes.map(deserializeNode);
+          const importedTitle = parsed.title || file.name.replace(/\.[^/.]+$/, '');
+          setTitle(importedTitle);
+          setNodes(importedNodes);
+          recordHistory(importedTitle, importedNodes);
+        } else if (Array.isArray(parsed)) {
+          // Array of nodes
+          const importedNodes = parsed.map(deserializeNode);
+          setNodes(importedNodes);
+          recordHistory(title, importedNodes);
         } else {
-          throw new Error("Invalid format");
+          alert('Unrecognized Wote file format');
         }
       } catch {
-        alert("Invalid .wote file format");
+        alert('Invalid file format. Please upload a valid .wote or .json file.');
       }
     };
     reader.readAsText(file);
+    e.target.value = '';
   };
 
-  const c = THEME_STYLES[theme].c;
-
   const actions: NodeActions = {
-    updateNode, addSibling, deleteNode, indentNode, outdentNode, cycleType, focusRelativeNode, 
-    theme, c, nodeBgStyle: THEME_STYLES[theme].nodeBg, bodyBorder: THEME_STYLES[theme].bodyBorder
+    updateNode,
+    addSibling: handleAddSibling,
+    addChild: handleAddChild,
+    deleteNode: handleDeleteNode,
+    indentNode: handleIndentNode,
+    outdentNode: handleOutdentNode,
+    cycleType: handleCycleType,
+    focusRelativeNode: handleFocusRelative,
+    zoomInto: handleZoomInto,
+    moveNode: handleMoveNode,
+    themeConfig,
+    theme,
   };
 
   if (!isLoaded) return null;
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 font-sans selection:bg-cyan-500/30 ${THEME_STYLES[theme].bg} ${THEME_STYLES[theme].text}`}>
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+    <div className={`min-h-screen transition-colors duration-500 font-sans selection:bg-cyan-500/30 ${themeConfig.bg} ${themeConfig.text}`}>
+      {/* Subtle Dot Grid Background */}
+      <div 
+        className="fixed inset-0 pointer-events-none opacity-[0.035]"
+        style={{
+          backgroundImage: `radial-gradient(circle, ${themeConfig.dotColor} 1.2px, transparent 1.2px)`,
+          backgroundSize: '36px 36px',
+        }}
+      />
 
-      <header className="fixed top-0 inset-x-0 z-50 p-3 sm:p-6 flex items-center justify-between gap-2 pointer-events-none">
-         <Link 
-          href="/" 
-          className={`${c.mutedBg} ${c.mutedHoverBg} p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border ${c.mutedBorder} backdrop-blur-md transition-all active:scale-95 group pointer-events-auto shrink-0`}
-          title="Back to Dashboard"
-         >
-            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 group-hover:-translate-x-1 transition-transform" />
-         </Link>
+      {/* Global Header */}
+      <WoteHeader
+        themeConfig={themeConfig}
+        notesCount={notesList.length}
+        zoomPath={zoomPath}
+        canUndo={historyState.canUndo}
+        canRedo={historyState.canRedo}
+        onOpenDrawer={() => setIsDrawerOpen(true)}
+        onResetZoom={() => setZoomRootId(null)}
+        onZoomToNode={handleZoomInto}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        onOpenSearch={() => setIsSearchOpen(true)}
+        onOpenShortcuts={() => setIsShortcutsOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+        onExportWote={handleExportWote}
+        onExportMarkdown={handleExportMarkdown}
+        onImportFile={handleImportFile}
+        canInstall={!!deferredInstallPrompt && !isAppInstalled}
+        onInstallApp={handleInstallApp}
+      />
 
-         <div className="flex items-center gap-1.5 sm:gap-3 pointer-events-auto shrink-0">
-            <button 
-                onClick={handleExport}
-                className="bg-cyan-500 hover:bg-cyan-400 text-black p-2.5 sm:p-3 px-3 sm:px-5 rounded-xl sm:rounded-2xl transition-all flex items-center gap-1.5 sm:gap-2 shadow-lg shadow-cyan-500/20 active:scale-95 shrink-0"
-                title="Export .wote file"
-            >
-                <Download className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="text-xs font-black uppercase tracking-widest hidden md:block">Save .wote</span>
-            </button>
-            <label 
-                className={`${c.mutedBg} ${c.mutedHoverBg} p-2.5 sm:p-3 px-3 sm:px-5 rounded-xl sm:rounded-2xl border ${c.mutedBorder} backdrop-blur-md transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer active:scale-95 shrink-0`}
-                title="Import .wote file"
-            >
-                <Upload className={`w-4 h-4 sm:w-5 sm:h-5 ${c.muted}`} />
-                <span className={`text-xs font-bold uppercase tracking-widest ${c.muted} hidden md:block`}>Load</span>
-                <input type="file" className="hidden" onChange={handleImport} accept=".wote" />
-            </label>
-            <button 
-              onClick={() => setShowShortcuts(true)}
-              className={`hidden sm:flex ${c.mutedBg} ${c.mutedHoverBg} p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border ${c.mutedBorder} backdrop-blur-md transition-all items-center gap-3 px-4 shrink-0`}
-              title="Keyboard Shortcuts"
-            >
-              <Keyboard className={`w-4 h-4 sm:w-5 sm:h-5 ${c.muted}`} />
-            </button>
-            <button 
-              onClick={() => setShowSettings(true)}
-              className={`${c.mutedBg} ${c.mutedHoverBg} p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border ${c.mutedBorder} backdrop-blur-md transition-all shrink-0`}
-              title="Settings & Themes"
-            >
-              <Settings className={`w-4 h-4 sm:w-5 sm:h-5 ${c.muted}`} />
-            </button>
-         </div>
-      </header>
-
-      <main className="max-w-4xl mx-auto pt-32 px-6 pb-40">
-        <div className="flex flex-col gap-2">
-           <div className="mb-12 space-y-2">
-              {noteId === 'help' ? (
-                <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter bg-gradient-to-br from-cyan-400 to-cyan-500 bg-clip-text text-transparent opacity-80 cursor-default">
-                  Help Manual
-                </h1>
-              ) : (
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className={`w-full bg-transparent text-4xl md:text-6xl font-black italic tracking-tighter outline-none placeholder-${theme === 'light' ? 'black' : 'white'}/20 transition-all`}
-                  style={{ backgroundImage: `linear-gradient(to bottom right, currentColor, ${theme === 'light' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)'})`, WebkitBackgroundClip: 'text', color: 'transparent', opacity: 0.8 }}
-                  placeholder="Your Wote"
-                />
-              )}
-              <div className="flex items-center gap-2">
-                <div className="h-1 w-12 bg-cyan-500 rounded-full" />
-                <span className={`text-[10px] font-bold ${c.muted} uppercase tracking-[0.3em]`}>Minimalist Tree Node Editor</span>
+      {/* Main Workspace */}
+      <main className="max-w-4xl mx-auto pt-28 sm:pt-32 px-4 sm:px-8 pb-48">
+        <div className="flex flex-col gap-3">
+          {/* Zoom Breadcrumb Banner for Mobile or Focus context */}
+          {zoomRootId && zoomedNode && (
+            <div className={`flex items-center justify-between p-3 px-4 rounded-2xl border ${themeConfig.border} ${themeConfig.cardBg} mb-4`}>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="font-bold text-cyan-400">Focus Mode:</span>
+                <span className="opacity-70 truncate max-w-xs">{zoomedNode.content || 'Branch'}</span>
               </div>
-           </div>
+              <button
+                type="button"
+                onClick={() => setZoomRootId(null)}
+                className="text-xs font-bold text-cyan-400 hover:underline"
+              >
+                Reset to Full Document (Esc)
+              </button>
+            </div>
+          )}
 
-           <div className="space-y-1">
-              {nodes.map(node => (
-                <NodeItem key={node.id} node={node} depth={0} actions={actions} />
-              ))}
-           </div>
-           
-           <button 
-            onClick={() => setNodes([...nodes, { id: generateId(), type: 'text', content: '', children: [] }])}
-            className={`mt-8 flex items-center gap-2 px-4 py-3 ${c.mutedBg} ${c.mutedHoverBg} border ${c.mutedBorder} rounded-2xl transition-all ${c.muted} hover:text-cyan-500 w-fit`}
-           >
-              <Plus className="w-5 h-5" />
-              <span className="text-xs font-bold uppercase tracking-widest">New Root Node</span>
-           </button>
+          {/* Document Title Header */}
+          <div className="mb-8 space-y-2">
+            {docId === 'help' ? (
+              <h1 className="text-3xl sm:text-5xl font-black italic tracking-tighter bg-gradient-to-br from-cyan-400 via-teal-300 to-cyan-500 bg-clip-text text-transparent opacity-90 cursor-default">
+                {title}
+              </h1>
+            ) : (
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full bg-transparent text-3xl sm:text-5xl font-black italic tracking-tighter outline-none transition-all placeholder:opacity-30"
+                placeholder="Your Wote"
+              />
+            )}
+            <div className="flex items-center gap-2 pt-1">
+              <div className="h-1 w-10 bg-cyan-400 rounded-full" />
+              <span className={`text-[10px] font-bold ${themeConfig.muted} uppercase tracking-[0.25em]`}>
+                Wote 3.0 • Tree Node Workspace
+              </span>
+            </div>
+          </div>
+
+          {/* Tree Nodes Rendering */}
+          <div className="space-y-1">
+            {zoomRootId && zoomedNode ? (
+              <NodeItem
+                key={zoomedNode.id}
+                node={zoomedNode}
+                depth={0}
+                actions={actions}
+                isZoomedRoot={true}
+              />
+            ) : (
+              nodes.map(node => (
+                <NodeItem
+                  key={node.id}
+                  node={node}
+                  depth={0}
+                  actions={actions}
+                />
+              ))
+            )}
+          </div>
+
+          {/* Add Root Bullet Button */}
+          {!zoomRootId && (
+            <button 
+              type="button"
+              onClick={() => {
+                const newNode: NoteNode = { id: generateId(), type: 'text', content: '', children: [] };
+                const nextNodes = [...nodes, newNode];
+                setNodes(nextNodes);
+                recordHistory(title, nextNodes);
+                focusNode(newNode.id);
+              }}
+              className={`mt-8 flex items-center gap-2 px-4 py-2.5 ${themeConfig.mutedBg} ${themeConfig.hoverBg} border ${themeConfig.mutedBorder} rounded-2xl transition-all ${themeConfig.muted} hover:text-cyan-400 w-fit active:scale-95`}
+            >
+              <Plus className="w-4 h-4" />
+              <span className="text-xs font-bold uppercase tracking-wider">New Root Bullet</span>
+            </button>
+          )}
         </div>
       </main>
 
-      <AnimatePresence>
-        {showSettings && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowSettings(false)}
-              className={`absolute inset-0 ${theme === 'light' ? 'bg-white/80' : 'bg-black/80'} backdrop-blur-sm`}
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className={`relative w-full max-w-sm border ${c.mutedBorder} rounded-[2rem] shadow-2xl overflow-hidden p-8 flex flex-col gap-8 ${THEME_STYLES[theme].bg}`}
-            >
-              <div className="flex items-center justify-between">
-                 <h2 className="text-2xl font-black italic tracking-tighter">Settings</h2>
-                 <X 
-                  className={`w-6 h-6 ${c.closeIcon} cursor-pointer`}
-                  onClick={() => setShowSettings(false)} 
-                />
-              </div>
+      {/* Library Drawer */}
+      <NoteDrawer
+        isOpen={isDrawerOpen}
+        activeId={docId}
+        notes={notesList}
+        themeConfig={themeConfig}
+        onClose={() => setIsDrawerOpen(false)}
+        onSelectNote={handleSelectNote}
+        onCreateNote={handleCreateNote}
+        onDeleteNote={handleDeleteNoteFromLib}
+        onDuplicateNote={handleDuplicateNote}
+        onOpenHelp={() => handleSelectNote('help')}
+      />
 
-              <div className="space-y-6">
-                 <div className="space-y-4">
-                    <p className={`text-[10px] font-bold ${c.muted} uppercase tracking-[0.2em]`}>Appearance</p>
-                    <div className="grid grid-cols-3 gap-2">
-                       {([['willow', Sun], ['dark', Moon], ['light', Monitor]] as const).map(([t, Icon]) => (
-                         <button 
-                          key={t}
-                          onClick={() => setTheme(t)}
-                          className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all ${theme === t ? 'bg-cyan-500 text-black border-cyan-500 shadow-lg shadow-cyan-500/20' : `${c.mutedBg} ${c.mutedBorder} ${c.muted} hover:text-cyan-500`}`}
-                         >
-                            <Icon className="w-5 h-5" />
-                            <span className="text-[10px] font-bold uppercase">{t}</span>
-                         </button>
-                       ))}
-                    </div>
-                 </div>
+      {/* Search Modal (Ctrl+K) */}
+      <SearchModal
+        isOpen={isSearchOpen}
+        nodes={nodes}
+        themeConfig={themeConfig}
+        onClose={() => setIsSearchOpen(false)}
+        onSelectNode={(id) => {
+          setZoomRootId(null);
+          focusNode(id);
+        }}
+      />
 
-                 <div className={`space-y-4 pt-4 border-t ${c.mutedBorder}`}>
-                    <p className={`text-[10px] font-bold ${c.muted} uppercase tracking-[0.2em]`}>Data Management</p>
-                    <div className="grid grid-cols-2 gap-3">
-                       <button 
-                        onClick={handleExport}
-                        className={`flex items-center justify-center gap-2 p-3 ${c.mutedBg} ${c.mutedHoverBg} border ${c.mutedBorder} rounded-2xl transition-all text-sm font-bold`}
-                       >
-                          <Download className="w-4 h-4" />
-                          Export
-                       </button>
-                       <label className={`flex items-center justify-center gap-2 p-3 ${c.mutedBg} ${c.mutedHoverBg} border ${c.mutedBorder} rounded-2xl transition-all text-sm font-bold cursor-pointer`}>
-                          <Upload className="w-4 h-4" />
-                          Import
-                          <input type="file" className="hidden" onChange={handleImport} accept=".wote,.json" />
-                       </label>
-                    </div>
-                    <Link 
-                      href="?id=help"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => setShowSettings(false)}
-                      className="flex items-center justify-center gap-2 p-3 w-full bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-500 border border-cyan-500/20 rounded-2xl transition-all text-sm font-bold"
-                    >
-                      <Info className="w-4 h-4" />
-                      View Help Manual
-                    </Link>
-                 </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* Shortcuts & Guide Modal */}
+      <ShortcutsModal
+        isOpen={isShortcutsOpen}
+        themeConfig={themeConfig}
+        onClose={() => setIsShortcutsOpen(false)}
+      />
 
-      <AnimatePresence>
-        {showShortcuts && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowShortcuts(false)}
-              className={`absolute inset-0 ${theme === 'light' ? 'bg-white/80' : 'bg-black/80'} backdrop-blur-sm`}
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className={`relative w-full max-w-sm border ${c.mutedBorder} rounded-[2rem] shadow-2xl overflow-hidden p-8 flex flex-col gap-6 ${THEME_STYLES[theme].bg}`}
-            >
-               <div className="flex items-center justify-between">
-                 <h2 className="text-2xl font-black italic tracking-tighter">Shortcuts</h2>
-                 <X 
-                  className={`w-6 h-6 ${c.closeIcon} cursor-pointer`}
-                  onClick={() => setShowShortcuts(false)} 
-                />
-              </div>
-
-              <div className="space-y-3">
-                 {[
-                   ['Enter', 'Create Node'],
-                   ['Tab / Shift+Tab', 'Indent / Outdent'],
-                   ['Ctrl + /', 'Toggle Collapse'],
-                   ['Alt + T', 'Cycle Node Type'],
-                   ['Alt + Up / Down', 'Move Focus'],
-                   ['Ctrl + Shift + Backspace', 'Delete Node'],
-                 ].map(([keys, desc]) => (
-                   <div key={keys} className={`flex items-center justify-between p-3 ${c.mutedBg} rounded-xl border ${c.mutedBorder}`}>
-                      <span className={`text-xs font-bold ${c.muted} uppercase tracking-tight`}>{desc}</span>
-                      <kbd className={`px-2 py-1 ${c.kbbBg} rounded border text-[10px] font-mono font-bold text-cyan-500`}>{keys}</kbd>
-                   </div>
-                 ))}
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {showBackupPrompt && (
-          <motion.div 
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 100 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-full max-w-md px-4"
-          >
-            <div className={`${THEME_STYLES[theme].bg} border border-cyan-500/30 rounded-3xl p-6 shadow-2xl flex items-center justify-between gap-6 backdrop-blur-xl`}>
-               <div className="space-y-1">
-                  <p className="text-sm font-bold">Unsaved session found!</p>
-                  <p className="text-[10px] uppercase font-bold text-cyan-500/70 tracking-widest">Crash Recovery active</p>
-               </div>
-               <div className="flex gap-2">
-                 <button 
-                   onClick={() => setShowBackupPrompt(false)}
-                   className={`px-4 py-2 text-xs font-bold uppercase tracking-widest ${c.muted} ${c.closeIcon} transition-colors`}
-                 >
-                   Ignore
-                 </button>
-                 <button 
-                   onClick={restoreSession}
-                   className="px-6 py-2 bg-cyan-500 text-black rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-cyan-500/20 active:scale-95 transition-all"
-                 >
-                   Restore
-                 </button>
-               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        theme={theme}
+        themeConfig={themeConfig}
+        onClose={() => setIsSettingsOpen(false)}
+        onSetTheme={handleSetTheme}
+        onOpenHelp={() => handleSelectNote('help')}
+        onExportAll={handleExportAll}
+        canInstall={!!deferredInstallPrompt && !isAppInstalled}
+        onInstallApp={handleInstallApp}
+      />
     </div>
   );
 }
