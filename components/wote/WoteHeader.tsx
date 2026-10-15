@@ -26,6 +26,8 @@ interface WoteHeaderProps {
   onExportWote: () => void;
   onExportMarkdown: () => void;
   onImportFile: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  canInstall?: boolean;
+  onInstallApp?: () => void;
 }
 
 export function WoteHeader({
@@ -45,6 +47,8 @@ export function WoteHeader({
   onExportWote,
   onExportMarkdown,
   onImportFile,
+  canInstall,
+  onInstallApp,
 }: WoteHeaderProps) {
   const [showExportMenu, setShowExportMenu] = useState(false);
 
@@ -73,6 +77,19 @@ export function WoteHeader({
             {notesCount}
           </span>
         </button>
+
+        {/* PWA Install Button */}
+        {canInstall && onInstallApp && (
+          <button
+            type="button"
+            onClick={onInstallApp}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 text-xs font-bold transition-all shadow-sm active:scale-95 shrink-0"
+            title="Install Wote Desktop App"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Install App</span>
+          </button>
+        )}
 
         {/* Breadcrumb Navigation when zoomed in */}
         {zoomPath.length > 0 && (

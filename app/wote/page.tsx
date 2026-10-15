@@ -273,6 +273,45 @@ export default function WotePage() {
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // PWA Install & Offline Support
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [deferredInstallPrompt, setDeferredInstallPrompt] = useState<any>(null);
+  const [isAppInstalled, setIsAppInstalled] = useState(false);
+
+  useEffect(() => {
+    // Register Service Worker for offline capability
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/wote-sw.js').catch((err) => {
+        console.info('Service Worker registration note:', err);
+      });
+    }
+
+    // Capture install prompt event
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setDeferredInstallPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+
+    if (typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches) {
+      setIsAppInstalled(true);
+    }
+
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+  }, []);
+
+  const handleInstallApp = useCallback(async () => {
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice;
+      if (choice && choice.outcome === 'accepted') {
+        setIsAppInstalled(true);
+        setDeferredInstallPrompt(null);
+      }
+    }
+  }, [deferredInstallPrompt]);
+
   const themeConfig = THEMES[theme] || THEMES.willow;
 
   // Push to history stack
@@ -829,6 +868,8 @@ export default function WotePage() {
         onExportWote={handleExportWote}
         onExportMarkdown={handleExportMarkdown}
         onImportFile={handleImportFile}
+        canInstall={!!deferredInstallPrompt && !isAppInstalled}
+        onInstallApp={handleInstallApp}
       />
 
       {/* Main Workspace */}
@@ -958,6 +999,8 @@ export default function WotePage() {
         onSetTheme={handleSetTheme}
         onOpenHelp={() => handleSelectNote('help')}
         onExportAll={handleExportAll}
+        canInstall={!!deferredInstallPrompt && !isAppInstalled}
+        onInstallApp={handleInstallApp}
       />
     </div>
   );

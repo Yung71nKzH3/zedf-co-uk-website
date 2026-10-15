@@ -14,6 +14,8 @@ interface SettingsModalProps {
   onSetTheme: (theme: ThemeType) => void;
   onOpenHelp: () => void;
   onExportAll: () => void;
+  canInstall?: boolean;
+  onInstallApp?: () => void;
 }
 
 export function SettingsModal({
@@ -24,6 +26,8 @@ export function SettingsModal({
   onSetTheme,
   onOpenHelp,
   onExportAll,
+  canInstall,
+  onInstallApp,
 }: SettingsModalProps) {
   return (
     <AnimatePresence>
@@ -88,6 +92,20 @@ export function SettingsModal({
             <div className="space-y-3 pt-2 border-t border-white/10">
               <span className="text-xs font-bold uppercase tracking-wider opacity-60">Data Management</span>
               <div className="space-y-2">
+                {canInstall && onInstallApp && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onInstallApp();
+                      onClose();
+                    }}
+                    className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black text-xs font-black uppercase tracking-wider transition-all shadow-lg shadow-cyan-500/20 active:scale-95"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Install Wote App</span>
+                  </button>
+                )}
+
                 <button
                   type="button"
                   onClick={onExportAll}

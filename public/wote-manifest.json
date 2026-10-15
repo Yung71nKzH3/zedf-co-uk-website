@@ -1,0 +1,39 @@
+{
+  "name": "Wote — Minimalist Outliner",
+  "short_name": "Wote",
+  "description": "Distraction-free tree-structured outliner notes with offline persistence.",
+  "start_url": "/wote",
+  "id": "/wote",
+  "scope": "/wote",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#181d14",
+  "theme_color": "#06b6d4",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/wote-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/wote-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/wote-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Help Manual",
+      "url": "/wote?id=help",
+      "description": "Open Wote 3.0 Guide"
+    }
+  ]
+}
