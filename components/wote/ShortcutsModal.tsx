@@ -77,10 +77,11 @@ export function ShortcutsModal({ isOpen, themeConfig, onClose }: ShortcutsModalP
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
                 <Keyboard className="w-4 h-4" />
-                <span>Keyboard Shortcuts</span>
+                <span>Keyboard Shortcuts & Commands</span>
               </div>
               <div className="space-y-1.5">
                 {[
+                  ['/ (Slash)', 'Open block type command menu'],
                   ['Enter', 'Create sibling node below'],
                   ['Tab', 'Indent node (nest under previous)'],
                   ['Shift + Tab', 'Outdent node (move up a level)'],
@@ -95,31 +96,6 @@ export function ShortcutsModal({ isOpen, themeConfig, onClose }: ShortcutsModalP
                     <kbd className="px-2 py-1 rounded bg-black/30 border border-white/10 text-[11px] font-mono font-bold text-cyan-400">
                       {keys}
                     </kbd>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Markdown Auto-Formatting */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-400">
-                <Sparkles className="w-4 h-4" />
-                <span>Auto-formatting & Commands</span>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {[
-                  ['# ', 'Heading 1'],
-                  ['## ', 'Heading 2'],
-                  ['### ', 'Heading 3'],
-                  ['[] ', 'Checkbox'],
-                  ['> ', 'Quote'],
-                  ['```', 'Code Block'],
-                  ['---', 'Divider'],
-                  ['/ ', 'Slash Menu'],
-                ].map(([trigger, name]) => (
-                  <div key={trigger} className={`p-2 rounded-xl border ${themeConfig.mutedBorder} ${themeConfig.inputBg} text-center`}>
-                    <code className="text-xs font-mono font-bold text-purple-300">{trigger}</code>
-                    <div className="text-[10px] opacity-60 mt-0.5">{name}</div>
                   </div>
                 ))}
               </div>
