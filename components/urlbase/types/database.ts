@@ -1,0 +1,52 @@
+export type FieldType = 'text' | 'number' | 'select' | 'multi_select' | 'checkbox' | 'date' | 'url' | 'relation';
+
+export type CellValue = string | number | boolean | string[] | null | undefined;
+
+export interface Field {
+  id: string; // e.g. "f1"
+  name: string;
+  type: FieldType;
+  options?: string[]; // for 'select' or 'multi_select'
+  relationTableId?: string; // for 'relation': target table id
+  relationDisplayFieldId?: string; // field to show as label
+}
+
+export interface RecordRow {
+  id: string; // e.g. "r1"
+  [fieldId: string]: CellValue; // stores cell value, tag array, or target record ID
+}
+
+export interface Table {
+  id: string; // e.g. "t1"
+  name: string;
+  fields: Field[];
+  rows: RecordRow[];
+}
+
+export type ViewType = 'table' | 'card' | 'kanban' | 'list';
+
+export interface ViewConfig {
+  id: string;
+  tableId: string;
+  name: string;
+  type: ViewType;
+  groupByFieldId?: string; // used for kanban / card grouping
+}
+
+export interface DatabaseState {
+  version: 1;
+  id?: string; // unique workspace identifier e.g. "ws_123456"
+  title: string;
+  tables: Table[];
+  views: ViewConfig[];
+  activeViewId: string;
+  updatedAt?: number;
+}
+
+export interface WorkspaceMeta {
+  id: string;
+  title: string;
+  tableCount: number;
+  rowCount: number;
+  updatedAt: number;
+}

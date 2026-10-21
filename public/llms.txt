@@ -7,6 +7,7 @@
 - [Arcade Games Hub](https://www.zedf.co.uk/play) - Curated suite of 14 retro browser games, puzzles, and casino classics (Sudoku, Wordle, 2048, Snake, Tetris, Pong, Minesweeper, Asteroids, Speed Typer, Memory, Blackjack, Craps, etc.).
 - [Showcase](https://www.zedf.co.uk/showcase) - 3D interactive Wallpaper Engine carousel and dynamic WebGL previews.
 - [Wote](https://www.zedf.co.uk/wote) - A minimalist note-taking app with markdown support, syntax highlighting, and themes.
+- [UrlBase](https://www.zedf.co.uk/urlbase) - A serverless in-URL relational database with multi-table support, checksums, and CSV/JSON portability.
 - [Calc67](https://www.zedf.co.uk/calc67) - A daily calculator puzzle game with cloud leaderboards.
 - [Personal Space](https://www.zedf.co.uk/project-space) - An immersive interactive nebula of projects and star-charts.
 - [3D Setup Showcase](https://www.zedf.co.uk/setup) - Interactive 3D WebGL cyber desk setup and battlestation visualizer.
