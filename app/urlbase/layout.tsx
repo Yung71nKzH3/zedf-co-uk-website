@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/urlbase',
   },
+  referrer: 'no-referrer',
   openGraph: {
     title: 'UrlBase — Serverless In-URL Database | ZEDF',
     description: 'A client-side relational database app storing full schemas, tables, and rows compressed directly inside the URL hash. Zero backend, instant sharing.',

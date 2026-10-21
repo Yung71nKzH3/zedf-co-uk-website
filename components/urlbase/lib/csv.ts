@@ -1,4 +1,5 @@
 import { Table, FieldType } from '../types/database';
+import { sanitizeCsvFormula } from './security';
 
 /**
  * Auto-detects the delimiter by inspecting the first few lines of text.
@@ -131,8 +132,8 @@ export function exportTableToDelimited(table: Table, delimiter: string = ','): s
       .map((f) => {
         const val = r[f.id];
         if (val === undefined || val === null) return '';
-        if (Array.isArray(val)) return escapeField(val.join('; '), delimiter);
-        return escapeField(String(val), delimiter);
+        const rawStr = Array.isArray(val) ? val.join('; ') : String(val);
+        return escapeField(sanitizeCsvFormula(rawStr), delimiter);
       })
       .join(delimiter)
   );

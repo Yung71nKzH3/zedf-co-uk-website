@@ -6,6 +6,7 @@ import { RecordRow } from '../types/database';
 import { RelationCell } from './RelationCell';
 import { MultiSelectCell } from './MultiSelectCell';
 import { Plus, Trash2, Copy, CheckCircle2, Circle, Calendar, ExternalLink } from 'lucide-react';
+import { sanitizeExternalUrl } from '../lib/security';
 
 interface ListViewProps {
   filteredRows: RecordRow[];
@@ -135,9 +136,10 @@ export function ListView({ filteredRows }: ListViewProps) {
                         return (
                           <a
                             key={f.id}
-                            href={String(val).startsWith('http') ? String(val) : `https://${String(val)}`}
+                            href={sanitizeExternalUrl(val) || '#'}
                             target="_blank"
                             rel="noopener noreferrer"
+                            referrerPolicy="no-referrer"
                             className="inline-flex items-center space-x-1 font-mono text-xs px-2 py-0.5 border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 text-blue-600 dark:text-blue-400 hover:underline"
                           >
                             <span className="truncate max-w-[120px]">{String(val)}</span>

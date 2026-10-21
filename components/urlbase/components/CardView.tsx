@@ -7,6 +7,7 @@ import { RelationCell } from './RelationCell';
 import { MultiSelectCell } from './MultiSelectCell';
 import { Plus, Trash2, Copy, ExternalLink, Calendar } from 'lucide-react';
 import { motion } from 'motion/react';
+import { sanitizeExternalUrl } from '../lib/security';
 
 interface CardViewProps {
   filteredRows: RecordRow[];
@@ -165,9 +166,10 @@ export function CardView({ filteredRows }: CardViewProps) {
                                 />
                                 {val && (
                                   <a
-                                    href={String(val).startsWith('http') ? String(val) : `https://${String(val)}`}
+                                    href={sanitizeExternalUrl(val) || '#'}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    referrerPolicy="no-referrer"
                                     className="p-1 text-neutral-400 hover:text-black dark:hover:text-white"
                                     title="Open link"
                                   >

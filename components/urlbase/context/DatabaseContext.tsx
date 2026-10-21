@@ -174,7 +174,10 @@ export function DatabaseProvider({ children }: { children: React.ReactNode }) {
           setUrlTruncationWarning(true);
         }
 
-        const sharedState = verification.state;
+        const rawState = verification.state;
+        const sharedState = (rawState && typeof rawState === 'object' && Array.isArray((rawState as DatabaseState).tables))
+          ? (rawState as DatabaseState)
+          : null;
         if (sharedState) {
           if (
             localState &&
@@ -233,7 +236,7 @@ export function DatabaseProvider({ children }: { children: React.ReactNode }) {
       const hash = window.location.hash;
       if (hash && hash.includes('data=')) {
         const fromHash = await deserializeHashToState(hash);
-        if (fromHash) {
+        if (fromHash && typeof fromHash === 'object' && Array.isArray((fromHash as DatabaseState).tables)) {
           setState(fromHash);
         }
       }

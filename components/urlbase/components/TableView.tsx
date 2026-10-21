@@ -7,6 +7,7 @@ import { RelationCell } from './RelationCell';
 import { MultiSelectCell } from './MultiSelectCell';
 import { FieldConfigModal } from './FieldConfigModal';
 import { SafeDeleteModal } from './SafeDeleteModal';
+import { sanitizeExternalUrl } from '../lib/security';
 import {
   Plus,
   Trash2,
@@ -481,9 +482,10 @@ export function TableView({ filteredRows }: TableViewProps) {
                                     {String(val)}
                                   </span>
                                   <a
-                                    href={String(val).startsWith('http') ? String(val) : `https://${String(val)}`}
+                                    href={sanitizeExternalUrl(val) || '#'}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    referrerPolicy="no-referrer"
                                     onClick={(e) => e.stopPropagation()}
                                     className="p-0.5 text-neutral-400 hover:text-black dark:hover:text-white shrink-0 ml-1"
                                     title="Open link in new tab"
