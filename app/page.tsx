@@ -10,6 +10,7 @@ import {
   Instagram, MessageCircle, Tv, MessageSquare, Keyboard, Laptop, Code, Rocket, Dices
 } from 'lucide-react';
 import Link from 'next/link';
+import { SPONSORS } from './data/sponsors';
 
 const STUFF_LINKS = [
   { href: '/electio', icon: Dices, title: 'Electio', desc: 'Decision Roulette' },
@@ -121,7 +122,7 @@ export default function Home() {
       
       <ParticleCanvas />
 
-      {/* Main Content Area */}
+      {/* Main Hero Screen - Full Viewport Height */}
       <div className="relative z-20 flex flex-col items-center justify-start md:justify-center min-h-screen pt-[300px] md:pt-0">
         
         {/* Title Bio */}
@@ -222,6 +223,21 @@ export default function Home() {
             )}
           </AnimatePresence>
         )}
+
+        {/* Torn Banner - Instantly visible on the initial screen without scrolling! */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 flex justify-center items-center px-4 w-auto pointer-events-auto">
+          <motion.img 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            onClick={() => window.open('https://www.torn.com/4197113')} 
+            style={{ cursor: 'pointer' }} 
+            src="https://banners.torn.com/static_728x90_torncity.jpg?v=1528808940574" 
+            alt="Torn City"
+            className="max-w-[90vw] md:max-w-[728px] h-auto rounded-xl shadow-2xl border border-white/5 hover:border-cyan-500/30 transition-all active:scale-95"
+            title="Join me in Torn City!"
+          />
+        </div>
+
       </div>
 
       {/* Desktop Floating Sidebars (>= 1024px width) */}
@@ -267,19 +283,52 @@ export default function Home() {
         </>
       )}
 
-      {/* Torn Banner */}
-      <footer className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex justify-center items-center px-4 w-auto pointer-events-auto">
-        <motion.img 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          onClick={() => window.open('https://www.torn.com/4197113')} 
-          style={{ cursor: 'pointer' }} 
-          src="https://banners.torn.com/static_728x90_torncity.jpg?v=1528808940574" 
-          alt="Torn City"
-          className="max-w-[90vw] md:max-w-[728px] h-auto rounded-xl shadow-2xl border border-white/5 hover:border-cyan-500/30 transition-all active:scale-95"
-          title="Join me in Torn City!"
-        />
+      {/* Secret Sponsors Footer Area: Revealed Only When Scrolling Down */}
+      <footer className="relative z-20 w-full pt-28 pb-24 px-4 sm:px-8 flex flex-col items-center justify-center text-center">
+
+        {/* Section Header */}
+        <div className="mb-12 flex flex-col items-center">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-mono tracking-widest uppercase mb-3 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+            <span>Unofficial Official Sponsors</span>
+          </div>
+          <p className="text-slate-400 text-xs font-mono tracking-wide">
+            Not sponsored • Just obsessed
+          </p>
+        </div>
+
+        {/* Unboxed Spanning Logo Strip */}
+        <div className="w-full max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-7 sm:gap-10 md:gap-12 py-4">
+          {SPONSORS.map((sponsor, idx) => (
+            <a
+              key={idx}
+              href={sponsor.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={`${sponsor.name} — Unofficial Official Sponsor`}
+              className="group flex flex-col items-center gap-2.5 transition-all duration-300 hover:-translate-y-2 focus:outline-none"
+            >
+              <div 
+                className="transition-all duration-300 transform group-hover:scale-115 flex items-center justify-center"
+                style={{
+                  color: sponsor.color,
+                  filter: `drop-shadow(0 0 12px ${sponsor.glow})`
+                }}
+              >
+                {sponsor.svg}
+              </div>
+              <span className="text-xs font-mono font-medium text-slate-400 group-hover:text-white transition-colors">
+                {sponsor.name}
+              </span>
+            </a>
+          ))}
+        </div>
+
+        {/* Footer Tag */}
+        <p className="text-[11px] font-mono text-slate-500 tracking-wider mt-16">
+          zedf.co.uk • w1ll0w
+        </p>
+
       </footer>
 
       <style dangerouslySetInnerHTML={{__html: `
