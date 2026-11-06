@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { ArchetypeAffinityPoint, PhilosophicalArchetype } from "../../types/schema";
-import { ARCHETYPES } from "../../data/archetypes";
-import { playAstrolabeTick } from "../../engine/soundEngine";
+import { ArchetypeAffinityPoint, PhilosophicalArchetype } from "@/lib/characteristica/schema";
+import { ARCHETYPES } from "@/lib/characteristica/archetypes";
+import { playAstrolabeTick } from "@/lib/characteristica/soundEngine";
 import { Compass, Sparkles } from "lucide-react";
 
 interface ArchetypeSpiderChartProps {
@@ -313,3 +313,4 @@ export const ArchetypeSpiderChart: React.FC<ArchetypeSpiderChartProps> = ({
     </div>
   );
 };
+

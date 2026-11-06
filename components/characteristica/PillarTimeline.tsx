@@ -1,5 +1,5 @@
 import React from "react";
-import { SCENARIOS } from "../../data/scenarios";
+import { SCENARIOS } from "@/lib/characteristica/scenarios";
 import { Clock, Compass } from "lucide-react";
 
 interface PillarTimelineProps {
@@ -81,3 +81,4 @@ export const PillarTimeline: React.FC<PillarTimelineProps> = ({
     </div>
   );
 };
+

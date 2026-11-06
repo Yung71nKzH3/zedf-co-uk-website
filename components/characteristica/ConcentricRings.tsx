@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from "react";
-import { LiveRingMetrics, RING_ORDER } from "../../engine/quizMachine";
-import { CoordinateId, RingId } from "../../types/schema";
-import { COORDINATE_MAP } from "../../data/coordinates";
-import { playAstrolabeTick } from "../../engine/soundEngine";
+import { LiveRingMetrics, RING_ORDER } from "@/lib/characteristica/quizMachine";
+import { CoordinateId, RingId } from "@/lib/characteristica/schema";
+import { COORDINATE_MAP } from "@/lib/characteristica/coordinates";
+import { playAstrolabeTick } from "@/lib/characteristica/soundEngine";
 import { Pause, Play } from "lucide-react";
 
 interface ConcentricRingsProps {
@@ -595,3 +595,4 @@ export const ConcentricRings: React.FC<ConcentricRingsProps> = ({
     </div>
   );
 };
+

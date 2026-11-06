@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GlossaryEntry, lookupGlossary } from '../../data/philosophicalGlossary';
+import { GlossaryEntry, lookupGlossary } from '@/lib/characteristica/philosophicalGlossary';
 import { BookOpen, Sparkles, X, Lightbulb, Users, HelpCircle } from 'lucide-react';
 
 interface InteractiveSentenceProps {
@@ -203,3 +203,4 @@ export const InteractiveSentence: React.FC<InteractiveSentenceProps> = ({ parts 
     </div>
   );
 };
+

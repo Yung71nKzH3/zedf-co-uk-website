@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from "react";
-import { COORDINATES } from "../../data/coordinates";
-import { ActType, CoordinateScoreMap, RingId } from "../../types/schema";
+import { COORDINATES } from "@/lib/characteristica/coordinates";
+import { ActType, CoordinateScoreMap, RingId } from "@/lib/characteristica/schema";
 import { X, Filter, Layers } from "lucide-react";
 
 interface TelemetryModalProps {
@@ -241,3 +241,4 @@ export const TelemetryModal: React.FC<TelemetryModalProps> = ({
     </dialog>
   );
 };
+

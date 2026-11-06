@@ -4,9 +4,9 @@ import {
   PhilosophicalSentenceResult,
   RingId,
   TriadLayer
-} from "../../types/schema";
-import { LiveRingMetrics, RING_ORDER } from "../../engine/quizMachine";
-import { ConcentricRings } from "../rings/ConcentricRings";
+} from "@/lib/characteristica/schema";
+import { LiveRingMetrics, RING_ORDER } from "@/lib/characteristica/quizMachine";
+import { ConcentricRings } from "./ConcentricRings";
 import { InteractiveSentence } from "./InteractiveSentence";
 import { ArchetypeSpiderChart } from "./ArchetypeSpiderChart";
 import {
@@ -894,3 +894,4 @@ export const ResultsView: React.FC<ResultsViewProps> = ({
     </div>
   );
 };
+

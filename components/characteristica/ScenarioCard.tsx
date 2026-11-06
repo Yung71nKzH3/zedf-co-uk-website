@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ScenarioOption, ScenarioQuestion } from "../../types/schema";
-import { COORDINATE_MAP } from "../../data/coordinates";
+import { ScenarioOption, ScenarioQuestion } from "@/lib/characteristica/schema";
+import { COORDINATE_MAP } from "@/lib/characteristica/coordinates";
 import {
   ArrowLeft,
   ArrowRight,
@@ -385,3 +385,4 @@ export const ScenarioCard: React.FC<ScenarioCardProps> = ({
     </article>
   );
 };
+
