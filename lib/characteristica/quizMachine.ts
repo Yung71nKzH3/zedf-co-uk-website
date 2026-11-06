@@ -1,12 +1,12 @@
-import { COORDINATES, COORDINATE_MAP } from "../data/coordinates";
-import { SCENARIOS } from "../data/scenarios";
+import { COORDINATES, COORDINATE_MAP } from "./coordinates";
+import { SCENARIOS } from "./scenarios";
 import {
   CoordinateId,
   CoordinateScoreMap,
   CoordinateTally,
   RingId,
   StancePole
-} from "../types/schema";
+} from "./schema";
 
 export interface QuizState {
   currentStepIndex: number; // 0 to SCENARIOS.length - 1
@@ -167,3 +167,4 @@ export function computeLiveRingMetrics(
 
   return result;
 }
+

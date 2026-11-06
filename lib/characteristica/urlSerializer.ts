@@ -1,4 +1,4 @@
-import { SCENARIOS } from "../data/scenarios";
+import { SCENARIOS } from "./scenarios";
 
 const STORAGE_KEY = "philosophical_quiz_state_v1";
 
@@ -72,3 +72,4 @@ export function clearLocalState() {
     // Ignore
   }
 }
+

@@ -1,5 +1,5 @@
-import { ARCHETYPES } from "../data/archetypes";
-import { COORDINATES } from "../data/coordinates";
+import { ARCHETYPES } from "./archetypes";
+import { COORDINATES } from "./coordinates";
 import { computeCoordinateScores, RING_ORDER } from "./quizMachine";
 import {
   ActType,
@@ -12,7 +12,7 @@ import {
   RingSummary,
   TriadLayer,
   TriadMovement
-} from "../types/schema";
+} from "./schema";
 
 function startsWithVowelSound(word: string): boolean {
   const clean = word.trim().toLowerCase();
@@ -654,3 +654,4 @@ function buildTriadSummaries(scoreMap: CoordinateScoreMap): PhilosophicalSentenc
     }
   };
 }
+

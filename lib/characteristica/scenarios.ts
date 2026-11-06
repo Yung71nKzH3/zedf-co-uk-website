@@ -1,4 +1,4 @@
-import { ScenarioQuestion } from "../types/schema";
+import { ScenarioQuestion } from "./schema";
 
 export const SCENARIOS: ScenarioQuestion[] = [
   {
@@ -900,3 +900,4 @@ export const SCENARIOS: ScenarioQuestion[] = [
     ]
   }
 ];
+

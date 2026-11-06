@@ -201,3 +201,4 @@ export interface PhilosophicalSentenceResult {
   }>;
   scoreMap: CoordinateScoreMap;
 }
+

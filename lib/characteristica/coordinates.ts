@@ -1,4 +1,4 @@
-import { CoordinateDefinition, CoordinateId } from "../types/schema";
+import { CoordinateDefinition, CoordinateId } from "./schema";
 
 export const COORDINATES: CoordinateDefinition[] = [
   {
@@ -1446,3 +1446,4 @@ export const COORDINATES: CoordinateDefinition[] = [
 export const COORDINATE_MAP: Record<CoordinateId, CoordinateDefinition> = Object.fromEntries(
   COORDINATES.map((c) => [c.id, c])
 ) as Record<CoordinateId, CoordinateDefinition>;
+

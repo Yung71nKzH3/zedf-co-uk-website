@@ -400,3 +400,4 @@ export const PHILOSOPHICAL_GLOSSARY: Record<string, GlossaryEntry> = {
     keyThinkers: ['Erwin Schrödinger', 'Ludwig Boltzmann', 'Sean Carroll']
   }
 };
+

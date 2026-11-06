@@ -145,3 +145,4 @@ export function playManifestoComplete(): void {
     // Ignore audio context restrictions
   }
 }
+

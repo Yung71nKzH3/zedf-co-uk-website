@@ -1,4 +1,4 @@
-import { PhilosophicalArchetype } from "../types/schema";
+import { PhilosophicalArchetype } from "./schema";
 
 export const ARCHETYPES: Record<string, PhilosophicalArchetype> = {
   sovereign_stoic: {
@@ -298,3 +298,4 @@ export const ARCHETYPES: Record<string, PhilosophicalArchetype> = {
     }
   }
 };
+
