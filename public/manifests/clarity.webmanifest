@@ -1,0 +1,21 @@
+{
+  "name": "Clarity - Infinite Node & Debate Canvas",
+  "short_name": "Clarity",
+  "description": "Freeform visual playground for mapping arguments, debates, flowcharts, and connected notes solo or in real-time multiplayer.",
+  "start_url": "/clarity",
+  "id": "/clarity",
+  "scope": "/clarity",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#060b14",
+  "theme_color": "#06b6d4",
+  "categories": ["productivity", "utilities", "education"],
+  "icons": [
+    {
+      "src": "/icons/clarity.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    }
+  ]
+}

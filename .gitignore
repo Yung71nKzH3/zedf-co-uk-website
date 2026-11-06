@@ -32,3 +32,9 @@ yarn-error.log*
 # Vercel / Turbopack
 .vercel
 .turbo
+
+# Large media files
+/public/gaben/*.mp4
+/public/gaben/*.webm
+/public/gaben/*.mov
+

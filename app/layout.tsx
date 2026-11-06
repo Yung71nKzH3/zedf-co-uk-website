@@ -60,7 +60,7 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.webmanifest',
   icons: {
-    icon: '/images/favicon.png',
+    icon: '/icons/zedf.svg',
     apple: '/icons/zedf-192.png',
   },
 };
