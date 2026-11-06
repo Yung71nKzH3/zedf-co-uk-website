@@ -194,13 +194,12 @@ export default function GabenPage() {
       const isTouch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
       setIsTouchDevice(isTouch);
 
+      // Clean out legacy test cache so everyone starts brand new
+      localStorage.removeItem('gaben_wallets_sacrificed');
+
       const savedPersonal = localStorage.getItem('gaben_personal_seconds');
       if (savedPersonal) {
         setPersonalSeconds(parseInt(savedPersonal, 10) || 0);
-      }
-      const savedSacrifices = localStorage.getItem('gaben_wallets_sacrificed');
-      if (savedSacrifices) {
-        setWalletsSacrificed(parseInt(savedSacrifices, 10) || 0);
       }
 
       // Track mouse globally right from the beginning so cursor never disappears!
@@ -401,6 +400,20 @@ export default function GabenPage() {
         setWalletsSacrificed(prev => prev + 1);
         spawnSacrificeEffects(false);
       })
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'gaben_global_stats' },
+        (payload: any) => {
+          if (payload.new && isSubscribed) {
+            if (typeof payload.new.total_seconds === 'number') {
+              setGlobalSeconds(prev => Math.max(prev, payload.new.total_seconds));
+            }
+            if (typeof payload.new.wallets_sacrificed === 'number') {
+              setWalletsSacrificed(payload.new.wallets_sacrificed);
+            }
+          }
+        }
+      )
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
           await channel.track({ online_at: new Date().toISOString() });
@@ -564,13 +577,7 @@ export default function GabenPage() {
     setButtonShockwave(true);
     setTimeout(() => setButtonShockwave(false), 700);
 
-    setWalletsSacrificed(w => {
-      const next = w + 1;
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('gaben_wallets_sacrificed', next.toString());
-      }
-      return next;
-    });
+    setWalletsSacrificed(w => w + 1);
 
     if (supabase) {
       const client = supabase;
