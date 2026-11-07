@@ -1,44 +1,218 @@
 {
   "v": 1,
-  "title": "Wote Help Manual",
+  "title": "Wote 3.0 Guide & Manual",
   "nodes": [
     {
-      "i": "h1",
-      "t": "markdown",
-      "c": "# Welcome to Wote!\n\nA beautifully minimalist tree-based note-taking app.",
-      "cl": false,
+      "i": "h-intro",
+      "t": "heading1",
+      "c": "Welcome to Wote 3.0!",
       "ch": [
         {
-          "i": "h2",
+          "i": "h-tagline",
           "t": "text",
-          "c": "Keyboard Shortcuts:",
-          "ch": [
-            { "i": "s1", "t": "todo", "c": "Enter: Create new node below", "ck": true, "ch": [] },
-            { "i": "s2", "t": "todo", "c": "Tab: Indent node", "ck": true, "ch": [] },
-            { "i": "s3", "t": "todo", "c": "Shift+Tab: Outdent node", "ck": true, "ch": [] },
-            { "i": "s4", "t": "todo", "c": "Alt+Up/Down: Navigate to previous/next node", "ck": true, "ch": [] },
-            { "i": "s5", "t": "todo", "c": "Ctrl+/: Toggle Collapse", "ck": true, "ch": [] },
-            { "i": "s6", "t": "todo", "c": "Alt+T: Cycle Node Type", "ck": true, "ch": [] }
-          ]
+          "c": "A distraction-free, tree-structured outliner workspace designed for the web.",
+          "ch": []
         },
         {
-          "i": "h3",
+          "i": "h-callout-welcome",
+          "t": "callout",
+          "co": "tip",
+          "c": "Interactive Guide: This manual is a real, live Wote document! Feel free to click, edit, expand, drag, and test everything right here.",
+          "ch": []
+        }
+      ]
+    },
+    {
+      "i": "h-mouse",
+      "t": "heading2",
+      "c": "1. Mouse Controls & Visual Superpowers",
+      "ch": [
+        {
+          "i": "h-zoom",
           "t": "text",
-          "c": "Advanced Types",
+          "c": "Bullet Zoom (Focus Mode): Click the dot on the left of this bullet to zoom into this branch!",
           "ch": [
             {
-              "i": "h4",
-              "t": "code",
-              "c": "// Type javascript or python directly\nconsole.log(\"Wote has syntax highlighting!\");",
+              "i": "h-zoom-sub1",
+              "t": "text",
+              "c": "Notice how the rest of the document fades away and breadcrumbs appear at the top?",
               "ch": []
             },
             {
-               "i": "h5",
-               "t": "text",
-               "c": "You can insert images by setting the node type (Alt+T) to Image and pasting a URL!",
-               "ch": []
+              "i": "h-zoom-sub2",
+              "t": "text",
+              "c": "Click \"Root\" in the top bar or press Esc anytime to return to the full document.",
+              "ch": []
             }
           ]
+        },
+        {
+          "i": "h-drag",
+          "t": "text",
+          "c": "Drag-and-Drop: Hover over this line and grab the 6-dot grip handle to move or nest notes visually.",
+          "ch": []
+        },
+        {
+          "i": "h-collapse",
+          "t": "text",
+          "c": "Expand & Collapse: Click the chevron arrow to fold thoughts away.",
+          "cl": true,
+          "ch": [
+            {
+              "i": "h-secret-1",
+              "t": "callout",
+              "co": "success",
+              "c": "You found the collapsed note! Notice the counter badge (+2) when folded.",
+              "ch": []
+            },
+            {
+              "i": "h-secret-2",
+              "t": "text",
+              "c": "Collapsing keeps long outlines clean and focused.",
+              "ch": []
+            }
+          ]
+        },
+        {
+          "i": "h-hover-bar",
+          "t": "text",
+          "c": "Hover Quick Actions: Hover to the right of any line to quickly add a child (+), switch block type, or delete.",
+          "ch": []
+        }
+      ]
+    },
+    {
+      "i": "h-blocks",
+      "t": "heading2",
+      "c": "2. Dedicated Block Types & The Slash Menu",
+      "ch": [
+        {
+          "i": "h-slash",
+          "t": "callout",
+          "co": "info",
+          "c": "Type / on any empty line to summon the Command Menu and pick any block type.",
+          "ch": []
+        },
+        {
+          "i": "h-todo-example",
+          "t": "todo",
+          "ck": true,
+          "c": "Interactive To-Dos: Click this checkbox to toggle complete with strikethrough!",
+          "ch": []
+        },
+        {
+          "i": "h-todo-2",
+          "t": "todo",
+          "ck": false,
+          "c": "Press Enter from a to-do to create another task immediately.",
+          "ch": []
+        },
+        {
+          "i": "h-quote-example",
+          "t": "quote",
+          "c": "Simplicity is about subtracting the obvious and adding the meaningful. — John Maeda",
+          "ch": []
+        },
+        {
+          "i": "h-code-example",
+          "t": "code",
+          "l": "typescript",
+          "c": "// Code blocks feature syntax highlighting and a 1-click Copy button!\ninterface WoteNote {\n  id: string;\n  type: \"text\" | \"heading1\" | \"todo\" | \"code\" | \"quote\" | \"callout\";\n  children: WoteNote[];\n}\n\nconsole.log(\"Distraction-free outliner ready!\");",
+          "ch": []
+        },
+        {
+          "i": "h-div",
+          "t": "divider",
+          "c": "",
+          "ch": []
+        },
+        {
+          "i": "h-img-tip",
+          "t": "text",
+          "c": "Clipboard Image Paste: Copy any image or screenshot to your clipboard and hit Ctrl+V right here!",
+          "ch": []
+        }
+      ]
+    },
+    {
+      "i": "h-keyboard",
+      "t": "heading2",
+      "c": "3. Keyboard Shortcuts & Workflow",
+      "ch": [
+        {
+          "i": "k-enter",
+          "t": "todo",
+          "ck": true,
+          "c": "Enter: Create a new sibling note below",
+          "ch": []
+        },
+        {
+          "i": "k-tab",
+          "t": "todo",
+          "ck": true,
+          "c": "Tab: Indent / nest note under the previous item",
+          "ch": []
+        },
+        {
+          "i": "k-outdent",
+          "t": "todo",
+          "ck": true,
+          "c": "Shift + Tab: Outdent note back up a level",
+          "ch": []
+        },
+        {
+          "i": "k-nav",
+          "t": "todo",
+          "ck": true,
+          "c": "Alt + Up / Down: Move cursor focus smoothly between notes",
+          "ch": []
+        },
+        {
+          "i": "k-collapse",
+          "t": "todo",
+          "ck": true,
+          "c": "Ctrl + /: Toggle collapse/expand on current branch",
+          "ch": []
+        },
+        {
+          "i": "k-search",
+          "t": "todo",
+          "ck": true,
+          "c": "Ctrl + K: Quick Search across all bullets in the document",
+          "ch": []
+        },
+        {
+          "i": "k-history",
+          "t": "todo",
+          "ck": true,
+          "c": "Ctrl + Z & Ctrl + Y: Full undo / redo history stack",
+          "ch": []
+        }
+      ]
+    },
+    {
+      "i": "h-library",
+      "t": "heading2",
+      "c": "4. Document Library & Exporting",
+      "ch": [
+        {
+          "i": "lib-1",
+          "t": "text",
+          "c": "Notes Drawer: Click \"Notes\" at the top left to manage multiple saved documents, filter, or create new Wotes.",
+          "ch": []
+        },
+        {
+          "i": "lib-2",
+          "t": "text",
+          "c": "Exporting: Export your work anytime as a native .wote file or as standard clean Markdown (.md).",
+          "ch": []
+        },
+        {
+          "i": "lib-3",
+          "t": "callout",
+          "co": "success",
+          "c": "All your documents are automatically saved in your browser storage locally with crash recovery.",
+          "ch": []
         }
       ]
     }
