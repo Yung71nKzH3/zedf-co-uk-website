@@ -7,12 +7,16 @@ import {
   PackageOpen, UserCircle, GraduationCap, Quote, Calendar, Brain, 
   Gamepad2, Image as ImageIcon, Gamepad, Gift, Video, Clipboard, Calculator, 
   ShoppingCart, MapPin, Youtube, Music, BarChart, Film, Mountain, Github, 
-  Instagram, MessageCircle, Tv, MessageSquare, Keyboard, Laptop, Code, Rocket, Dices
+  Instagram, MessageCircle, Tv, MessageSquare, Keyboard, Laptop, Code, Rocket, Dices,
+  Network, Compass, Database
 } from 'lucide-react';
 import Link from 'next/link';
 import { SPONSORS } from './data/sponsors';
 
 const STUFF_LINKS = [
+  { href: '/characteristica', icon: Compass, title: 'Philosophy Quiz', desc: '45-Coordinate Engine' },
+  { href: '/clarity', icon: Network, title: 'Clarity', desc: 'Node & Debate Canvas' },
+  { href: '/gaben', icon: Tv, title: 'Gaben.tv', desc: 'Praise Lord GabeN' },
   { href: '/electio', icon: Dices, title: 'Electio', desc: 'Decision Roulette' },
   { href: '/play', icon: Gamepad2, title: 'Arcade', desc: 'Mini Game Suite' },
   { href: '/showcase', icon: Gamepad2, title: 'Wallpaper Showcase', desc: 'Interactive Gallery' },
@@ -26,6 +30,7 @@ const STUFF_LINKS = [
   { href: 'https://youtu.be/ItC8GV4BJuw', icon: Gift, title: 'Christmas Album', desc: 'Ho Ho Ho', external: true },
   { href: 'https://steamcommunity.com/broadcast/watch/76561198151099217/', icon: Video, title: 'Steam Stream', desc: 'wassup', external: true },
   { href: '/wote', icon: Clipboard, title: 'Wote', desc: 'take note' },
+  { href: '/urlbase', icon: Database, title: 'UrlBase', desc: 'In-URL Database' },
   { href: '/calc67', icon: Calculator, title: 'Calc67', desc: 'daily' },
   { href: '/project-space', icon: Rocket, title: 'Personal Space', desc: 'The Nebula' },
   { href: 'https://themes.vivaldi.net/users/W1ll0w', icon: ImageIcon, title: 'Vivaldi Themes', desc: 'Lotta Style', external: true },
