@@ -12,7 +12,7 @@ export default defineConfig({
   plugins: [
     patchCssModules({ exportMode: "default" }),
     vinext({
-      cache: responseStoreAdapter(),
+      cache: responseStoreAdapter({ mode: "self-contained" }),
       prerender: { routes: "*" },
       images: { optimizer: imagesOptimizer() },
     }),
