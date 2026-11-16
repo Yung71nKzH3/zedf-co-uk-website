@@ -6,13 +6,6 @@ async function getSpotifyEnv(): Promise<{ clientId?: string; clientSecret?: stri
   let clientId = process.env.SPOTIFY_CLIENT_ID;
   let clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
-  try {
-    const cfw = await import('cloudflare:workers');
-    const env = (cfw.env as any) || {};
-    if (!clientId && env.SPOTIFY_CLIENT_ID) clientId = env.SPOTIFY_CLIENT_ID;
-    if (!clientSecret && env.SPOTIFY_CLIENT_SECRET) clientSecret = env.SPOTIFY_CLIENT_SECRET;
-  } catch {}
-
   if (typeof globalThis !== 'undefined') {
     const g = globalThis as any;
     const genv = g.env || g.__env__ || {};

@@ -352,16 +352,6 @@ export default function Home() {
         </div>
 
       </footer>
-
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes moveGradient {
-          0% { background-position: 0% 50%; }
-          100% { background-position: 100% 50%; }
-        }
-        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #06b6d4; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
-      `}} />
     </div>
   );
 }

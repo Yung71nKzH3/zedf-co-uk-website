@@ -87,6 +87,7 @@ interface ParticleCanvasProps {
   yFactorMobile?: number;
   textSizeDesktop?: number;
   textSizeMobile?: number;
+  className?: string;
 }
 
 export default function ParticleCanvas({
@@ -95,6 +96,7 @@ export default function ParticleCanvas({
   yFactorMobile = 0.45,
   textSizeDesktop = 120,
   textSizeMobile = 80,
+  className = 'absolute top-0 left-0 w-full h-[300px] md:h-screen z-0 pointer-events-none',
 }: ParticleCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
@@ -230,7 +232,8 @@ export default function ParticleCanvas({
   return (
     <canvas
       ref={canvasRef}
-      className="fixed top-0 left-0 w-full h-[300px] md:h-full z-0 pointer-events-none"
+      className={className}
+      suppressHydrationWarning
     />
   );
 }

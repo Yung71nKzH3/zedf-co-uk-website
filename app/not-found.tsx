@@ -6,7 +6,11 @@ import ParticleCanvas from './components/ParticleCanvas';
 
 export default function NotFound() {
   return (
-    <main className="min-h-screen bg-[#0c1422] text-slate-100 overflow-x-hidden relative font-sans flex flex-col items-center justify-center px-4">
+    <main
+      id="main-content"
+      suppressHydrationWarning
+      className="min-h-screen bg-[#0c1422] text-slate-100 overflow-x-hidden relative font-sans flex flex-col items-center justify-center px-4"
+    >
       {/* Animated Background Gradient matching homepage */}
       <div 
         className="fixed inset-0 z-0 opacity-50 pointer-events-none"
@@ -70,13 +74,6 @@ export default function NotFound() {
           </Link>
         </div>
       </div>
-
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes moveGradient {
-          0% { background-position: 0% 50%; }
-          100% { background-position: 100% 50%; }
-        }
-      `}} />
     </main>
   );
 }

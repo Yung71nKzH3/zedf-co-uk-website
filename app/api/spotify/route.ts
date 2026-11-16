@@ -17,16 +17,7 @@ async function getSpotifyEnv(): Promise<{
   let clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
   let refreshToken = process.env.SPOTIFY_REFRESH_TOKEN;
 
-  // Cloudflare Workers runtime bindings check
-  try {
-    const cfw = await import('cloudflare:workers');
-    const env = (cfw.env as any) || {};
-    if (!clientId && env.SPOTIFY_CLIENT_ID) clientId = env.SPOTIFY_CLIENT_ID;
-    if (!clientSecret && env.SPOTIFY_CLIENT_SECRET) clientSecret = env.SPOTIFY_CLIENT_SECRET;
-    if (!refreshToken && env.SPOTIFY_REFRESH_TOKEN) refreshToken = env.SPOTIFY_REFRESH_TOKEN;
-  } catch {}
-
-  // Global environment fallback
+  // Cloudflare Workers environment bindings (injected via worker/index.ts)
   if (typeof globalThis !== 'undefined') {
     const g = globalThis as any;
     const genv = g.env || g.__env__ || {};

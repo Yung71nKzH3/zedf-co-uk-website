@@ -29,15 +29,7 @@ export interface D1ExecResult {
  * workerd global scope, and development environments.
  */
 export async function getD1(): Promise<D1Database | null> {
-  try {
-    // 1. Modern Cloudflare Workers runtime
-    const cfw = await import('cloudflare:workers');
-    if ((cfw.env as any)?.DB) {
-      return (cfw.env as any).DB as D1Database;
-    }
-  } catch {}
-
-  // 2. Global worker environment fallback
+  // 1. Global worker environment (injected by worker/index.ts in Cloudflare Workers)
   if (typeof globalThis !== 'undefined') {
     const g = globalThis as any;
     if (g.env?.DB) return g.env.DB as D1Database;
