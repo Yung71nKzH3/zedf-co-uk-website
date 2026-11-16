@@ -1,8 +1,6 @@
 import { defineConfig } from "vite";
 import vinext from "vinext";
 import { cloudflare } from "@cloudflare/vite-plugin";
-import { responseStoreServiceBinding } from "./cloudflare.config";
-import { responseStoreAdapter } from "@vinext/cloudflare/cache/response-store-adapter";
 import { imagesOptimizer } from "@vinext/cloudflare/images/images-optimizer";
 import { createHash } from "node:crypto";
 import { patchCssModules } from "vite-css-modules";
@@ -12,12 +10,10 @@ export default defineConfig({
   plugins: [
     patchCssModules({ exportMode: "default" }),
     vinext({
-      cache: responseStoreAdapter({ mode: "service-binding" }),
       prerender: { routes: "*" },
       images: { optimizer: imagesOptimizer() },
     }),
     cloudflare({
-      auxiliaryWorkers: [{ config: responseStoreServiceBinding }],
       viteEnvironment: {
         name: "rsc",
         childEnvironments: ["ssr"],
