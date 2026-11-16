@@ -55,7 +55,7 @@
     "@vinext/cloudflare": "^1.4.0",
     "@vitejs/plugin-react": "^6.3.0",
     "@vitejs/plugin-rsc": "^0.5.39",
-    "cf": "^1.0.0-rc.0",
+    "cf": "^1.0.0-beta.32",
     "eslint": "9.39.1",
     "eslint-config-next": "16.0.8",
     "firebase-tools": "^15.0.0",
