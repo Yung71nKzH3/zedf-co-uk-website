@@ -86,7 +86,6 @@ const DIRECTORY_STRUCTURE: DirectoryFolder[] = [
       { path: '/feed.xml', title: 'RSS Feed XML', type: 'meta', desc: 'Standard XML RSS feed for site updates and projects', badge: 'RSS 2.0' },
       { path: '/llms.txt', title: 'LLMs Context', type: 'meta', desc: 'Standardized context documentation formatted for AI assistants', badge: 'LLMs' },
       { path: '/manifest.webmanifest', title: 'PWA Manifest', type: 'meta', desc: 'Progressive Web App installation manifest and icons', badge: 'PWA' },
-      { path: '/api/spotify', title: 'Spotify Now-Playing Card', type: 'meta', desc: 'Dynamic SVG listening card endpoint for GitHub profile READMEs', badge: 'SVG API' },
     ]
   },
   {
