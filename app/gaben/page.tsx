@@ -351,79 +351,67 @@ export default function GabenPage() {
     };
   }, []);
 
-  // 4. Supabase Integration: Presence & Listen Hours Sync
+  // 4. Initial Global Stats & Live Communion Sync (Cloudflare D1 & Realtime)
   useEffect(() => {
-    if (!supabase) {
-      setOnlineUsers(1);
-      return;
-    }
-
-    const client = supabase;
     let isSubscribed = true;
 
     const fetchGlobalStats = async () => {
       try {
-        const { data, error } = await client
-          .from('gaben_global_stats')
-          .select('total_seconds, wallets_sacrificed')
-          .eq('id', 'primary')
-          .single();
-
-        if (data && !error && isSubscribed) {
-          setGlobalSeconds(data.total_seconds || 0);
-          setWalletsSacrificed(data.wallets_sacrificed || 0);
+        const res = await fetch('/api/gaben/stats');
+        if (res.ok) {
+          const data = await res.json();
+          if (isSubscribed) {
+            if (typeof data.totalSeconds === 'number') {
+              setGlobalSeconds(prev => Math.max(prev, data.totalSeconds));
+            }
+            if (typeof data.walletsSacrificed === 'number') {
+              setWalletsSacrificed(data.walletsSacrificed);
+            }
+          }
         }
       } catch {
-        // Table might not exist yet
+        // Fallback to local
       }
     };
 
     fetchGlobalStats();
+    const pollInterval = setInterval(fetchGlobalStats, 10000);
 
-    const channel = client.channel('gaben_communion', {
-      config: {
-        presence: { key: 'user_' + Math.random().toString(36).slice(2, 8) },
-      },
-    });
-
-    supabaseChannelRef.current = channel;
-
-    channel
-      .on('presence', { event: 'sync' }, () => {
-        const state = channel.presenceState();
-        const userCount = Object.keys(state).length;
-        if (isSubscribed) {
-          setOnlineUsers(Math.max(1, userCount));
-        }
-      })
-      .on('broadcast', { event: 'sacrifice_wallet' }, () => {
-        setWalletsSacrificed(prev => prev + 1);
-        spawnSacrificeEffects(false);
-      })
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'gaben_global_stats' },
-        (payload: any) => {
-          if (payload.new && isSubscribed) {
-            if (typeof payload.new.total_seconds === 'number') {
-              setGlobalSeconds(prev => Math.max(prev, payload.new.total_seconds));
-            }
-            if (typeof payload.new.wallets_sacrificed === 'number') {
-              setWalletsSacrificed(payload.new.wallets_sacrificed);
-            }
-          }
-        }
-      )
-      .subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-          await channel.track({ online_at: new Date().toISOString() });
-        }
+    // Optional Supabase Realtime channel if present
+    if (supabase) {
+      const client = supabase;
+      const channel = client.channel('gaben_communion', {
+        config: {
+          presence: { key: 'user_' + Math.random().toString(36).slice(2, 8) },
+        },
       });
+
+      supabaseChannelRef.current = channel;
+
+      channel
+        .on('presence', { event: 'sync' }, () => {
+          const state = channel.presenceState();
+          const userCount = Object.keys(state).length;
+          if (isSubscribed) {
+            setOnlineUsers(Math.max(1, userCount));
+          }
+        })
+        .on('broadcast', { event: 'sacrifice_wallet' }, () => {
+          setWalletsSacrificed(prev => prev + 1);
+          spawnSacrificeEffects(false);
+        })
+        .subscribe(async (status) => {
+          if (status === 'SUBSCRIBED') {
+            await channel.track({ online_at: new Date().toISOString() });
+          }
+        });
+    }
 
     return () => {
       isSubscribed = false;
-      if (supabaseChannelRef.current) {
-        client.removeChannel(supabaseChannelRef.current);
+      clearInterval(pollInterval);
+      if (supabase && supabaseChannelRef.current) {
+        supabase.removeChannel(supabaseChannelRef.current);
         supabaseChannelRef.current = null;
       }
     };
@@ -448,30 +436,32 @@ export default function GabenPage() {
       if (accumulatedUnsavedSeconds.current >= 15) {
         const delta = accumulatedUnsavedSeconds.current;
         accumulatedUnsavedSeconds.current = 0;
-        syncSecondsToSupabase(delta);
+        syncSecondsToDatabase(delta);
       }
     }, 1000);
 
     return () => clearInterval(interval);
   }, [hasStarted]);
 
-  const syncSecondsToSupabase = async (delta: number) => {
-    if (!supabase) return;
-    const client = supabase;
+  const syncSecondsToDatabase = async (delta: number) => {
     try {
       setIsSyncing(true);
-      const { error } = await client.rpc('increment_gaben_time', { delta_seconds: delta });
-      if (error) {
-        await client
-          .from('gaben_global_stats')
-          .update({
-            total_seconds: globalSeconds + delta,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', 'primary');
+      const res = await fetch('/api/gaben/stats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ addSeconds: delta }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (typeof data.totalSeconds === 'number') {
+          setGlobalSeconds(prev => Math.max(prev, data.totalSeconds));
+        }
+        if (typeof data.walletsSacrificed === 'number') {
+          setWalletsSacrificed(data.walletsSacrificed);
+        }
       }
     } catch {
-      // Graceful fallback
+      // Graceful offline fallback
     } finally {
       setIsSyncing(false);
     }
@@ -579,18 +569,27 @@ export default function GabenPage() {
 
     setWalletsSacrificed(w => w + 1);
 
-    if (supabase) {
-      const client = supabase;
-      void client
-        .rpc('increment_gaben_wallet')
-        .then(({ error }) => {
-          if (error) {
-            void client
-              .from('gaben_global_stats')
-              .update({ wallets_sacrificed: walletsSacrificed + 1 })
-              .eq('id', 'primary');
-          }
-        });
+    // Cloudflare D1 stats sync
+    fetch('/api/gaben/stats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sacrificeWallet: true }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (typeof data?.walletsSacrificed === 'number') {
+          setWalletsSacrificed(data.walletsSacrificed);
+        }
+      })
+      .catch(() => {});
+
+    // Supabase broadcast if available
+    if (supabase && supabaseChannelRef.current) {
+      supabaseChannelRef.current.send({
+        type: 'broadcast',
+        event: 'sacrifice_wallet',
+        payload: { timestamp: Date.now() },
+      });
     }
 
     spawnSacrificeEffects(true);

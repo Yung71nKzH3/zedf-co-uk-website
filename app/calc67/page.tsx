@@ -55,7 +55,6 @@ export default function Calc67Page() {
   const [showTagModal, setShowTagModal] = useState(false);
   const [isTagLocked, setIsTagLocked] = useState(false);
   const [showReveal, setShowReveal] = useState(false);
-  const [envMissing, setEnvMissing] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const todayKey = new Date().toISOString().split('T')[0];
@@ -83,127 +82,123 @@ export default function Calc67Page() {
     }
   }, [showReveal, userId]);
 
-  // Auth & Data Loading
+  // Auth & Data Loading (Offline-First / Cloudflare D1 & PWA Ready)
   useEffect(() => {
     const init = async () => {
-      if (!supabase) {
-        setEnvMissing(true);
-        setLoading(false);
-        return;
+      // 1. Calculate deterministic daily starting number
+      const seed = parseInt(todayKey.replace(/-/g, '').substring(4), 10) || 12345;
+      const seededNum = (seed * 9301 + 49297) % 233280;
+      let startingNum = Math.floor((seededNum / 233280.0) * (10000 - 10 + 1)) + 10;
+
+      // Ensure persistent anonymous user id
+      let localUid = localStorage.getItem('calc67-user-id');
+      if (!localUid) {
+        localUid = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : 'u_' + Math.random().toString(36).slice(2, 10);
+        localStorage.setItem('calc67-user-id', localUid);
       }
+      setUserId(localUid);
+
+      // 2. Load cached local storage state (PWA offline play)
+      const cachedTag = localStorage.getItem('calc67-tag') || '';
+      setUserDisplayName(cachedTag);
+
+      const localSolveRaw = localStorage.getItem(`calc67-daily-${todayKey}`);
+      if (localSolveRaw) {
+        try {
+          const localSolve = JSON.parse(localSolveRaw);
+          if (localSolve && localSolve.solved) {
+            setHasSolvedToday(true);
+            setHistory(localSolve.history || []);
+            setCurrentResult(Number(localSolve.result) || TARGET_NUMBER);
+          }
+        } catch (e) {}
+      }
+
+      const localLocked = localStorage.getItem(`calc67-locked-${todayKey}`) === 'true';
+      if (localLocked) {
+        setIsTagLocked(true);
+      }
+
+      // 3. Sync daily seed from Cloudflare D1
       try {
-        // Load Daily Challenge Parameters first
-        const { data: dailyData } = await supabase
-          .from('daily_challenges')
-          .select('starting_number')
-          .eq('date', todayKey)
-          .maybeSingle();
-        
-        let startingNum = 0;
-        if (dailyData) {
-          startingNum = dailyData.starting_number;
-        } else {
-          // Generate seeded random starting number
-          const seed = parseInt(todayKey.replace(/-/g, '').substring(4));
-          const seededNum = (seed * 9301 + 49297) % 233280;
-          startingNum = Math.floor((seededNum / 233280.0) * (10000 - 10 + 1)) + 10;
-          await supabase
-            .from('daily_challenges')
-            .insert({ date: todayKey, starting_number: startingNum });
+        const res = await fetch(`/api/calc67/daily?date=${todayKey}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.startingNumber) {
+            startingNum = data.startingNumber;
+          }
         }
-        setDailyStartingNumber(startingNum);
-        setCurrentResult(startingNum);
-
-        // Check for active session
-        const { data: sessionData } = await supabase.auth.getSession();
-        const currentUser = sessionData?.session?.user;
-
-        if (currentUser) {
-          const currentUid = currentUser.id;
-          setUserId(currentUid);
-
-          // Load Profile
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('display_name')
-            .eq('id', currentUid)
-            .maybeSingle();
-          
-          let initialDisplayName = "";
-          if (profileData && profileData.display_name) {
-            initialDisplayName = profileData.display_name;
-          } else {
-            // Check local storage for legacy/cached tag
-            initialDisplayName = localStorage.getItem('calc67-tag') || "";
-          }
-          setUserDisplayName(initialDisplayName);
-
-          // Load Solve Status & Tag Lock
-          const { data: statusData } = await supabase
-            .from('leaderboard_scores')
-            .select('solved, history, result, tag_locked, display_name')
-            .eq('user_id', currentUid)
-            .eq('date', todayKey)
-            .maybeSingle();
-          
-          if (statusData) {
-             if (statusData.solved) {
-               setHasSolvedToday(true);
-               const solvedHistory = typeof statusData.history === 'string' ? JSON.parse(statusData.history) : statusData.history;
-               setHistory(solvedHistory || []);
-               setCurrentResult(Number(statusData.result));
-             }
-             if (statusData.tag_locked) {
-               setIsTagLocked(true);
-               setUserDisplayName(statusData.display_name);
-             }
-          }
-
-          // Show reveal onboarding if tag is not locked for today
-          if (!statusData || !statusData.tag_locked) {
-            setShowReveal(true);
-          }
-        } else {
-          // Unauthenticated, show onboarding
-          setShowReveal(true);
-        }
-
-      } catch (err) {
-        console.error("Initialization error:", err);
-      } finally {
-        setLoading(false);
+      } catch (e) {
+        // Fallback to deterministic
       }
+
+      // 4. Fallback check for Supabase profile if present
+      if (supabase) {
+        try {
+          const { data: sessionData } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
+          const currentUser = sessionData?.session?.user;
+          if (currentUser) {
+            setUserId(currentUser.id);
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('display_name')
+              .eq('id', currentUser.id)
+              .maybeSingle();
+            if (profileData?.display_name) {
+              setUserDisplayName(profileData.display_name);
+              localStorage.setItem('calc67-tag', profileData.display_name);
+            }
+          }
+        } catch {}
+      }
+
+      if (!localLocked) {
+        setShowReveal(true);
+      }
+
+      setDailyStartingNumber(startingNum);
+      if (!localSolveRaw) {
+        setCurrentResult(startingNum);
+      }
+      setLoading(false);
     };
 
     init();
   }, [todayKey]);
 
-  // Load Leaderboard
+  // Load Leaderboard (Cloudflare D1 Native with Supabase Fallback)
   const fetchLeaderboard = useCallback(async () => {
-    if (!supabase) return;
     try {
-      const { data, error } = await supabase
-        .from('leaderboard_scores')
-        .select('user_id, display_name, operations, diversity_score')
-        .eq('date', todayKey)
-        .eq('solved', true)
-        .order('diversity_score', { ascending: false })
-        .order('operations', { ascending: true })
-        .limit(10);
-      
-      if (error) {
-        console.error("Leaderboard error:", error);
-      } else {
-        const formattedData: LeaderboardEntry[] = (data || []).map(row => ({
-          id: row.user_id,
-          displayName: row.display_name,
-          operations: row.operations || 0,
-          diversityScore: row.diversity_score || 0
-        }));
-        setLeaderboard(formattedData);
+      const res = await fetch(`/api/calc67/leaderboard?date=${todayKey}`);
+      if (res.ok) {
+        const json = await res.json();
+        if (Array.isArray(json.leaderboard) && json.leaderboard.length > 0) {
+          setLeaderboard(json.leaderboard);
+          return;
+        }
       }
-    } catch (err) {
-      console.error("Leaderboard error:", err);
+    } catch {}
+
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('leaderboard_scores')
+          .select('user_id, display_name, operations, diversity_score')
+          .eq('date', todayKey)
+          .eq('solved', true)
+          .order('diversity_score', { ascending: false })
+          .order('operations', { ascending: true })
+          .limit(10);
+        
+        if (!error && data) {
+          setLeaderboard(data.map(row => ({
+            id: row.user_id,
+            displayName: row.display_name,
+            operations: row.operations || 0,
+            diversityScore: row.diversity_score || 0
+          })));
+        }
+      } catch {}
     }
   }, [todayKey]);
 
@@ -238,7 +233,7 @@ export default function Calc67Page() {
   };
 
   const executeStep = async () => {
-    if (hasSolvedToday || !currentOperator || currentInput === '' || !supabase) return;
+    if (hasSolvedToday || !currentOperator || currentInput === '') return;
     
     const operand2 = parseFloat(currentInput);
     if (isNaN(operand2)) return;
@@ -283,13 +278,42 @@ export default function Calc67Page() {
     if (Math.abs(nextResult - TARGET_NUMBER) < 0.0001) {
       setHasSolvedToday(true);
       const diversity = calculateDiversity(newHistory);
-      
-      // Save
-      if (userId && supabase) {
-        const cleanTag = (userDisplayName || localStorage.getItem('calc67-tag') || 'AA').toUpperCase().slice(0, 2);
-        const validTag = cleanTag.length === 2 ? cleanTag : 'AA';
+      const cleanTag = (userDisplayName || localStorage.getItem('calc67-tag') || 'AA').toUpperCase().slice(0, 2);
+      const validTag = cleanTag.length === 2 ? cleanTag : 'AA';
 
-        const { error: saveErr } = await supabase.from('leaderboard_scores').upsert(
+      // Always save locally to PWA offline storage
+      localStorage.setItem(`calc67-daily-${todayKey}`, JSON.stringify({
+        date: todayKey,
+        solved: true,
+        operations: newHistory.length,
+        diversity_score: diversity,
+        result: nextResult,
+        history: newHistory,
+        tag: validTag
+      }));
+      
+      // Submit to native Cloudflare D1 endpoint
+      fetch('/api/calc67/leaderboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: userId || cleanTag,
+          date: todayKey,
+          displayName: validTag,
+          solved: true,
+          operations: newHistory.length,
+          diversityScore: diversity,
+          result: nextResult,
+          history: newHistory,
+          tagLocked: true
+        })
+      })
+      .then(() => fetchLeaderboard())
+      .catch((e) => console.warn('D1 leaderboard submit notice:', e));
+
+      // Optional legacy Supabase sync if credentials exist
+      if (userId && supabase) {
+        supabase.from('leaderboard_scores').upsert(
           {
             user_id: userId,
             date: todayKey,
@@ -302,16 +326,9 @@ export default function Calc67Page() {
             tag_locked: true
           },
           { onConflict: 'user_id,date' }
-        );
-        
-        if (saveErr) {
-          console.error("Leaderboard submit error:", saveErr);
-        } else {
-          await fetchLeaderboard();
-        }
-        
-        setShowLeaderboardModal(true);
+        ).catch(() => {});
       }
+      setShowLeaderboardModal(true);
     } else {
       setMessage(`Step ${newHistory.length} applied. Current: ${formatNum(nextResult)}`);
     }
@@ -345,88 +362,64 @@ export default function Calc67Page() {
   };
 
   const lockTagAndStart = async () => {
-    if (!supabase) {
-      setMessage("⚠️ Database client is not ready.");
+    if (userDisplayName.length !== 2) {
+      setMessage("⚠️ Tag must be exactly 2 letters!");
       return;
     }
-    if (userDisplayName.length !== 2) {
-        setMessage("⚠️ Tag must be exactly 2 letters!");
-        return;
-    }
-    
-    let currentUid = userId;
-    if (!currentUid) {
-      if (!captchaToken) {
-        setMessage("⚠️ Please complete the Captcha puzzle!");
-        return;
-      }
-      try {
-        const { data: authData, error: authError } = await supabase.auth.signInAnonymously({
-          options: { captchaToken }
-        });
-        if (authError || !authData.user) {
-          setMessage(`⚠️ Authentication failed: ${authError?.message || 'Unknown error'}`);
-          console.error("Auth error:", authError);
-          return;
-        }
-        currentUid = authData.user.id;
-        setUserId(currentUid);
-      } catch (err: any) {
-        setMessage(`⚠️ Authentication error: ${err.message || err}`);
-        return;
-      }
-    }
 
+    const cleanTag = (userDisplayName || 'AA').toUpperCase().slice(0, 2);
+    const validTag = cleanTag.length === 2 ? cleanTag : 'AA';
+
+    // 1. Immediately lock locally so player can play offline or online
+    localStorage.setItem('calc67-tag', validTag);
+    localStorage.setItem(`calc67-locked-${todayKey}`, 'true');
     setIsTagLocked(true);
     setShowReveal(false);
-    
-    if (currentUid && supabase) {
-      const cleanTag = (userDisplayName || 'AA').toUpperCase().slice(0, 2);
-      const validTag = cleanTag.length === 2 ? cleanTag : 'AA';
 
-      // Upsert profile
-      await supabase.from('profiles').upsert({
-        id: currentUid,
-        display_name: validTag
-      });
+    // 2. Sync with database if available
+    if (supabase) {
+      let currentUid = userId;
+      const requiresCaptcha = Boolean(process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY);
 
-      // Upsert lock status to leaderboard_scores
-      const { error: lockErr } = await supabase.from('leaderboard_scores').upsert(
-        {
-          user_id: currentUid,
-          date: todayKey,
-          display_name: validTag,
-          tag_locked: true
-        },
-        { onConflict: 'user_id,date' }
-      );
+      if (!currentUid) {
+        if (requiresCaptcha && !captchaToken) {
+          setMessage("⚠️ Please complete the Captcha puzzle!");
+          return;
+        }
+        try {
+          const authOptions = captchaToken ? { options: { captchaToken } } : undefined;
+          const { data: authData, error: authError } = await supabase.auth.signInAnonymously(authOptions);
+          if (authError || !authData?.user) {
+            console.warn("Anonymous auth skipped/failed (playing locally):", authError?.message);
+          } else {
+            currentUid = authData.user.id;
+            setUserId(currentUid);
+          }
+        } catch (err: any) {
+          console.warn("Auth exception (playing locally):", err);
+        }
+      }
 
-      if (lockErr) {
-        console.error("Lock tag error:", lockErr);
+      if (currentUid) {
+        // Upsert profile
+        await supabase.from('profiles').upsert({
+          id: currentUid,
+          display_name: validTag
+        }).catch(() => {});
+
+        // Upsert lock status to leaderboard_scores
+        await supabase.from('leaderboard_scores').upsert(
+          {
+            user_id: currentUid,
+            date: todayKey,
+            display_name: validTag,
+            tag_locked: true
+          },
+          { onConflict: 'user_id,date' }
+        ).catch(() => {});
       }
     }
   };
-
-  if (envMissing) {
-    return (
-      <div className="min-h-screen bg-[#020617] flex items-center justify-center p-6 text-center">
-        <div className="max-w-md bg-[#0f172a] border border-red-500/30 rounded-3xl p-8 space-y-4 shadow-2xl">
-          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto text-red-500">
-             <Settings className="w-8 h-8 animate-spin" />
-          </div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">Supabase Config Missing</h2>
-          <p className="text-white/60 text-sm leading-relaxed">
-            Local development environment variables are not set. Please pass `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` when launching the server.
-          </p>
-          <div className="pt-4">
-            <Link href="/" className="text-cyan-400 hover:underline text-sm font-medium">
-               Return to Dashboard
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (loading) {
     return (
@@ -796,8 +789,15 @@ export default function Calc67Page() {
                       </div>
                     ))}
                     {leaderboard.length === 0 && (
-                      <div className="text-center py-10 space-y-2">
-                        <p className="text-white/20 font-medium">Be the first to solve!</p>
+                      <div className="text-center py-8 space-y-2">
+                        <p className="text-white/40 font-medium text-sm">
+                          {!supabase ? "Offline Mode: Solve saved on this device!" : "Be the first to solve today!"}
+                        </p>
+                        {!supabase && (
+                          <p className="text-[10px] text-cyan-400/60 uppercase tracking-wider font-semibold">
+                            PWA Local Storage Active
+                          </p>
+                        )}
                       </div>
                     )}
                  </div>
@@ -910,7 +910,7 @@ export default function Calc67Page() {
                     </div>
                   </div>
 
-                  {!userId && (
+                  {Boolean(process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY && !userId && supabase) && (
                     <div className="flex flex-col items-center justify-center my-4">
                       <Script
                         src="https://challenges.cloudflare.com/turnstile/v0/api.js"
@@ -935,7 +935,7 @@ export default function Calc67Page() {
                   )}
 
                   <button 
-                    disabled={userDisplayName.length !== 2 || (!userId && !captchaToken)}
+                    disabled={userDisplayName.length !== 2 || Boolean(process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY && !userId && supabase && !captchaToken)}
                     onClick={lockTagAndStart}
                     className="w-full py-5 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-20 disabled:grayscale text-black font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 shadow-2xl shadow-cyan-500/40"
                   >
