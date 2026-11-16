@@ -8,8 +8,7 @@ import {
   ExternalLink, ArrowLeft, RefreshCw,
   DollarSign, Eye, EyeOff, Ship, BellOff, Bell
 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import type { RealtimeChannel } from '@supabase/supabase-js';
+import { connectRoom, RoomSocket } from '@/lib/realtime';
 
 // ==========================================
 // Hardcoded YouTube Video:
@@ -180,7 +179,7 @@ export default function GabenPage() {
   const particlesRef = useRef<CanvasDiscountParticle[]>([]);
   const trailRef = useRef<CanvasTrailParticle[]>([]);
   const lastTrailDropTime = useRef(0);
-  const supabaseChannelRef = useRef<RealtimeChannel | null>(null);
+  const roomSocketRef = useRef<RoomSocket | null>(null);
   const accumulatedUnsavedSeconds = useRef(0);
 
   // Yacht Fleet Math:
@@ -377,42 +376,28 @@ export default function GabenPage() {
     fetchGlobalStats();
     const pollInterval = setInterval(fetchGlobalStats, 10000);
 
-    // Optional Supabase Realtime channel if present
-    if (supabase) {
-      const client = supabase;
-      const channel = client.channel('gaben_communion', {
-        config: {
-          presence: { key: 'user_' + Math.random().toString(36).slice(2, 8) },
-        },
-      });
-
-      supabaseChannelRef.current = channel;
-
-      channel
-        .on('presence', { event: 'sync' }, () => {
-          const state = channel.presenceState();
-          const userCount = Object.keys(state).length;
-          if (isSubscribed) {
-            setOnlineUsers(Math.max(1, userCount));
-          }
-        })
-        .on('broadcast', { event: 'sacrifice_wallet' }, () => {
+    // Cloudflare Realtime WebSocket channel
+    const socket = connectRoom({
+      roomCode: 'gaben_communion',
+      onPresence: (count) => {
+        if (isSubscribed) setOnlineUsers(Math.max(1, count));
+      },
+      onEvent: (event) => {
+        if (event === 'sacrifice_wallet') {
           setWalletsSacrificed(prev => prev + 1);
           spawnSacrificeEffects(false);
-        })
-        .subscribe(async (status) => {
-          if (status === 'SUBSCRIBED') {
-            await channel.track({ online_at: new Date().toISOString() });
-          }
-        });
-    }
+        }
+      },
+      onStatus: () => {},
+    });
+    roomSocketRef.current = socket;
 
     return () => {
       isSubscribed = false;
       clearInterval(pollInterval);
-      if (supabase && supabaseChannelRef.current) {
-        supabase.removeChannel(supabaseChannelRef.current);
-        supabaseChannelRef.current = null;
+      if (roomSocketRef.current) {
+        roomSocketRef.current.close();
+        roomSocketRef.current = null;
       }
     };
   }, []);
@@ -551,12 +536,8 @@ export default function GabenPage() {
       }, i * 110);
     }
 
-    if (broadcast && supabaseChannelRef.current) {
-      supabaseChannelRef.current.send({
-        type: 'broadcast',
-        event: 'sacrifice_wallet',
-        payload: { timestamp: Date.now() },
-      });
+    if (broadcast && roomSocketRef.current) {
+      roomSocketRef.current.send('sacrifice_wallet', { timestamp: Date.now() });
     }
   };
 
@@ -582,15 +563,6 @@ export default function GabenPage() {
         }
       })
       .catch(() => {});
-
-    // Supabase broadcast if available
-    if (supabase && supabaseChannelRef.current) {
-      supabaseChannelRef.current.send({
-        type: 'broadcast',
-        event: 'sacrifice_wallet',
-        payload: { timestamp: Date.now() },
-      });
-    }
 
     spawnSacrificeEffects(true);
     window.open('https://store.steampowered.com/', '_blank');

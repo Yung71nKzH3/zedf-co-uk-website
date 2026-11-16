@@ -15,7 +15,6 @@ import {
   X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { supabase } from "@/lib/supabase";
 import { InstallPwaButton } from "@/components/InstallPwaButton";
 
 // Constants
@@ -66,7 +65,7 @@ export default function Calc67Page() {
 
   // Initialize Turnstile widget dynamically
   useEffect(() => {
-    if (showReveal && !userId && supabase) {
+    if (showReveal && !userId && process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY) {
       const wt = (window as any).turnstile;
       if (wt && document.getElementById('turnstile-container')) {
         try {
@@ -132,26 +131,6 @@ export default function Calc67Page() {
         // Fallback to deterministic
       }
 
-      // 4. Fallback check for Supabase profile if present
-      if (supabase) {
-        try {
-          const { data: sessionData } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
-          const currentUser = sessionData?.session?.user;
-          if (currentUser) {
-            setUserId(currentUser.id);
-            const { data: profileData } = await supabase
-              .from('profiles')
-              .select('display_name')
-              .eq('id', currentUser.id)
-              .maybeSingle();
-            if (profileData?.display_name) {
-              setUserDisplayName(profileData.display_name);
-              localStorage.setItem('calc67-tag', profileData.display_name);
-            }
-          }
-        } catch {}
-      }
-
       if (!localLocked) {
         setShowReveal(true);
       }
@@ -178,28 +157,6 @@ export default function Calc67Page() {
         }
       }
     } catch {}
-
-    if (supabase) {
-      try {
-        const { data, error } = await supabase
-          .from('leaderboard_scores')
-          .select('user_id, display_name, operations, diversity_score')
-          .eq('date', todayKey)
-          .eq('solved', true)
-          .order('diversity_score', { ascending: false })
-          .order('operations', { ascending: true })
-          .limit(10);
-        
-        if (!error && data) {
-          setLeaderboard(data.map(row => ({
-            id: row.user_id,
-            displayName: row.display_name,
-            operations: row.operations || 0,
-            diversityScore: row.diversity_score || 0
-          })));
-        }
-      } catch {}
-    }
   }, [todayKey]);
 
   useEffect(() => {
@@ -311,23 +268,6 @@ export default function Calc67Page() {
       .then(() => fetchLeaderboard())
       .catch((e) => console.warn('D1 leaderboard submit notice:', e));
 
-      // Optional legacy Supabase sync if credentials exist
-      if (userId && supabase) {
-        supabase.from('leaderboard_scores').upsert(
-          {
-            user_id: userId,
-            date: todayKey,
-            display_name: validTag,
-            solved: true,
-            operations: newHistory.length,
-            diversity_score: diversity,
-            result: nextResult,
-            history: JSON.stringify(newHistory),
-            tag_locked: true
-          },
-          { onConflict: 'user_id,date' }
-        ).catch(() => {});
-      }
       setShowLeaderboardModal(true);
     } else {
       setMessage(`Step ${newHistory.length} applied. Current: ${formatNum(nextResult)}`);
@@ -348,20 +288,13 @@ export default function Calc67Page() {
     setTimeout(() => setIsCoping(false), 2000);
   };
 
-  const updateTag = async (newTag: string) => {
+  const updateTag = (newTag: string) => {
     const clean = newTag.replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 2);
     setUserDisplayName(clean);
     localStorage.setItem('calc67-tag', clean);
-    
-    if (clean.length === 2 && userId && supabase) {
-      await supabase.from('profiles').upsert({
-        id: userId,
-        display_name: clean
-      });
-    }
   };
 
-  const lockTagAndStart = async () => {
+  const lockTagAndStart = () => {
     if (userDisplayName.length !== 2) {
       setMessage("⚠️ Tag must be exactly 2 letters!");
       return;
@@ -370,55 +303,11 @@ export default function Calc67Page() {
     const cleanTag = (userDisplayName || 'AA').toUpperCase().slice(0, 2);
     const validTag = cleanTag.length === 2 ? cleanTag : 'AA';
 
-    // 1. Immediately lock locally so player can play offline or online
+    // Immediately lock locally so player can play offline or online
     localStorage.setItem('calc67-tag', validTag);
     localStorage.setItem(`calc67-locked-${todayKey}`, 'true');
     setIsTagLocked(true);
     setShowReveal(false);
-
-    // 2. Sync with database if available
-    if (supabase) {
-      let currentUid = userId;
-      const requiresCaptcha = Boolean(process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY);
-
-      if (!currentUid) {
-        if (requiresCaptcha && !captchaToken) {
-          setMessage("⚠️ Please complete the Captcha puzzle!");
-          return;
-        }
-        try {
-          const authOptions = captchaToken ? { options: { captchaToken } } : undefined;
-          const { data: authData, error: authError } = await supabase.auth.signInAnonymously(authOptions);
-          if (authError || !authData?.user) {
-            console.warn("Anonymous auth skipped/failed (playing locally):", authError?.message);
-          } else {
-            currentUid = authData.user.id;
-            setUserId(currentUid);
-          }
-        } catch (err: any) {
-          console.warn("Auth exception (playing locally):", err);
-        }
-      }
-
-      if (currentUid) {
-        // Upsert profile
-        await supabase.from('profiles').upsert({
-          id: currentUid,
-          display_name: validTag
-        }).catch(() => {});
-
-        // Upsert lock status to leaderboard_scores
-        await supabase.from('leaderboard_scores').upsert(
-          {
-            user_id: currentUid,
-            date: todayKey,
-            display_name: validTag,
-            tag_locked: true
-          },
-          { onConflict: 'user_id,date' }
-        ).catch(() => {});
-      }
-    }
   };
 
   if (loading) {
@@ -791,13 +680,8 @@ export default function Calc67Page() {
                     {leaderboard.length === 0 && (
                       <div className="text-center py-8 space-y-2">
                         <p className="text-white/40 font-medium text-sm">
-                          {!supabase ? "Offline Mode: Solve saved on this device!" : "Be the first to solve today!"}
+                          Be the first to solve today!
                         </p>
-                        {!supabase && (
-                          <p className="text-[10px] text-cyan-400/60 uppercase tracking-wider font-semibold">
-                            PWA Local Storage Active
-                          </p>
-                        )}
                       </div>
                     )}
                  </div>
@@ -910,7 +794,7 @@ export default function Calc67Page() {
                     </div>
                   </div>
 
-                  {Boolean(process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY && !userId && supabase) && (
+                  {Boolean(process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY && !userId) && (
                     <div className="flex flex-col items-center justify-center my-4">
                       <Script
                         src="https://challenges.cloudflare.com/turnstile/v0/api.js"
@@ -935,7 +819,7 @@ export default function Calc67Page() {
                   )}
 
                   <button 
-                    disabled={userDisplayName.length !== 2 || Boolean(process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY && !userId && supabase && !captchaToken)}
+                    disabled={userDisplayName.length !== 2 || Boolean(process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY && !userId && !captchaToken)}
                     onClick={lockTagAndStart}
                     className="w-full py-5 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-20 disabled:grayscale text-black font-black uppercase tracking-[0.2em] rounded-3xl transition-all active:scale-95 shadow-2xl shadow-cyan-500/40"
                   >

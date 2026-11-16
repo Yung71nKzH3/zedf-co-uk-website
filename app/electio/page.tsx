@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useSyncExternalStore } from 'react';
 import confetti from 'canvas-confetti';
-import { supabase } from '@/lib/supabase';
-import { RealtimeChannel } from '@supabase/supabase-js';
+import { connectRoom, RoomSocket } from '@/lib/realtime';
 import Link from 'next/link';
 import { ArrowLeft, Volume2, VolumeX, Users, Share2, Sparkles, Copy, Check, Radio } from 'lucide-react';
 import { InstallPwaButton } from '@/components/InstallPwaButton';
@@ -106,7 +105,7 @@ export default function ElectioPage() {
   const [copiedLink, setCopiedLink] = useState(false);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
-  const supabaseChannelRef = useRef<RealtimeChannel | null>(null);
+  const roomSocketRef = useRef<RoomSocket | null>(null);
 
   // Live mutable refs to eliminate stale closure bugs
   const optionsRef = useRef(options);
@@ -222,19 +221,15 @@ export default function ElectioPage() {
     localStorage.setItem('electio-chips', JSON.stringify(chips));
   }, [options, chips, isMounted, isConnected]);
 
-  // Broadcast state updates over Supabase channel
+  // Broadcast state updates over Cloudflare Realtime channel
   const broadcastState = useCallback((newOpts: OptionItem[], newChips: Record<number, boolean>) => {
-    if (!roomCodeRef.current || !supabaseChannelRef.current) return;
+    if (!roomCodeRef.current || !roomSocketRef.current) return;
 
-    supabaseChannelRef.current.send({
-      type: 'broadcast',
-      event: 'ROOM_STATE_SYNC',
-      payload: { options: newOpts, chips: newChips },
-    });
+    roomSocketRef.current.send('ROOM_STATE_SYNC', { options: newOpts, chips: newChips });
   }, []);
 
-  // Supabase Realtime Room Setup
-  const setupSupabaseRoom = useCallback((code: string, isHost: boolean) => {
+  // Cloudflare Realtime Room Setup
+  const setupRoom = useCallback((code: string, isHost: boolean) => {
     if (!isValidRoomCode(code)) {
       alert('Invalid room invite link.');
       return;
@@ -245,138 +240,23 @@ export default function ElectioPage() {
       return;
     }
 
-    if (!supabase) {
-      alert('Supabase is not configured yet. Make sure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set.');
-      return;
-    }
-
     setIsConnecting(true);
 
-    if (supabaseChannelRef.current) {
-      supabase.removeChannel(supabaseChannelRef.current);
-      supabaseChannelRef.current = null;
+    if (roomSocketRef.current) {
+      roomSocketRef.current.close();
+      roomSocketRef.current = null;
     }
 
-    const presenceKey = window.crypto.randomUUID();
+    const socket = connectRoom({
+      roomCode: code,
+      onStatus: (status) => {
+        if (roomSocketRef.current !== socket) return;
 
-    const channel = supabase.channel(`electio-room-${code}`, {
-      config: {
-        broadcast: { ack: false, self: false },
-        presence: { key: presenceKey },
-      },
-    });
-
-    supabaseChannelRef.current = channel;
-
-    channel
-      .on('broadcast', { event: 'ROOM_STATE_SYNC' }, ({ payload }) => {
-        // Guard against callbacks from stale or replaced channels
-        if (supabaseChannelRef.current !== channel) return;
-
-        // Exhaustive payload validation for options
-        if (payload && Array.isArray(payload.options) && payload.options.length <= 100) {
-          const ids = new Set<number>();
-          const validOptions = payload.options.every((o: unknown): o is OptionItem => {
-            if (typeof o !== 'object' || o === null) return false;
-            const item = o as OptionItem;
-            if (typeof item.id !== 'number' || !Number.isSafeInteger(item.id)) return false;
-            if (typeof item.text !== 'string' || item.text.trim().length === 0 || item.text.length > 200) return false;
-            if (item.weight !== undefined && (typeof item.weight !== 'number' || item.weight <= 0 || !Number.isFinite(item.weight))) return false;
-            if (item.isRiskApplied !== undefined && typeof item.isRiskApplied !== 'boolean') return false;
-            if (ids.has(item.id)) return false; // Must be unique
-            ids.add(item.id);
-            return true;
-          });
-
-          if (validOptions) {
-            setOptions(payload.options);
-          }
-        }
-
-        // Exhaustive payload validation for chips
-        if (
-          payload &&
-          typeof payload.chips === 'object' &&
-          payload.chips !== null &&
-          !Array.isArray(payload.chips)
-        ) {
-          const validChips = Object.entries(payload.chips).every(([key, value]) => {
-            const numKey = Number(key);
-            return Number.isSafeInteger(numKey) && typeof value === 'boolean';
-          });
-
-          if (validChips) {
-            setChips(payload.chips as Record<number, boolean>);
-          }
-        }
-      })
-      .on('broadcast', { event: 'SPIN_EVENT' }, ({ payload }) => {
-        // Guard against callbacks from stale or replaced channels
-        if (supabaseChannelRef.current !== channel) return;
-
-        // Exhaustive payload validation for spin events
-        if (
-          payload &&
-          typeof payload.winnerIndex === 'number' &&
-          Number.isSafeInteger(payload.winnerIndex) &&
-          Array.isArray(payload.weightedOptions) &&
-          payload.weightedOptions.length <= 100 &&
-          payload.winnerIndex >= 0 &&
-          payload.winnerIndex < payload.weightedOptions.length &&
-          typeof payload.selectedWinner === 'object' &&
-          payload.selectedWinner !== null &&
-          typeof payload.selectedWinner.id === 'number' &&
-          Number.isSafeInteger(payload.selectedWinner.id)
-        ) {
-          // Validate every item in weightedOptions (strictly require positive finite weights)
-          const validWeighted = payload.weightedOptions.every(
-            (item: unknown): item is OptionItem =>
-              typeof item === 'object' &&
-              item !== null &&
-              typeof (item as OptionItem).id === 'number' &&
-              Number.isSafeInteger((item as OptionItem).id) &&
-              typeof (item as OptionItem).text === 'string' &&
-              (item as OptionItem).text.length <= 200 &&
-              typeof (item as OptionItem).weight === 'number' &&
-              (item as OptionItem).weight! > 0 &&
-              Number.isFinite((item as OptionItem).weight)
-          );
-
-          // Ensure selectedWinner matches the item at winnerIndex, and use validated itemAtIndex
-          const itemAtIndex = payload.weightedOptions[payload.winnerIndex];
-          if (validWeighted && itemAtIndex && itemAtIndex.id === payload.selectedWinner.id) {
-            executeSpinAnimationRef.current(itemAtIndex, payload.winnerIndex, payload.weightedOptions);
-          }
-        }
-      })
-      .on('broadcast', { event: 'REQUEST_ROOM_SYNC' }, () => {
-        // Guard against callbacks from stale or replaced channels
-        if (supabaseChannelRef.current !== channel) return;
-
-        // Any peer currently having options sends their state back
-        channel.send({
-          type: 'broadcast',
-          event: 'ROOM_STATE_SYNC',
-          payload: { options: optionsRef.current, chips: chipsRef.current },
-        });
-      })
-      .on('presence', { event: 'sync' }, () => {
-        if (supabaseChannelRef.current !== channel) return;
-        const state = channel.presenceState();
-        const count = Object.keys(state).length;
-        setPeerCount(count || 1);
-      })
-      .subscribe((status, err) => {
-        // Ignore status events from stale/replaced channels
-        if (supabaseChannelRef.current !== channel) return;
-
-        if (status === 'SUBSCRIBED') {
-          channel.track({ online_at: new Date().toISOString() });
+        if (status === 'CONNECTED') {
           setRoomCode(code);
           setIsConnected(true);
           setIsConnecting(false);
 
-          // Preserve Next.js router state when updating URL
           if (typeof window !== 'undefined') {
             const url = new URL(window.location.href);
             url.searchParams.set('room', code);
@@ -386,32 +266,104 @@ export default function ElectioPage() {
           if (isHost) {
             setShowRoomModal(true);
           } else {
-            // Request existing wheel state from room peers
-            channel.send({
-              type: 'broadcast',
-              event: 'REQUEST_ROOM_SYNC',
-              payload: {},
-            });
+            socket.send('REQUEST_ROOM_SYNC', {});
           }
-        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-          console.error(`Supabase channel error: ${status}`, err);
-          
-          // Terminal cleanup: null the ref before removing the failed channel
-          if (supabaseChannelRef.current === channel) {
-            supabaseChannelRef.current = null;
-            void supabase?.removeChannel(channel);
+        } else if (status === 'DISCONNECTED') {
+          if (roomSocketRef.current === socket) {
+            roomSocketRef.current = null;
           }
-
           setIsConnecting(false);
           setIsConnected(false);
           setRoomCode('');
           setPeerCount(1);
-
-          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-            alert(`Connection failed (${status}). Please check your connection or try again.`);
-          }
         }
-      });
+      },
+      onPresence: (count) => {
+        if (roomSocketRef.current !== socket) return;
+        setPeerCount(count || 1);
+      },
+      onEvent: (event, payload) => {
+        if (roomSocketRef.current !== socket) return;
+
+        if (event === 'ROOM_STATE_SYNC') {
+          // Exhaustive payload validation for options
+          if (payload && Array.isArray(payload.options) && payload.options.length <= 100) {
+            const ids = new Set<number>();
+            const validOptions = payload.options.every((o: unknown): o is OptionItem => {
+              if (typeof o !== 'object' || o === null) return false;
+              const item = o as OptionItem;
+              if (typeof item.id !== 'number' || !Number.isSafeInteger(item.id)) return false;
+              if (typeof item.text !== 'string' || item.text.trim().length === 0 || item.text.length > 200) return false;
+              if (item.weight !== undefined && (typeof item.weight !== 'number' || item.weight <= 0 || !Number.isFinite(item.weight))) return false;
+              if (item.isRiskApplied !== undefined && typeof item.isRiskApplied !== 'boolean') return false;
+              if (ids.has(item.id)) return false; // Must be unique
+              ids.add(item.id);
+              return true;
+            });
+
+            if (validOptions) {
+              setOptions(payload.options);
+            }
+          }
+
+          // Exhaustive payload validation for chips
+          if (
+            payload &&
+            typeof payload.chips === 'object' &&
+            payload.chips !== null &&
+            !Array.isArray(payload.chips)
+          ) {
+            const validChips = Object.entries(payload.chips).every(([key, value]) => {
+              const numKey = Number(key);
+              return Number.isSafeInteger(numKey) && typeof value === 'boolean';
+            });
+
+            if (validChips) {
+              setChips(payload.chips as Record<number, boolean>);
+            }
+          }
+        } else if (event === 'SPIN_EVENT') {
+          // Exhaustive payload validation for spin events
+          if (
+            payload &&
+            typeof payload.winnerIndex === 'number' &&
+            Number.isSafeInteger(payload.winnerIndex) &&
+            Array.isArray(payload.weightedOptions) &&
+            payload.weightedOptions.length <= 100 &&
+            payload.winnerIndex >= 0 &&
+            payload.winnerIndex < payload.weightedOptions.length &&
+            typeof payload.selectedWinner === 'object' &&
+            payload.selectedWinner !== null &&
+            typeof payload.selectedWinner.id === 'number' &&
+            Number.isSafeInteger(payload.selectedWinner.id)
+          ) {
+            // Validate every item in weightedOptions (strictly require positive finite weights)
+            const validWeighted = payload.weightedOptions.every(
+              (item: unknown): item is OptionItem =>
+                typeof item === 'object' &&
+                item !== null &&
+                typeof (item as OptionItem).id === 'number' &&
+                Number.isSafeInteger((item as OptionItem).id) &&
+                typeof (item as OptionItem).text === 'string' &&
+                (item as OptionItem).text.length <= 200 &&
+                typeof (item as OptionItem).weight === 'number' &&
+                (item as OptionItem).weight! > 0 &&
+                Number.isFinite((item as OptionItem).weight)
+            );
+
+            // Ensure selectedWinner matches the item at winnerIndex, and use validated itemAtIndex
+            const itemAtIndex = payload.weightedOptions[payload.winnerIndex];
+            if (validWeighted && itemAtIndex && itemAtIndex.id === payload.selectedWinner.id) {
+              executeSpinAnimationRef.current(itemAtIndex, payload.winnerIndex, payload.weightedOptions);
+            }
+          }
+        } else if (event === 'REQUEST_ROOM_SYNC') {
+          socket.send('ROOM_STATE_SYNC', { options: optionsRef.current, chips: chipsRef.current });
+        }
+      },
+    });
+
+    roomSocketRef.current = socket;
   }, []);
 
   // Read URL query parameter for auto-join via invite link
@@ -419,16 +371,16 @@ export default function ElectioPage() {
     if (typeof window === 'undefined') return;
     const param = new URLSearchParams(window.location.search).get('room');
     if (param && isValidRoomCode(param.trim())) {
-      setupSupabaseRoom(param.trim(), false);
+      setupRoom(param.trim(), false);
     }
-  }, [setupSupabaseRoom]);
+  }, [setupRoom]);
 
-  // Clean up Supabase channel on unmount
+  // Clean up socket on unmount
   useEffect(() => {
     return () => {
-      if (supabaseChannelRef.current) {
-        supabase?.removeChannel(supabaseChannelRef.current);
-        supabaseChannelRef.current = null;
+      if (roomSocketRef.current) {
+        roomSocketRef.current.close();
+        roomSocketRef.current = null;
       }
     };
   }, []);
@@ -436,13 +388,13 @@ export default function ElectioPage() {
   const createAndShareRoom = () => {
     if (isConnecting) return;
     const code = generateSecureRoomCode();
-    setupSupabaseRoom(code, true);
+    setupRoom(code, true);
   };
 
   const leaveRoom = () => {
-    if (supabaseChannelRef.current) {
-      supabase?.removeChannel(supabaseChannelRef.current);
-      supabaseChannelRef.current = null;
+    if (roomSocketRef.current) {
+      roomSocketRef.current.close();
+      roomSocketRef.current = null;
     }
     setIsConnected(false);
     setIsConnecting(false);
@@ -564,12 +516,8 @@ export default function ElectioPage() {
     const winnerIndex = options.findIndex((o) => o.id === selectedWinner.id);
 
     if (isConnected) {
-      if (supabaseChannelRef.current) {
-        supabaseChannelRef.current.send({
-          type: 'broadcast',
-          event: 'SPIN_EVENT',
-          payload: { selectedWinner, winnerIndex, weightedOptions },
-        });
+      if (roomSocketRef.current) {
+        roomSocketRef.current.send('SPIN_EVENT', { selectedWinner, winnerIndex, weightedOptions });
       }
       // Also execute locally for the person who clicked Spin
       executeSpinAnimation(selectedWinner, winnerIndex, weightedOptions);

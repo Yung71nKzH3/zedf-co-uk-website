@@ -8,8 +8,7 @@ import React, {
   useSyncExternalStore,
 } from 'react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
-import { RealtimeChannel } from '@supabase/supabase-js';
+import { connectRoom, RoomSocket } from '@/lib/realtime';
 import {
   ArrowLeft,
   Plus,
@@ -367,7 +366,7 @@ export default function ClarityPage() {
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
-  const supabaseChannelRef = useRef<RealtimeChannel | null>(null);
+  const roomSocketRef = useRef<RoomSocket | null>(null);
   const myPeerIdRef = useRef<string>('');
   const lastCursorBroadcastRef = useRef<number>(0);
   const spacePressedRef = useRef<boolean>(false);
@@ -546,18 +545,14 @@ export default function ClarityPage() {
       // Ignore storage errors
     }
   }, [userName, userColor, isMounted]);
-  // Broadcast board state over Supabase Realtime channel
+  // Broadcast board state over Cloudflare Realtime channel
   const broadcastBoardState = useCallback(
     (nextNodes: ClarityNode[], nextEdges: ClarityEdge[], nextTitle?: string) => {
-      if (!roomCodeRef.current || !supabaseChannelRef.current || !isConnectedRef.current) return;
-      supabaseChannelRef.current.send({
-        type: 'broadcast',
-        event: 'BOARD_STATE_SYNC',
-        payload: {
-          nodes: nextNodes,
-          edges: nextEdges,
-          boardTitle: nextTitle ?? boardTitle,
-        },
+      if (!roomCodeRef.current || !roomSocketRef.current || !isConnectedRef.current) return;
+      roomSocketRef.current.send('BOARD_STATE_SYNC', {
+        nodes: nextNodes,
+        edges: nextEdges,
+        boardTitle: nextTitle ?? boardTitle,
       });
     },
     [boardTitle]
@@ -604,100 +599,25 @@ export default function ClarityPage() {
       return prev.slice(1);
     });
   }, [broadcastBoardState]);
-  // Supabase Realtime Room Connection
-  const setupSupabaseRoom = useCallback(
+  // Cloudflare Realtime Room Connection
+  const setupRoom = useCallback(
     (code: string, isHost: boolean) => {
       const trimmed = code.trim();
       if (!isValidRoomCode(trimmed)) {
         alert('Invalid room code. Please use a valid Clarity room invite link or UUID.');
         return;
       }
-      if (!supabase) {
-        alert(
-          'Supabase Realtime is not configured in this environment. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to enable online rooms.'
-        );
-        return;
-      }
       setIsConnecting(true);
-      if (supabaseChannelRef.current) {
-        supabase.removeChannel(supabaseChannelRef.current);
-        supabaseChannelRef.current = null;
+      if (roomSocketRef.current) {
+        roomSocketRef.current.close();
+        roomSocketRef.current = null;
       }
-      const presenceKey = myPeerIdRef.current || generateId('peer');
-      const channel = supabase.channel(`clarity-room-${trimmed}`, {
-        config: {
-          broadcast: { ack: false, self: false },
-          presence: { key: presenceKey },
-        },
-      });
-      supabaseChannelRef.current = channel;
-      channel
-        .on('broadcast', { event: 'BOARD_STATE_SYNC' }, ({ payload }) => {
-          if (supabaseChannelRef.current !== channel || !payload) return;
-          const validNodes = validateNodesPayload(payload.nodes);
-          const validEdges = validateEdgesPayload(payload.edges);
-          if (validNodes && validEdges) {
-            setNodes(validNodes);
-            setEdges(validEdges);
-            if (typeof payload.boardTitle === 'string' && payload.boardTitle.length <= 100) {
-              setBoardTitle(payload.boardTitle);
-            }
-          }
-        })
-        .on('broadcast', { event: 'CURSOR_MOVE' }, ({ payload }) => {
-          if (supabaseChannelRef.current !== channel || !payload) return;
-          if (
-            typeof payload.peerId === 'string' &&
-            typeof payload.x === 'number' &&
-            Number.isFinite(payload.x) &&
-            typeof payload.y === 'number' &&
-            Number.isFinite(payload.y)
-          ) {
-            const safeColor = VALID_COLORS.includes(payload.color)
-              ? COLOR_THEMES[payload.color as NodeColor].hex
-              : '#06b6d4';
-            const safeName =
-              typeof payload.name === 'string'
-                ? payload.name.slice(0, 32)
-                : 'Collaborator';
-            setRemoteCursors((prev) => ({
-              ...prev,
-              [payload.peerId]: {
-                peerId: payload.peerId,
-                name: safeName,
-                color: safeColor,
-                x: payload.x,
-                y: payload.y,
-                lastSeen: Date.now(),
-              },
-            }));
-          }
-        })
-        .on('broadcast', { event: 'REQUEST_BOARD_SYNC' }, () => {
-          if (supabaseChannelRef.current !== channel) return;
-          channel.send({
-            type: 'broadcast',
-            event: 'BOARD_STATE_SYNC',
-            payload: {
-              nodes: nodesRef.current,
-              edges: edgesRef.current,
-              boardTitle,
-            },
-          });
-        })
-        .on('presence', { event: 'sync' }, () => {
-          if (supabaseChannelRef.current !== channel) return;
-          const state = channel.presenceState();
-          const count = Object.keys(state).length;
-          setPeerCount(Math.max(1, count));
-        })
-        .subscribe((status) => {
-          if (supabaseChannelRef.current !== channel) return;
-          if (status === 'SUBSCRIBED') {
-            channel.track({
-              online_at: new Date().toISOString(),
-              name: userNameRef.current,
-            });
+      
+      const socket = connectRoom({
+        roomCode: trimmed,
+        onStatus: (status) => {
+          if (roomSocketRef.current !== socket) return;
+          if (status === 'CONNECTED') {
             setRoomCode(trimmed);
             setIsConnected(true);
             setIsConnecting(false);
@@ -707,27 +627,73 @@ export default function ClarityPage() {
               window.history.replaceState(window.history.state, '', url.toString());
             }
             if (!isHost) {
-              channel.send({
-                type: 'broadcast',
-                event: 'REQUEST_BOARD_SYNC',
-                payload: {},
-              });
+              socket.send('REQUEST_BOARD_SYNC', {});
             } else {
-              channel.send({
-                type: 'broadcast',
-                event: 'BOARD_STATE_SYNC',
-                payload: {
-                  nodes: nodesRef.current,
-                  edges: edgesRef.current,
-                  boardTitle,
-                },
+              socket.send('BOARD_STATE_SYNC', {
+                nodes: nodesRef.current,
+                edges: edgesRef.current,
+                boardTitle,
               });
             }
-          } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          } else if (status === 'DISCONNECTED') {
             setIsConnected(false);
             setIsConnecting(false);
           }
-        });
+        },
+        onPresence: (count) => {
+          if (roomSocketRef.current !== socket) return;
+          setPeerCount(Math.max(1, count));
+        },
+        onEvent: (event, payload) => {
+          if (roomSocketRef.current !== socket || !payload) return;
+          if (event === 'BOARD_STATE_SYNC') {
+            const validNodes = validateNodesPayload(payload.nodes);
+            const validEdges = validateEdgesPayload(payload.edges);
+            if (validNodes && validEdges) {
+              setNodes(validNodes);
+              setEdges(validEdges);
+              if (typeof payload.boardTitle === 'string' && payload.boardTitle.length <= 100) {
+                setBoardTitle(payload.boardTitle);
+              }
+            }
+          } else if (event === 'CURSOR_MOVE') {
+            if (
+              typeof payload.peerId === 'string' &&
+              typeof payload.x === 'number' &&
+              Number.isFinite(payload.x) &&
+              typeof payload.y === 'number' &&
+              Number.isFinite(payload.y)
+            ) {
+              const safeColor = VALID_COLORS.includes(payload.color)
+                ? COLOR_THEMES[payload.color as NodeColor].hex
+                : '#06b6d4';
+              const safeName =
+                typeof payload.name === 'string'
+                  ? payload.name.slice(0, 32)
+                  : 'Collaborator';
+              setRemoteCursors((prev) => ({
+                ...prev,
+                [payload.peerId]: {
+                  peerId: payload.peerId,
+                  name: safeName,
+                  color: safeColor,
+                  x: payload.x,
+                  y: payload.y,
+                  lastSeen: Date.now(),
+                },
+              }));
+            }
+          } else if (event === 'REQUEST_BOARD_SYNC') {
+            socket.send('BOARD_STATE_SYNC', {
+              nodes: nodesRef.current,
+              edges: edgesRef.current,
+              boardTitle,
+            });
+          }
+        },
+      });
+
+      roomSocketRef.current = socket;
     },
     [boardTitle]
   );
@@ -738,23 +704,23 @@ export default function ClarityPage() {
     const roomParam = params.get('room');
     if (roomParam && isValidRoomCode(roomParam)) {
       const timer = setTimeout(() => {
-        setupSupabaseRoom(roomParam, false);
+        setupRoom(roomParam, false);
       }, 0);
       return () => {
         clearTimeout(timer);
-        if (supabaseChannelRef.current && supabase) {
-          supabase.removeChannel(supabaseChannelRef.current);
-          supabaseChannelRef.current = null;
+        if (roomSocketRef.current) {
+          roomSocketRef.current.close();
+          roomSocketRef.current = null;
         }
       };
     }
     return () => {
-      if (supabaseChannelRef.current && supabase) {
-        supabase.removeChannel(supabaseChannelRef.current);
-        supabaseChannelRef.current = null;
+      if (roomSocketRef.current) {
+        roomSocketRef.current.close();
+        roomSocketRef.current = null;
       }
     };
-  }, [setupSupabaseRoom]);
+  }, [setupRoom]);
   // Prune stale remote cursors older than 12s
   useEffect(() => {
     if (!isConnected) return;
@@ -776,12 +742,12 @@ export default function ClarityPage() {
       return;
     }
     const newCode = window.crypto.randomUUID();
-    setupSupabaseRoom(newCode, true);
+    setupRoom(newCode, true);
   };
   const handleLeaveRoom = () => {
-    if (supabaseChannelRef.current && supabase) {
-      supabase.removeChannel(supabaseChannelRef.current);
-      supabaseChannelRef.current = null;
+    if (roomSocketRef.current) {
+      roomSocketRef.current.close();
+      roomSocketRef.current = null;
     }
     setIsConnected(false);
     setRoomCode('');
@@ -1092,20 +1058,16 @@ export default function ClarityPage() {
   const handleCanvasPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const worldPos = screenToCanvas(e.clientX, e.clientY);
     // Broadcast live cursor position to collaborators (throttled to ~45ms)
-    if (isConnectedRef.current && supabaseChannelRef.current) {
+    if (isConnectedRef.current && roomSocketRef.current) {
       const now = Date.now();
       if (now - lastCursorBroadcastRef.current > 45) {
         lastCursorBroadcastRef.current = now;
-        supabaseChannelRef.current.send({
-          type: 'broadcast',
-          event: 'CURSOR_MOVE',
-          payload: {
-            peerId: myPeerIdRef.current,
-            name: userNameRef.current,
-            color: userColorRef.current,
-            x: Math.round(worldPos.x),
-            y: Math.round(worldPos.y),
-          },
+        roomSocketRef.current.send('CURSOR_MOVE', {
+          peerId: myPeerIdRef.current,
+          name: userNameRef.current,
+          color: userColorRef.current,
+          x: Math.round(worldPos.x),
+          y: Math.round(worldPos.y),
         });
       }
     }
@@ -2844,7 +2806,7 @@ export default function ClarityPage() {
                 />
                 <button
                   type="button"
-                  onClick={() => setupSupabaseRoom(joinCodeInput, false)}
+                  onClick={() => setupRoom(joinCodeInput, false)}
                   disabled={!joinCodeInput.trim() || isConnecting}
                   className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-xs font-bold text-cyan-300 transition-colors"
                 >
