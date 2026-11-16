@@ -3,6 +3,10 @@ export { RoomDurableObject } from "./room-do";
 
 const worker = {
   async fetch(request: Request, env: any, ctx: any): Promise<Response> {
+    if (typeof globalThis !== "undefined") {
+      (globalThis as any).env = env;
+    }
+
     const url = new URL(request.url);
     if (url.pathname === "/api/room") {
       const upgradeHeader = request.headers.get("Upgrade") || request.headers.get("upgrade");
