@@ -73,6 +73,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
       <body className="font-sans antialiased bg-[#0c1422] text-slate-100" suppressHydrationWarning>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2.5 focus:bg-cyan-400 focus:text-slate-950 focus:font-mono focus:font-bold focus:text-sm focus:rounded-lg focus:shadow-[0_0_20px_rgba(6,182,212,0.8)] focus:outline-none focus:ring-2 focus:ring-white"
+        >
+          Skip to main content
+        </a>
         <ServiceWorkerRegister />
         {children}
       </body>

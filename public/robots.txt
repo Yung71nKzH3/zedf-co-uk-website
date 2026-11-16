@@ -1,0 +1,8 @@
+# Search engine directives for zedf.co.uk
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+
+# Sitemaps
+Sitemap: https://www.zedf.co.uk/sitemap.xml

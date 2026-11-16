@@ -8,12 +8,13 @@ import {
   Gamepad2, Image as ImageIcon, Gamepad, Gift, Video, Clipboard, Calculator, 
   ShoppingCart, MapPin, Youtube, Music, BarChart, Film, Mountain, Github, 
   Instagram, MessageCircle, Tv, MessageSquare, Keyboard, Laptop, Code, Rocket, Dices,
-  Network, Compass, Database
+  Network, Compass, Database, FolderTree
 } from 'lucide-react';
 import Link from 'next/link';
 import { SPONSORS } from './data/sponsors';
 
 const STUFF_LINKS = [
+  { href: '/directory', icon: FolderTree, title: 'Directory', desc: 'Minimalist Tree' },
   { href: '/characteristica', icon: Compass, title: 'Philosophy Quiz', desc: '45-Coordinate Engine' },
   { href: '/clarity', icon: Network, title: 'Clarity', desc: 'Node & Debate Canvas' },
   { href: '/gaben', icon: Tv, title: 'Gaben.tv', desc: 'Praise Lord GabeN' },
@@ -128,7 +129,7 @@ export default function Home() {
       <ParticleCanvas />
 
       {/* Main Hero Screen - Full Viewport Height */}
-      <div className="relative z-20 flex flex-col items-center justify-start md:justify-center min-h-screen pt-[300px] md:pt-0">
+      <main id="main-content" className="relative z-20 flex flex-col items-center justify-start md:justify-center min-h-screen pt-[300px] md:pt-0">
         
         {/* Title Bio */}
         <div className="absolute top-[250px] md:top-[calc(50%-200px)] left-1/2 -translate-x-1/2 w-[90%] md:w-[650px] text-center z-50">
@@ -243,7 +244,7 @@ export default function Home() {
           />
         </div>
 
-      </div>
+      </main>
 
       {/* Desktop Floating Sidebars (>= 1024px width) */}
       {isWideDesktop && (
@@ -330,9 +331,25 @@ export default function Home() {
         </div>
 
         {/* Footer Tag */}
-        <p className="text-[11px] font-mono text-slate-500 tracking-wider mt-16">
-          zedf.co.uk • w1ll0w
-        </p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-xs font-mono text-slate-400 tracking-wider mt-16">
+          <a
+            href="mailto:contact@zedf.co.uk"
+            className="text-cyan-400 hover:text-cyan-300 transition-colors underline decoration-cyan-500/30 underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded px-1"
+            title="Email w1ll0w at contact@zedf.co.uk"
+          >
+            contact@zedf.co.uk
+          </a>
+          <span className="text-slate-600 hidden sm:inline" aria-hidden="true">•</span>
+          <span className="text-slate-300 font-medium">w1ll0w</span>
+          <span className="text-slate-600 hidden sm:inline" aria-hidden="true">•</span>
+          <Link
+            href="/directory"
+            className="text-slate-400 hover:text-cyan-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded px-1"
+            title="Accessible Simplified Site Directory"
+          >
+            site directory
+          </Link>
+        </div>
 
       </footer>
 
