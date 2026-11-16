@@ -36,3 +36,6 @@ yarn-error.log*
 /public/gaben/*.webm
 /public/gaben/*.mov
 
+/dist/
+.vinext/
+.cloudflare/
