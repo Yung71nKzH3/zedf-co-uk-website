@@ -1,7 +1,7 @@
 import vinextHandler from "vinext/server/fetch-handler";
 export { RoomDurableObject } from "./room-do";
 
-export default {
+const worker = {
   async fetch(request: Request, env: any, ctx: any): Promise<Response> {
     const url = new URL(request.url);
     if (url.pathname === "/api/room") {
@@ -17,3 +17,5 @@ export default {
     return (vinextHandler as any).fetch(request, env, ctx);
   },
 };
+
+export default worker;

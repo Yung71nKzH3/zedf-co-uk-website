@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig([
     {
-        ignores: ["public/**", ".next/**", "out/**"],
+        ignores: ["public/**", ".next/**", "out/**", ".cloudflare/**"],
     },
     {
         extends: [...next],

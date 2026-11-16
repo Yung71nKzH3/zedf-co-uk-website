@@ -32,7 +32,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json().catch(() => ({}));
+    const body = ((await request.json().catch(() => ({}))) || {}) as any;
     const { addSeconds = 0, sacrificeWallet = false } = body;
 
     // Safety clamps against abuse

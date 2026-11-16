@@ -122,8 +122,8 @@ export default function Calc67Page() {
       try {
         const res = await fetch(`/api/calc67/daily?date=${todayKey}`);
         if (res.ok) {
-          const data = await res.json();
-          if (data?.startingNumber) {
+          const data = (await res.json()) as any;
+          if (typeof data?.startingNumber === 'number') {
             startingNum = data.startingNumber;
           }
         }
@@ -150,8 +150,8 @@ export default function Calc67Page() {
     try {
       const res = await fetch(`/api/calc67/leaderboard?date=${todayKey}`);
       if (res.ok) {
-        const json = await res.json();
-        if (Array.isArray(json.leaderboard) && json.leaderboard.length > 0) {
+        const json = (await res.json()) as any;
+        if (Array.isArray(json?.leaderboard) && json.leaderboard.length > 0) {
           setLeaderboard(json.leaderboard);
           return;
         }
@@ -160,8 +160,21 @@ export default function Calc67Page() {
   }, [todayKey]);
 
   useEffect(() => {
-    if (showLeaderboardModal) fetchLeaderboard();
-  }, [showLeaderboardModal, fetchLeaderboard]);
+    let ignore = false;
+    if (showLeaderboardModal) {
+      fetch(`/api/calc67/leaderboard?date=${todayKey}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((json: any) => {
+          if (!ignore && Array.isArray(json?.leaderboard)) {
+            setLeaderboard(json.leaderboard);
+          }
+        })
+        .catch(() => {});
+    }
+    return () => {
+      ignore = true;
+    };
+  }, [showLeaderboardModal, todayKey]);
 
   // Game Logic
   const handleInput = (val: string) => {

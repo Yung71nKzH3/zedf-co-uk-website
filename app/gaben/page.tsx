@@ -358,7 +358,7 @@ export default function GabenPage() {
       try {
         const res = await fetch('/api/gaben/stats');
         if (res.ok) {
-          const data = await res.json();
+          const data = (await res.json()) as any;
           if (isSubscribed) {
             if (typeof data.totalSeconds === 'number') {
               setGlobalSeconds(prev => Math.max(prev, data.totalSeconds));
@@ -437,7 +437,7 @@ export default function GabenPage() {
         body: JSON.stringify({ addSeconds: delta }),
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = (await res.json()) as any;
         if (typeof data.totalSeconds === 'number') {
           setGlobalSeconds(prev => Math.max(prev, data.totalSeconds));
         }
@@ -556,7 +556,7 @@ export default function GabenPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sacrificeWallet: true }),
     })
-      .then(r => r.json())
+      .then(r => r.json() as Promise<any>)
       .then(data => {
         if (typeof data?.walletsSacrificed === 'number') {
           setWalletsSacrificed(data.walletsSacrificed);
