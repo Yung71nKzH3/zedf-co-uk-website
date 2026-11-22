@@ -321,6 +321,26 @@ export default function WoodyTinnyPage() {
         <p className="text-center text-sm text-[#645c53] min-h-[1.4em] m-0" aria-live="polite">
           {statusMsg}
         </p>
+
+        <details className="bg-[#fffdf9] border border-[#dfd6c7] rounded-xl px-4 py-3 text-sm text-[#645c53]">
+          <summary className="cursor-pointer font-semibold text-[#1e1b18]">
+            About the Monty Python &ldquo;Woody and Tinny Words&rdquo; Sketch &amp; Ruleset
+          </summary>
+          <div className="mt-2.5 space-y-2 leading-relaxed">
+            <p>
+              In the classic Monty Python sketch, words are sorted into warm, resonant <strong>Woody</strong> words
+              (like <em>Gorn</em>, <em>Sausage</em>, <em>Vole</em>, <em>Caribou</em>, and <em>Erogenous Zone</em>)
+              versus sharp, metallic <strong>Tinny</strong> words (like <em>Newspaper</em>, <em>Litterbin</em>,
+              <em>PVC</em>, <em>Tit</em>, and <em>Simpkins</em>), with a few sitting on the fence (<em>Antelope</em>,
+              <em>Recidivist</em>).
+            </p>
+            <p>
+              Our phonetic algorithm scores all 370,105 English dictionary words by vowel roundness/height and
+              consonant voicing, then puts the 66,921 borderline words up for live community voting so human
+              judgment settles the definitive list.
+            </p>
+          </div>
+        </details>
       </main>
 
       <footer className="text-center px-4 pb-10 pt-4 text-sm text-[#645c53]">
