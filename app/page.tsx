@@ -15,14 +15,9 @@ import { SPONSORS } from './data/sponsors';
 
 const STUFF_LINKS = [
   { href: '/directory', icon: FolderTree, title: 'Directory', desc: 'Minimalist Tree' },
-  { href: '/characteristica', icon: Compass, title: 'Philosophy Quiz', desc: '45-Coordinate Engine' },
   { href: '/clarity', icon: Network, title: 'Clarity', desc: 'Node & Debate Canvas' },
-  { href: '/gaben', icon: Tv, title: 'Gaben.tv', desc: 'Praise Lord GabeN' },
   { href: '/electio', icon: Dices, title: 'Electio', desc: 'Decision Roulette' },
   { href: '/play', icon: Gamepad2, title: 'Arcade', desc: 'Mini Game Suite' },
-  { href: '/showcase', icon: Gamepad2, title: 'Wallpaper Showcase', desc: 'Interactive Gallery' },
-  { href: '/uni', icon: GraduationCap, title: 'Uni Dash', desc: 'Helpful Shortcuts' },
-  { href: '/quotes', icon: Quote, title: 'Fav Quotes', desc: 'Just the Hits' },
   { href: 'https://youtube.com/playlist?list=PLmDAk0SfywoVrnnN4JBR4tLcjPqfDA5N4&si=TBfZ-AnuuMInpFTM', icon: Calendar, title: 'College CS Project', desc: 'Timetable Scheduler', external: true },
   { href: 'https://docs.google.com/document/d/1hdCehlL4bRm4cgJa2KhzUSMKTOEiEcjmxxgih3togmM/edit?usp=sharing', icon: Brain, title: 'EPQ', desc: 'AI, Humans best friend?', external: true },
   { href: 'https://steamcommunity.com/groups/0fukkes', icon: Gamepad2, title: 'Steam Group', desc: 'Faze Up', external: true },
