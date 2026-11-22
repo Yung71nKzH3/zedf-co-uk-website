@@ -1,4 +1,4 @@
-Contact: mailto:v.leonardo2006@gmail.com
+Contact: mailto:contact@zedf.co.uk
 Expires: 2027-11-22T01:32:00.000Z
 Preferred-Languages: en
 Canonical: https://www.zedf.co.uk/.well-known/security.txt
