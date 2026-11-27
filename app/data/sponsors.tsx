@@ -205,6 +205,10 @@ export const SPONSORS: SponsorItem[] = [
       <img
         src="/brands/fifine.png"
         alt="Fifine"
+        width={90}
+        height={28}
+        loading="lazy"
+        decoding="async"
         className="h-7 w-auto max-w-[90px] object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-opacity"
       />
     )
@@ -240,6 +244,10 @@ export const SPONSORS: SponsorItem[] = [
       <img
         src="/brands/oneodio.png"
         alt="OneOdio"
+        width={95}
+        height={28}
+        loading="lazy"
+        decoding="async"
         className="h-7 w-auto max-w-[95px] object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-opacity"
       />
     )
@@ -252,6 +260,10 @@ export const SPONSORS: SponsorItem[] = [
       <img
         src="/brands/perixx.png"
         alt="Perixx"
+        width={90}
+        height={28}
+        loading="lazy"
+        decoding="async"
         className="h-7 w-auto max-w-[90px] object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-opacity"
       />
     )

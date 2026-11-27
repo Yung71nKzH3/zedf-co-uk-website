@@ -227,16 +227,24 @@ export default function Home() {
 
         {/* Torn Banner - Instantly visible on the initial screen without scrolling! */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 flex justify-center items-center px-4 w-auto pointer-events-auto">
-          <motion.img 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            onClick={() => window.open('https://www.torn.com/4197113')} 
-            style={{ cursor: 'pointer' }} 
-            src="https://banners.torn.com/static_728x90_torncity.jpg?v=1528808940574" 
-            alt="Torn City"
-            className="max-w-[90vw] md:max-w-[728px] h-auto rounded-xl shadow-2xl border border-white/5 hover:border-cyan-500/30 transition-all active:scale-95"
+          <a
+            href="https://www.torn.com/4197113"
+            target="_blank"
+            rel="noopener noreferrer"
             title="Join me in Torn City!"
-          />
+            className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+          >
+            <motion.img
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              src="https://banners.torn.com/static_728x90_torncity.jpg?v=1528808940574"
+              alt="Join me in Torn City"
+              width={728}
+              height={90}
+              fetchPriority="high"
+              className="max-w-[90vw] md:max-w-[728px] h-auto rounded-xl shadow-2xl border border-white/5 hover:border-cyan-500/30 transition-all active:scale-95"
+            />
+          </a>
         </div>
 
       </main>

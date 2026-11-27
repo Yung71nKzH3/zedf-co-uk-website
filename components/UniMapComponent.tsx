@@ -20,7 +20,15 @@ export default function UniMapComponent({
   const mapInstanceRef = useRef<import('leaflet').Map | null>(null);
   const markersRef = useRef<Record<string, import('leaflet').Marker>>({});
   const onSelectRef = useRef(onSelectBuilding);
-  onSelectRef.current = onSelectBuilding;
+  const selectedBuildingRef = useRef(selectedBuilding);
+
+  useEffect(() => {
+    onSelectRef.current = onSelectBuilding;
+  }, [onSelectBuilding]);
+
+  useEffect(() => {
+    selectedBuildingRef.current = selectedBuilding;
+  }, [selectedBuilding]);
 
   // Initialize and clean up Leaflet map when toggling interactive mode
   useEffect(() => {
@@ -32,9 +40,10 @@ export default function UniMapComponent({
     import('leaflet').then((L) => {
       if (!isMounted || !mapContainerRef.current) return;
 
+      const initialBuilding = selectedBuildingRef.current;
       const map = L.map(mapContainerRef.current, {
-        center: selectedBuilding
-          ? [selectedBuilding.lat, selectedBuilding.lng]
+        center: initialBuilding
+          ? [initialBuilding.lat, initialBuilding.lng]
           : [50.7958, -1.0955],
         zoom: 16,
         zoomControl: true,
