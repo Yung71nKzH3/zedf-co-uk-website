@@ -74,19 +74,19 @@ export default function UniMapPage() {
               Portsmouth Uni Campus Map
             </h1>
             <p className="text-slate-400 text-xs sm:text-sm mt-1 break-words">
-              Interactive building locator, department search, and one-click Google Maps navigation.
+              Interactive building locator, department search, and one-click Google Maps navigation — synced with official UoP coordinates.
             </p>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
             <a
-              href="https://myport.port.ac.uk/welcome/maps-and-directions"
+              href="https://www.port.ac.uk/about-us/contact-us/maps-and-directions"
               target="_blank"
               rel="noopener noreferrer"
               className="px-3.5 py-2 rounded-xl bg-[#172033] hover:bg-[#1e2b45] text-cyan-400 hover:text-cyan-300 border border-cyan-500/20 text-xs font-bold transition-all flex items-center gap-2 shadow-md hover:border-cyan-400"
             >
               <ExternalLink className="w-3.5 h-3.5 shrink-0" />
-              Official UoP Maps & Directions
+              Official UoP Maps &amp; Directions
             </a>
           </div>
         </header>

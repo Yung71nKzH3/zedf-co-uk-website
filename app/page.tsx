@@ -306,8 +306,8 @@ export default function Home() {
               href={sponsor.url}
               target="_blank"
               rel="noopener noreferrer"
-              title={`${sponsor.name} — Unofficial Official Sponsor`}
-              className="group flex flex-col items-center gap-2.5 transition-all duration-300 hover:-translate-y-2 focus:outline-none"
+              title={sponsor.name === 'Google' ? 'Google (Dino Game) — Unofficial Official Sponsor' : `${sponsor.name} — Unofficial Official Sponsor`}
+              className="group flex flex-col items-center gap-2.5 transition-all duration-300 hover:-translate-y-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded-lg p-1"
             >
               <div 
                 className="transition-all duration-300 transform group-hover:scale-115 flex items-center justify-center"
