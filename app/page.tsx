@@ -3,57 +3,18 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import ParticleCanvas from './components/ParticleCanvas';
-import { 
-  PackageOpen, UserCircle, GraduationCap, Quote, Calendar, Brain, 
-  Gamepad2, Image as ImageIcon, Gamepad, Gift, Video, Clipboard, Calculator, 
-  ShoppingCart, MapPin, Youtube, Music, BarChart, Film, Mountain, Github, 
-  Instagram, MessageCircle, Tv, MessageSquare, Keyboard, Laptop, Code, Rocket, Dices,
-  Network, Compass, Database, FolderTree
-} from 'lucide-react';
+import { PackageOpen, UserCircle, Compass, Layers } from 'lucide-react';
 import Link from 'next/link';
 import { SPONSORS } from './data/sponsors';
+import { SITE_TREE, type SiteSubfolder } from '@/lib/site-tree';
+import ZuiCanvas from '@/components/ZuiCanvas';
 
-const STUFF_LINKS = [
-  { href: '/directory', icon: FolderTree, title: 'Directory', desc: 'Minimalist Tree' },
-  { href: '/clarity', icon: Network, title: 'Clarity', desc: 'Node & Debate Canvas' },
-  { href: '/electio', icon: Dices, title: 'Electio', desc: 'Decision Roulette' },
-  { href: '/play', icon: Gamepad2, title: 'Arcade', desc: 'Mini Game Suite' },
-  { href: 'https://youtube.com/playlist?list=PLmDAk0SfywoVrnnN4JBR4tLcjPqfDA5N4&si=TBfZ-AnuuMInpFTM', icon: Calendar, title: 'College CS Project', desc: 'Timetable Scheduler', external: true },
-  { href: 'https://docs.google.com/document/d/1hdCehlL4bRm4cgJa2KhzUSMKTOEiEcjmxxgih3togmM/edit?usp=sharing', icon: Brain, title: 'EPQ', desc: 'AI, Humans best friend?', external: true },
-  { href: 'https://steamcommunity.com/groups/0fukkes', icon: Gamepad2, title: 'Steam Group', desc: 'Faze Up', external: true },
-  { href: 'https://steamcommunity.com/sharedfiles/filedetails/?id=3323426346', icon: ImageIcon, title: 'Steam Artwork', desc: 'Like and Sub', external: true },
-  { href: 'https://mynickname.com/gamingamer', icon: Gamepad, title: 'w1ll0w', desc: 'Peep it', external: true },
-  { href: 'https://youtu.be/ItC8GV4BJuw', icon: Gift, title: 'Christmas Album', desc: 'Ho Ho Ho', external: true },
-  { href: 'https://steamcommunity.com/broadcast/watch/76561198151099217/', icon: Video, title: 'Steam Stream', desc: 'wassup', external: true },
-  { href: '/wote', icon: Clipboard, title: 'Wote', desc: 'take note' },
-  { href: '/urlbase', icon: Database, title: 'UrlBase', desc: 'In-URL Database' },
-  { href: '/calc67', icon: Calculator, title: 'Calc67', desc: 'daily' },
-  { href: '/project-space', icon: Rocket, title: 'Personal Space', desc: 'The Nebula' },
-  { href: 'https://themes.vivaldi.net/users/W1ll0w', icon: ImageIcon, title: 'Vivaldi Themes', desc: 'Lotta Style', external: true },
-];
-
-const SOCIAL_LINKS = [
-  { href: 'https://www.amazon.co.uk/gp/profile/amzn1.account.AFZV5OZGH35QG65NFVT623ERKCJA/ref=cm_cr_dp_d_gw_tr?ie=UTF8', icon: ShoppingCart, title: 'Amazon', desc: 'bought&thought', external: true },
-  { href: 'https://www.google.com/maps/contrib/109714089787548110234/reviews', icon: MapPin, title: 'Maps', desc: 'reviews', external: true },
-  { href: 'https://www.youtube.com/@w1ll0w62', icon: Youtube, title: 'YouTube', desc: 'bits&bobs', external: true },
-  { href: 'https://open.spotify.com/user/vleonardo2006', icon: Music, title: 'Spotify', desc: 'connoisseur', external: true },
-  { href: 'https://stats.fm/wi110w', icon: BarChart, title: 'Stats.fm', desc: 'OG', external: true },
-  { href: 'https://letterboxd.com/w1ll0ww/', icon: Film, title: 'Letterboxd', desc: 'fanatic', external: true },
-  { href: 'https://www.alltrails.com/en-gb/members/w1ll0w-user?ref=header', icon: Mountain, title: 'AllTrails', desc: 'checkit', external: true },
-  { href: 'https://github.com/Yung71nKzH3', icon: Github, title: 'GitHub', desc: 'damn SSH', external: true },
-  { href: 'https://www.instagram.com/w1ll0_w/', icon: Instagram, title: 'Instagram', desc: 'reposts fire', external: true },
-  { href: 'https://www.threads.net/@w1ll0_w', icon: MessageCircle, title: 'Threads', desc: 'don\' look', external: true },
-  { href: 'https://steamcommunity.com/id/zfw1ll0w/', icon: Gamepad2, title: 'Steam', desc: 'goated', external: true },
-  { href: 'https://anilist.co/user/w1ll0wW/', icon: Tv, title: 'AniList', desc: 'Violet bro', external: true },
-  { href: 'https://social.vivaldi.net/@W1ll0w', icon: MessageSquare, title: 'Vivaldi Social', desc: 'wut is ts?', external: true },
-  { href: 'https://www.keybr.com/profile/b57ds5l', icon: Keyboard, title: 'Keybr', desc: 'type', external: true },
-  { href: 'https://monkeytype.com/profile/w1LL0w', icon: Laptop, title: 'MonkeyType', desc: 'yurr', external: true },
-  { href: 'https://leetcode.com/u/yung71nkzh3/', icon: Code, title: 'LeetCode', desc: 'grind', external: true },
-  { href: 'https://atkjink.github.io/', icon: Github, title: 'Atkjink', desc: 'bruther', external: true },
-];
+const STUFF_SUBFOLDERS = SITE_TREE.find((w) => w.id === 'stuff')?.subfolders ?? [];
+const SOCIAL_SUBFOLDERS = SITE_TREE.find((w) => w.id === 'socials')?.subfolders ?? [];
 
 export default function Home() {
   const [activePanel, setActivePanel] = useState<'stuff' | 'links' | null>(null);
+  const [isZuiMode, setIsZuiMode] = useState(false);
   const [screenWidth, setScreenWidth] = useState(1280);
 
   useEffect(() => {
@@ -84,26 +45,47 @@ export default function Home() {
     setActivePanel(prev => prev === panel ? null : panel);
   };
 
-  const renderLinks = (links: typeof STUFF_LINKS) => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {links.map((link, idx) => {
-        const Icon = link.icon;
-        const content = (
-          <div className="bg-[#0c1422] rounded-xl shadow-[inset_0_2px_4px_rgba(0,0,0,0.5),inset_0_0_10px_rgba(0,0,0,0.3)] p-4 flex flex-col items-center justify-center text-center min-h-[120px] transition-all duration-200 hover:scale-105 hover:bg-[#172033] hover:shadow-[0_4px_10px_rgba(0,0,0,0.4),0_0_15px_#06b6d4]">
-            <Icon className="w-10 h-10 text-cyan-400 mb-2" />
-            <h3 className="text-slate-100 font-bold">{link.title}</h3>
-            <p className="text-slate-400 text-xs mt-1">{link.desc}</p>
-          </div>
-        );
+  const renderSubfolders = (subfolders: SiteSubfolder[]) => (
+    <div className="space-y-6">
+      {subfolders.map((folder) => {
+        const FolderIcon = folder.icon;
+        return (
+          <section key={folder.id} className="space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-700/70 pb-1.5">
+              <div className="flex items-center gap-2">
+                <FolderIcon className="w-4 h-4" style={{ color: folder.accent }} />
+                <h2 className="text-xs font-mono uppercase tracking-wider text-slate-200 font-bold">
+                  {folder.title}
+                </h2>
+              </div>
+              <span className="text-[11px] font-mono text-slate-500">
+                {folder.items.length}
+              </span>
+            </div>
 
-        return link.external ? (
-          <a key={idx} href={link.href} target="_blank" rel="noopener noreferrer" className="block focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded-xl">
-            {content}
-          </a>
-        ) : (
-          <Link key={idx} href={link.href} className="block focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded-xl">
-            {content}
-          </Link>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {folder.items.map((link) => {
+                const Icon = link.icon;
+                const content = (
+                  <div className="bg-[#0c1422] rounded-xl shadow-[inset_0_2px_4px_rgba(0,0,0,0.5),inset_0_0_10px_rgba(0,0,0,0.3)] p-3.5 flex flex-col items-center justify-center text-center min-h-[112px] transition-all duration-200 hover:scale-105 hover:bg-[#172033] hover:shadow-[0_4px_10px_rgba(0,0,0,0.4),0_0_15px_#06b6d4]">
+                    <Icon className="w-8 h-8 text-cyan-400 mb-2" />
+                    <h3 className="text-slate-100 font-bold text-sm">{link.title}</h3>
+                    <p className="text-slate-400 text-xs mt-1 line-clamp-2">{link.desc}</p>
+                  </div>
+                );
+
+                return link.external ? (
+                  <a key={link.id} href={link.href} target="_blank" rel="noopener noreferrer" className="block focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded-xl">
+                    {content}
+                  </a>
+                ) : (
+                  <Link key={link.id} href={link.href} className="block focus:outline-none focus:ring-2 focus:ring-cyan-400 rounded-xl">
+                    {content}
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
         );
       })}
     </div>
@@ -122,6 +104,29 @@ export default function Home() {
       />
       
       <ParticleCanvas />
+
+      {/* Top-Right Subtle ZUI Mode Toggle (Off by default) */}
+      <button
+        type="button"
+        onClick={() => {
+          setIsZuiMode((prev) => {
+            if (!prev) setActivePanel(null);
+            return !prev;
+          });
+        }}
+        aria-pressed={isZuiMode}
+        title={isZuiMode ? 'Switch back to Classic Binary View' : 'Enter Spatial ZUI Mode'}
+        className={`fixed top-4 right-4 z-[60] inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-mono transition-all cursor-pointer backdrop-blur-md ${
+          isZuiMode
+            ? 'bg-cyan-500 text-slate-950 border-cyan-300 font-bold shadow-[0_0_20px_rgba(6,182,212,0.5)]'
+            : 'bg-[#111b2e]/70 text-slate-400 border-slate-700/70 hover:text-cyan-300 hover:border-cyan-500/50'
+        }`}
+      >
+        {isZuiMode ? <Layers className="w-3.5 h-3.5" /> : <Compass className="w-3.5 h-3.5" />}
+        <span>{isZuiMode ? 'Classic' : 'ZUI'}</span>
+      </button>
+
+      {isZuiMode && <ZuiCanvas />}
 
       {/* Main Hero Screen - Full Viewport Height */}
       <main id="main-content" className="relative z-20 flex flex-col items-center justify-start md:justify-center min-h-screen pt-[300px] md:pt-0">
@@ -218,7 +223,7 @@ export default function Home() {
                       Close
                     </button>
                   </div>
-                  {activePanel === 'stuff' ? renderLinks(STUFF_LINKS) : renderLinks(SOCIAL_LINKS)}
+                  {activePanel === 'stuff' ? renderSubfolders(STUFF_SUBFOLDERS) : renderSubfolders(SOCIAL_SUBFOLDERS)}
                 </motion.div>
               </motion.div>
             )}
@@ -268,7 +273,7 @@ export default function Home() {
             <h1 className="text-3xl font-extrabold text-cyan-400 mb-8 text-center tracking-tight">
               Stuff (Projects & Tools)
             </h1>
-            {renderLinks(STUFF_LINKS)}
+            {renderSubfolders(STUFF_SUBFOLDERS)}
           </motion.div>
 
           {/* Links Sidebar */}
@@ -287,7 +292,7 @@ export default function Home() {
             <h1 className="text-3xl font-extrabold text-cyan-400 mb-8 text-center tracking-tight">
               Links & Contact
             </h1>
-            {renderLinks(SOCIAL_LINKS)}
+            {renderSubfolders(SOCIAL_SUBFOLDERS)}
           </motion.div>
         </>
       )}
